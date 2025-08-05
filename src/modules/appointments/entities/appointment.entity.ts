@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
-import { PsychologistProfile } from 'src/psychologist/entities/psychologist-profile.entity';
+import { Psychologist } from 'src/modules/psychologist/entities/psychologist.entity';
 
 export enum AppointmentStatus {
   PENDING = 'PENDING',
@@ -29,8 +29,8 @@ export class Appointment {
   @ManyToOne(() => User)
   user: User;
 
-  @ManyToOne(() => PsychologistProfile)
-  psychologist: PsychologistProfile;
+  @ManyToOne(() => Psychologist)
+  psychologist: Psychologist;
 
   @Column({ type: 'date' })
   date: string;
