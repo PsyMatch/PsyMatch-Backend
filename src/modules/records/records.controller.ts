@@ -3,11 +3,11 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   HttpCode,
   HttpStatus,
+  Put,
 } from '@nestjs/common';
 import { RecordsService } from './records.service';
 import { CreateRecordDto } from './dto/create-record.dto';
@@ -42,7 +42,7 @@ export class RecordsController {
     return this.recordsService.findByPsychologistId(psychologistId);
   }
 
-  @Patch(':id')
+  @Put(':id')
   update(@Param('id') id: string, @Body() updateRecordDto: UpdateRecordDto) {
     return this.recordsService.update(id, updateRecordDto);
   }

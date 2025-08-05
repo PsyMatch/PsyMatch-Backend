@@ -1,6 +1,5 @@
 import {
   IsEmail,
-  IsEnum,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -9,9 +8,8 @@ import {
   Length,
   Validate,
 } from 'class-validator';
-import { ERole } from '../../users/enums/role.enum';
-import { MatchPassword } from '../helpers/matchPassword';
-import { Psychologist } from 'src/modules/psychologist/entities/psychologist.entity';
+import { Psychologist } from '../../psychologist/entities/psychologist.entity';
+import { MatchPasswordHelper } from 'src/modules/utils/helpers/matchPassword.helper';
 
 export class SignUpDto {
   @IsNotEmpty()
@@ -42,12 +40,8 @@ export class SignUpDto {
   })
   password: string;
 
-  @Validate(MatchPassword, ['password'])
+  @Validate(MatchPasswordHelper, ['password'])
   confirmPassword: string;
-
-  @IsNotEmpty()
-  @IsEnum(ERole)
-  role: ERole;
 
   @IsOptional()
   @IsString()

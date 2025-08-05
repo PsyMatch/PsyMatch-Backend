@@ -9,7 +9,7 @@ export class PsychologistService {
   }
 
   findAll() {
-    return `This action returns all psychologist`;
+    return 'This action returns all psychologist';
   }
 
   findOne(id: number) {

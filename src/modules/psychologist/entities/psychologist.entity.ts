@@ -1,7 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { PsychologistSpecialty } from '../enums/specialities.enum';
-import { Reviews } from 'src/modules/reviews/entities/reviews.entity';
-import { User } from 'src/modules/users/entities/user.entity';
+import { Reviews } from '../../reviews/entities/reviews.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Entity('psychologist')
 export class Psychologist {

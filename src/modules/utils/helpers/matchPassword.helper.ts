@@ -5,7 +5,7 @@ import {
 } from 'class-validator';
 
 @ValidatorConstraint({ name: 'MatchPassword', async: false })
-export class MatchPassword implements ValidatorConstraintInterface {
+export class MatchPasswordHelper implements ValidatorConstraintInterface {
   validate(password: string, args: ValidationArguments) {
     const object = args.object as Record<string, unknown>;
     const propertyToMatch = args.constraints[0] as string;

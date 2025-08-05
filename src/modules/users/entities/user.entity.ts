@@ -8,7 +8,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { ERole } from '../enums/role.enum';
-import { Psychologist } from 'src/modules/psychologist/entities/psychologist.entity';
+import { Psychologist } from '../../psychologist/entities/psychologist.entity';
 
 @Entity('users')
 export class User {
@@ -33,7 +33,12 @@ export class User {
   @Column({ type: 'text', nullable: false })
   password: string;
 
-  @Column({ type: 'enum', enum: ERole, nullable: false })
+  @Column({
+    type: 'enum',
+    enum: ERole,
+    nullable: false,
+    default: ERole.PATIENT,
+  })
   role: ERole;
 
   @ManyToOne(() => Psychologist, { nullable: true })

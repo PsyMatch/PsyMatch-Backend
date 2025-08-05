@@ -5,7 +5,7 @@ import {
   ManyToOne,
   CreateDateColumn,
 } from 'typeorm';
-import { Appointment } from 'src/modules/appointments/entities/appointment.entity';
+import { Appointment } from '../../appointments/entities/appointment.entity';
 
 export enum PayMethod {
   CREDIT_CARD = 'CREDIT_CARD',

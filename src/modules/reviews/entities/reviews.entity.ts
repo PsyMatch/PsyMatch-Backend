@@ -1,5 +1,4 @@
-import { Psychologist } from 'src/modules/psychologist/entities/psychologist.entity';
-import { User } from 'src/modules/users/entities/user.entity';
+import { Psychologist } from '../../psychologist/entities/psychologist.entity';
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 
 @Entity('reviews')
