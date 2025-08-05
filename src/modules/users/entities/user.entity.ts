@@ -38,7 +38,7 @@ export class User {
 
   @ManyToOne(() => Psychologist, { nullable: true })
   @JoinColumn({ name: 'professionals' })
-  professionals: Psychologist;
+  professionals: Psychologist[];
 
   @Column({ type: 'boolean', default: true })
   is_active: boolean;

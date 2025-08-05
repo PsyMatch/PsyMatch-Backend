@@ -7,8 +7,9 @@ import {
 @ValidatorConstraint({ name: 'MatchPassword', async: false })
 export class MatchPassword implements ValidatorConstraintInterface {
   validate(password: string, args: ValidationArguments) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    if (password !== (args.object as any)[args.constraints[0]]) return false;
+    const object = args.object as Record<string, unknown>;
+    const propertyToMatch = args.constraints[0] as string;
+    if (password !== object[propertyToMatch]) return false;
     return true;
   }
 

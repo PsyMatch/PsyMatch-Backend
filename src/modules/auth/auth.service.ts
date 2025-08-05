@@ -3,7 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
-import { CreateUserDto } from './dto/create-auth.dto';
+import { SignInDto } from './dto/signin.dto';
+import { SignUpDto } from './dto/signup.dto';
 import bcrypt from 'bcryptjs';
 
 @Injectable()
@@ -14,9 +15,8 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async signUpService(createAuthDto: CreateUserDto) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { confirmPassword, ...userData } = createAuthDto;
+  async signUpService(userData: SignUpDto) {
+    const { confirmPassword: _, ...rest } = userData;
 
     const existingUser = await this.userRepository.findOne({
       where: { email: userData.email },
@@ -29,7 +29,7 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(userData.password, 10);
 
     const newUser = this.userRepository.create({
-      ...userData,
+      ...rest,
       password: hashedPassword,
     });
 
@@ -41,7 +41,7 @@ export class AuthService {
     };
   }
 
-  signInService(signInAuthDto: SignInAuthDto) {
+  async signInService(signInAuthDto: SignInDto) {
     const user: User | null = await this.userRepository.findOne({
       where: { email: signInAuthDto.email },
     });

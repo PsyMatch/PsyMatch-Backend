@@ -10,9 +10,10 @@ import {
   Validate,
 } from 'class-validator';
 import { ERole } from '../../users/enums/role.enum';
-import { MatchPassword } from '../helpers/matchpassword';
+import { MatchPassword } from '../helpers/matchPassword';
+import { Psychologist } from 'src/modules/psychologist/entities/psychologist.entity';
 
-export class CreateUserDto {
+export class SignUpDto {
   @IsNotEmpty()
   @IsString()
   name: string;
@@ -50,7 +51,7 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsString()
-  professionals?: string;
+  professionals?: Psychologist[];
 
   @IsOptional()
   @IsBoolean()
