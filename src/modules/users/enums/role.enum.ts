@@ -1,0 +1,5 @@
+export enum ERole {
+  PATIENT = 'PATIENT',
+  PSYCHOLOGIST = 'PSYCHOLOGIST',
+  ADMIN = 'ADMIN',
+}
