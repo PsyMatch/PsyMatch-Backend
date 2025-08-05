@@ -49,5 +49,27 @@ export class AuthService {
     if (!user) {
       throw new BadRequestException('Invalid email or password');
     }
+
+    const isPasswordValid = await bcrypt.compare(
+      signInAuthDto.password,
+      user.password,
+    );
+
+    if (!isPasswordValid) {
+      throw new BadRequestException('Invalid email or password');
+    }
+
+    const payload = {
+      sub: user.user_id,
+      email: user.email,
+      role: user.role,
+    };
+
+    const token = this.jwtService.sign(payload);
+
+    return {
+      message: 'User successfully logged in',
+      token,
+    };
   }
 }
