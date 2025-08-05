@@ -1,16 +1,17 @@
 import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
   IsOptional,
   IsString,
   IsBoolean,
-  IsEmail,
-  IsEnum,
 } from 'class-validator';
-import { ERole } from '../enums/role.enum';
+import { ERole } from '../../users/enums/role.enum';
 
-export class UpdateUserDto {
-  @IsOptional()
+export class CreateUserDto {
+  @IsNotEmpty()
   @IsString()
-  name?: string;
+  name: string;
 
   @IsOptional()
   @IsString()
@@ -23,13 +24,17 @@ export class UpdateUserDto {
   @IsString()
   address?: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsEmail()
-  email?: string;
+  email: string;
 
-  @IsOptional()
+  @IsNotEmpty()
+  @IsString()
+  password: string;
+
+  @IsNotEmpty()
   @IsEnum(ERole)
-  role?: ERole;
+  role: ERole;
 
   @IsOptional()
   @IsString()
@@ -38,7 +43,4 @@ export class UpdateUserDto {
   @IsOptional()
   @IsBoolean()
   is_active?: boolean;
-
-  @IsOptional()
-  last_login?: Date;
 }
