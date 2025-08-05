@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { SignUpAuthDto } from './dto/create-auth.dto';
-import { SignInAuthDto } from './dto/update-auth.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
+import { CreateUserDto } from './dto/create-auth.dto';
+import bcrypt from 'bcryptjs';
 
 @Injectable()
 export class AuthService {
@@ -14,7 +14,8 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async signUpService(createAuthDto: SignUpAuthDto) {
+  async signUpService(createAuthDto: CreateUserDto) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { confirmPassword, ...userData } = createAuthDto;
 
     const existingUser = await this.userRepository.findOne({

@@ -16,9 +16,6 @@ export class Reviews {
   @Column({ type: 'date', nullable: false })
   review_date: Date;
 
-  @ManyToOne(() => User, (user) => user.reviews)
-  user: User;
-
   @ManyToOne(() => Psychologist, (psychologist) => psychologist.reviews)
   psychologist: Psychologist;
 }
