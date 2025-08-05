@@ -1,5 +1,13 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { ERole } from '../enums/role.enum';
+import { Psychologist } from 'src/modules/psychologist/entities/psychologist.entity';
+import { Reviews } from 'src/modules/reviews/entities/reviews.entity';
 
 @Entity('users')
 export class User {
@@ -27,7 +35,7 @@ export class User {
   @Column({ type: 'enum' })
   role: ERole;
 
-  @ManyToOne(() => Psychologist, (psychologist) => psychologist)
+  @ManyToOne(() => Psychologist, (psychologist) => psychologist.users)
   professionals: Psychologist;
 
   @Column({ type: 'boolean', default: true })
@@ -41,4 +49,7 @@ export class User {
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updated_at: Date;
+
+  @OneToMany(() => Reviews, (reviews) => reviews.user)
+  reviews: Reviews[];
 }

@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { PsychologistSpecialty } from '../enums/specialities.enum';
 import { Reviews } from 'src/modules/reviews/entities/reviews.entity';
+import { User } from 'src/modules/users/entities/user.entity';
 
 @Entity('psychologist')
 export class Psychologist {
@@ -22,6 +23,6 @@ export class Psychologist {
   @OneToMany(() => Reviews, (reviews) => reviews.psychologist)
   reviews: Reviews[];
 
-  @OneToMany(() => User, (user) => user.psychologist)
+  @OneToMany(() => User, (user) => user.professionals)
   users: User[];
 }
