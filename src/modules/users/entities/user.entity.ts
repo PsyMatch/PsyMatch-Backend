@@ -13,7 +13,7 @@ import { Psychologist } from '../../psychologist/entities/psychologist.entity';
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
-  user_id: string;
+  id: string;
 
   @Column({ type: 'text', nullable: false })
   name: string;

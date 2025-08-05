@@ -1,52 +1,114 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { QueryHelper } from '../utils/helpers/query.helper';
+import { ERole } from './enums/role.enum';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    private readonly usersRepository: Repository<User>,
+    private readonly queryHelper: QueryHelper,
   ) {}
 
-  async findAll(): Promise<User[]> {
-    return await this.userRepository.find({
+  async findAll(page: number, limit: number): Promise<User[]> {
+    const [users, total] = await this.usersRepository.findAndCount({
       where: { is_active: true },
+      skip: (page - 1) * limit,
+      take: limit,
+      relations: ['professionals'],
     });
+
+    if (!total) throw new NotFoundException('There are currently no users');
+
+    const totalPages = Math.ceil(total / limit);
+
+    if (page > totalPages && total > 0) {
+      throw new BadRequestException(
+        `The requested page (${page}) exceeds the maximum (${totalPages})`,
+      );
+    }
+
+    return users;
   }
 
-  async findOne(id: string): Promise<User> {
-    const user = await this.userRepository.findOne({
-      where: { user_id: id, is_active: true },
+  async findById(id: string): Promise<User> {
+    const user = await this.usersRepository.findOne({
+      where: { id, is_active: true },
+      relations: ['professionals'],
     });
 
     if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
+      throw new NotFoundException(`User with UUID ${id} not found`);
     }
 
     return user;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
-    const user = await this.findOne(id);
+  async update(
+    id: string,
+    userData: UpdateUserDto,
+    userIdFromToken: string,
+    userRole: ERole,
+  ): Promise<string> {
+    return this.queryHelper.runInTransaction(async (queryRunner) => {
+      const userRepo = queryRunner.manager.getRepository(User);
 
-    Object.assign(user, updateUserDto);
+      const user = await userRepo.findOneBy({ id, is_active: true });
+      if (!user) {
+        throw new NotFoundException(`User with UUID ${id} not found`);
+      }
 
-    return await this.userRepository.save(user);
+      if (userRole === ERole.PATIENT && userIdFromToken !== id) {
+        throw new UnauthorizedException('You cannot update another user');
+      }
+
+      if (userRole !== ERole.ADMIN && 'role' in userData) {
+        throw new UnauthorizedException('You cannot change your admin status');
+      }
+
+      const { professionals: _professionals, ...restUserData } = userData;
+
+      const updatedUser = userRepo.create({
+        ...user,
+        ...restUserData,
+      });
+
+      await userRepo.save(updatedUser);
+
+      return updatedUser.id;
+    });
   }
 
-  async remove(id: string): Promise<void> {
-    const user = await this.findOne(id);
+  async delete(
+    id: string,
+    userIdFromToken: string,
+    userRole: ERole,
+  ): Promise<string> {
+    return this.queryHelper.runInTransaction(async (queryRunner) => {
+      const userRepo = queryRunner.manager.getRepository(User);
 
-    user.is_active = false;
-    await this.userRepository.save(user);
-  }
+      const user = await userRepo.findOneBy({ id, is_active: true });
+      if (!user) {
+        throw new NotFoundException(`User with ID ${id} not found`);
+      }
 
-  async findByEmail(email: string): Promise<User | null> {
-    return await this.userRepository.findOne({
-      where: { email, is_active: true },
+      if (userRole === ERole.PATIENT && userIdFromToken !== id) {
+        throw new UnauthorizedException('You cannot delete another user');
+      }
+
+      user.is_active = false;
+      await userRepo.save(user);
+
+      return user.id;
     });
   }
 }

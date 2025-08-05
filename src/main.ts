@@ -1,8 +1,9 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { envs } from './configs/envs.config';
 import { ValidationPipe } from '@nestjs/common';
 import { setupSwagger } from './configs/swagger.config';
+import { TransformResponseInterceptor } from './common/interceptors/transform-response.interceptor';
 
 async function bootstrap() {
   try {
@@ -15,6 +16,9 @@ async function bootstrap() {
         transform: true,
       }),
     );
+
+    const reflector = app.get(Reflector);
+    app.useGlobalInterceptors(new TransformResponseInterceptor(reflector));
 
     setupSwagger(app);
 

@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../users/entities/user.entity';
 import { Repository } from 'typeorm';
@@ -6,7 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import { SignInDto } from './dto/signin.dto';
 import { SignUpDto } from './dto/signup.dto';
 import bcrypt from 'bcryptjs';
-import { QueryTransactionHelper } from 'src/modules/utils/helpers/queryTransaction.helper';
+import { QueryHelper } from '../utils/helpers/query.helper';
 
 @Injectable()
 export class AuthService {
@@ -14,57 +18,75 @@ export class AuthService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
-    private readonly queryTransaction: QueryTransactionHelper,
+    private readonly queryHelper: QueryHelper,
   ) {}
 
-  async signUpService(userData: SignUpDto) {
-    return this.queryTransaction.runInTransaction(async () => {
-      const { confirmPassword: _, ...rest } = userData;
+  async signUpService(userData: SignUpDto): Promise<User> {
+    return this.queryHelper.runInTransaction(async (queryRunner) => {
+      const userRepo = queryRunner.manager.getRepository(User);
+      const { email, phone } = userData;
 
-      const existingUser = await this.userRepository.findOne({
-        where: { email: userData.email },
+      const existingUser = await userRepo.findOne({
+        where: [{ email }, { phone }],
       });
 
       if (existingUser) {
-        throw new BadRequestException('User already exists with this email');
+        throw new ConflictException(
+          'User with this email or phone number already exists',
+        );
       }
+
+      if (userData.password !== userData.confirmPassword)
+        throw new BadRequestException('Password confirmation does not match');
 
       const hashedPassword = await bcrypt.hash(userData.password, 10);
 
-      const newUser = this.userRepository.create({
-        ...rest,
+      const newUser = userRepo.create({
+        ...userData,
         password: hashedPassword,
       });
 
-      await this.userRepository.save(newUser);
+      const savedUser = await userRepo.save(newUser);
 
-      return {
-        message: 'User successfully registered',
-        data: newUser,
-      };
+      // Cargar el usuario con sus relaciones para el ResponseDto
+      const userWithRelations = await userRepo.findOne({
+        where: { id: savedUser.id },
+        relations: ['professionals'],
+      });
+
+      if (!userWithRelations) {
+        throw new BadRequestException('Error creating user');
+      }
+
+      return userWithRelations;
     });
   }
 
-  async signInService(signInAuthDto: SignInDto) {
-    const user: User | null = await this.userRepository.findOne({
-      where: { email: signInAuthDto.email },
+  async signInService(
+    userData: SignInDto,
+  ): Promise<{ message: string; data: User; token: string }> {
+    const { email, password } = userData;
+
+    const user = await this.userRepository.findOne({
+      where: { email },
+      relations: ['professionals'],
     });
 
     if (!user) {
       throw new BadRequestException('Invalid email or password');
     }
 
-    const isPasswordValid = await bcrypt.compare(
-      signInAuthDto.password,
-      user.password,
-    );
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
       throw new BadRequestException('Invalid email or password');
     }
 
+    user.last_login = new Date();
+    await this.userRepository.save(user);
+
     const payload = {
-      sub: user.user_id,
+      id: user.id,
       email: user.email,
       role: user.role,
     };
@@ -73,6 +95,7 @@ export class AuthService {
 
     return {
       message: 'User successfully logged in',
+      data: user,
       token,
     };
   }

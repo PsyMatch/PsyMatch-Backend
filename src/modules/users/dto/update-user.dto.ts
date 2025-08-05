@@ -4,12 +4,19 @@ import {
   IsBoolean,
   IsEmail,
   IsEnum,
+  IsNumber,
+  Length,
+  MinLength,
 } from 'class-validator';
 import { ERole } from '../enums/role.enum';
+import { Psychologist } from 'src/modules/psychologist/entities/psychologist.entity';
 
 export class UpdateUserDto {
   @IsOptional()
-  @IsString()
+  @IsString({ message: 'Name must be a string.' })
+  @Length(3, 80, {
+    message: 'Name must be between 3 and 80 characters.',
+  })
   name?: string;
 
   @IsOptional()
@@ -17,28 +24,34 @@ export class UpdateUserDto {
   profile_picture?: string;
 
   @IsOptional()
+  @IsNumber({}, { message: 'Phone must be a number.' })
   phone?: number;
 
   @IsOptional()
-  @IsString()
+  @IsString({ message: 'Address must be a string.' })
+  @Length(3, 80, {
+    message: 'Address must be between 3 and 80 characters.',
+  })
   address?: string;
 
   @IsOptional()
-  @IsEmail()
+  @IsEmail({}, { message: 'Email must be valid.' })
   email?: string;
+
+  @IsOptional()
+  @IsString({ message: 'Password must be a string.' })
+  @MinLength(8, { message: 'Password must be at least 8 characters long.' })
+  password?: string;
 
   @IsOptional()
   @IsEnum(ERole)
   role?: ERole;
 
   @IsOptional()
-  @IsString()
-  professionals?: string;
+  @IsString({ message: 'Professionals ID must be a string.' })
+  professionals?: Psychologist[];
 
   @IsOptional()
-  @IsBoolean()
+  @IsBoolean({ message: 'The value must be true or false.' })
   is_active?: boolean;
-
-  @IsOptional()
-  last_login?: Date;
 }

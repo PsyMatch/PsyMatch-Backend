@@ -2,7 +2,7 @@ import { DataSource, QueryRunner } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class QueryTransactionHelper {
+export class QueryHelper {
   constructor(private readonly dataSource: DataSource) {}
 
   async runInTransaction<T>(

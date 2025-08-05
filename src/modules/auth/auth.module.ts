@@ -5,7 +5,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../users/entities/user.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { QueryTransactionHelper } from '../utils/helpers/queryTransaction.helper';
 
 @Module({
   imports: [
@@ -15,12 +14,12 @@ import { QueryTransactionHelper } from '../utils/helpers/queryTransaction.helper
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'),
+        secret: configService.get('JWT_SECRET'),
         signOptions: { expiresIn: '1d' },
       }),
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, QueryTransactionHelper],
+  providers: [AuthService],
 })
 export class AuthModule {}

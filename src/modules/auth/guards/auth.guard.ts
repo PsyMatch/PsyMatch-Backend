@@ -1,47 +1,76 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { Observable } from 'rxjs';
+import { JwtService, TokenExpiredError } from '@nestjs/jwt';
+import { IAuthRequest } from '../interfaces/auth-request.interface';
+import { IJwtPayload } from '../interfaces/jwt-payload.interface';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+  ) {}
+  canActivate(
+    context: ExecutionContext,
+  ): boolean | Promise<boolean> | Observable<boolean> {
+    const request = context.switchToHttp().getRequest<IAuthRequest>();
+    const authHeader = request.headers.authorization;
 
-  canActivate(context: ExecutionContext): boolean | Promise<boolean> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const request = context.switchToHttp().getRequest();
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-    const authHeader = request.headers['authorization'];
-
-    if (!authHeader || typeof authHeader !== 'string') return false;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new UnauthorizedException('Missing or invalid token');
+    }
 
     const token = authHeader.split(' ')[1];
 
-    if (!token) return false;
-
     try {
-      const secret = process.env.JWT_SECRET;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const payload = this.jwtService.verify(token, { secret });
+      const secret = this.configService.get<string>('JWT_SECRET');
+      const payload = this.jwtService.verify<IJwtPayload>(token, { secret });
+      payload.iat = new Date().toLocaleString('en-AR', {
+        timeZone: 'America/Argentina/Buenos_Aires',
+        weekday: 'long',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      });
+      payload.exp = new Date().toLocaleString('en-AR', {
+        timeZone: 'America/Argentina/Buenos_Aires',
+        weekday: 'long',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      });
+      request.user = payload;
+      request.tokenExpiresAt = payload.exp;
 
-      const user = {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        id: payload.sub,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        email: payload.email,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        roles: payload.roles,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        iat: new Date(payload.iat * 1000),
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        exp: new Date(payload.exp * 1000),
-      };
-
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      request.user = user;
       return true;
     } catch (error) {
-      console.error('JWT verification failed:', error);
-      return false;
+      if (error instanceof TokenExpiredError) {
+        throw new UnauthorizedException(
+          `The token expired on: ${error.expiredAt.toLocaleString('en-AR', {
+            timeZone: 'America/Argentina/Buenos_Aires',
+            weekday: 'long',
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+          })}`,
+        );
+      }
+      throw new UnauthorizedException('Invalid Token');
     }
   }
 }
