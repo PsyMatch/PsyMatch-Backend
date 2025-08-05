@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { PsychologistSpecialty } from '../enums/specialities.enum';
+import { Reviews } from 'src/modules/reviews/entities/reviews.entity';
 
 @Entity('psychologist')
 export class Psychologist {
@@ -17,4 +18,10 @@ export class Psychologist {
 
   @Column({ type: 'enum', enum: PsychologistSpecialty, nullable: false })
   specialities: PsychologistSpecialty[];
+
+  @OneToMany(() => Reviews, (reviews) => reviews.psychologist)
+  reviews: Reviews[];
+
+  @OneToMany(() => User, (user) => user.psychologist)
+  users: User[];
 }
