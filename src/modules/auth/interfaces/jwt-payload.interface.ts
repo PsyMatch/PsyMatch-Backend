@@ -1,4 +1,4 @@
-import { ERole } from 'src/modules/users/enums/role.enum';
+import { ERole } from '../../users/enums/role.enum';
 
 export interface IJwtPayload {
   id: string;

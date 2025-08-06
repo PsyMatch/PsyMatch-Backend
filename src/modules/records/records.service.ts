@@ -106,4 +106,8 @@ export class RecordsService {
       order: { created_at: 'DESC' },
     });
   }
+
+  helloWorld(): string {
+    return 'Hello World from RecordsService!';
+  }
 }

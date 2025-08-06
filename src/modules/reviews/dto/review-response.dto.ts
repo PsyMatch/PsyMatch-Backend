@@ -1,4 +1,4 @@
-import { Psychologist } from 'src/modules/psychologist/entities/psychologist.entity';
+import { Psychologist } from '../../psychologist/entities/psychologist.entity';
 
 export class reviewResponseDto {
   message: string;

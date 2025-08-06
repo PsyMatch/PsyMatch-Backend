@@ -8,7 +8,7 @@ import {
   Validate,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { MatchPasswordHelper } from 'src/modules/utils/helpers/matchPassword.helper';
+import { MatchPasswordHelper } from '../../utils/helpers/matchPassword.helper';
 
 export class SignUpDto {
   @ApiProperty({

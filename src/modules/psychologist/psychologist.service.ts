@@ -46,7 +46,7 @@ export class PsychologistService {
     return `This action returns a #${id} psychologist`;
   }
 
-  update(id: number, updatePsychologistDto: UpdatePsychologistDto) {
+  update(id: number, _updatePsychologistDto: UpdatePsychologistDto) {
     return `This action updates a #${id} psychologist`;
   }
 

@@ -1,14 +1,14 @@
 {
-  "name": "psymatch",
+  "name": "psymatch-backend",
   "version": "0.0.1",
   "description": "",
   "author": "",
   "private": true,
   "license": "UNLICENSED",
- "scripts": {
+  "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "fix-imports": "npx ts-node src/scripts/fix-imports.script.ts",
+    "fix-imports": "npx ts-node src/modules/utils/scripts/fix-imports.script.ts",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
@@ -34,6 +34,7 @@
     "bcryptjs": "^3.0.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
+    "cloudinary": "^2.7.0",
     "express-openid-connect": "^2.18.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"

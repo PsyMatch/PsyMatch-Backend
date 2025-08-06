@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Psychologist } from '../../psychologist/entities/psychologist.entity';
-import { User } from 'src/modules/users/entities/user.entity';
+import { User } from '../../users/entities/user.entity';
 
 export enum AppointmentStatus {
   PENDING = 'PENDING',

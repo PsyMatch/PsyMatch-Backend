@@ -29,7 +29,7 @@ export class AuthService {
       const existingUser = await userRepo.findOne({
         where: [{ email }, { phone }],
       });
-
+      // TEST
       if (existingUser) {
         throw new ConflictException(
           'User with this email or phone number already exists',

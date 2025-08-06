@@ -8,6 +8,7 @@ import { PaymentsModule } from './modules/payments/payments.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { AppointmentsModule } from './modules/appointments/appointments.module';
 import { UtilsModule } from './modules/utils/utils.module';
+import { FilesModule } from './modules/files/files.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { UtilsModule } from './modules/utils/utils.module';
     UtilsModule,
     AuthModule,
     UsersModule,
+    FilesModule,
     ReviewsModule,
     RecordsModule,
     PsychologistModule,
