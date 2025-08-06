@@ -6,6 +6,7 @@ import { UpdateRecordDto } from './dto/update-record.dto';
 import { Record } from './entities/record.entity';
 import { User } from '../users/entities/user.entity';
 import { Psychologist } from '../psychologist/entities/psychologist.entity';
+import { RecordResponseDto } from './dto/record-response.dto';
 
 @Injectable()
 export class RecordsService {
@@ -20,7 +21,7 @@ export class RecordsService {
     private readonly psychologistRepository: Repository<Psychologist>,
   ) {}
 
-  async create(dto: CreateRecordDto): Promise<Record> {
+  async create(dto: CreateRecordDto): Promise<RecordResponseDto> {
     const user = await this.userRepository.findOne({
       where: { id: dto.user_id },
     });
@@ -36,14 +37,19 @@ export class RecordsService {
       );
 
     const record = this.recordRepository.create(dto);
-    return await this.recordRepository.save(record);
+    await this.recordRepository.save(record);
+    return { message: 'Record created successfully', record };
   }
 
   async findAll(): Promise<Record[]> {
-    return await this.recordRepository.find({
+    const allRecords = await this.recordRepository.find({
       relations: ['user', 'psychologist'],
       order: { created_at: 'DESC' },
     });
+
+    if (!allRecords) throw new NotFoundException('No records found');
+
+    return allRecords;
   }
 
   async findOne(id: string): Promise<Record> {
