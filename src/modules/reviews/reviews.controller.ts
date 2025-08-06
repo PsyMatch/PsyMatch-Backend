@@ -13,8 +13,14 @@ import { CreateReviewDto } from './dto/create-review.dto';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { ERole } from '../users/enums/role.enum';
 import { Roles } from '../auth/decorators/role.decorator';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { reviewResponseDto } from './dto/review-response.dto';
+import { Reviews } from './entities/reviews.entity';
 
 @ApiTags('Reviews')
 @Controller('reviews')
@@ -28,7 +34,14 @@ export class ReviewsController {
   @ApiOperation({
     summary: 'Create a new review (logged-in users only)',
   })
-  createNewReviewController(@Body() createReviewData: CreateReviewDto) {
+  @ApiResponse({
+    status: 201,
+    description: 'Review created successfully',
+    type: Reviews,
+  })
+  createNewReviewController(
+    @Body() createReviewData: CreateReviewDto,
+  ): Promise<{ message: string; review: Reviews }> {
     return this.reviewsService.createNewReviewService(createReviewData);
   }
 
@@ -38,6 +51,11 @@ export class ReviewsController {
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Get reviews by psychologist ID',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Reviews found for the psychologist',
+    type: reviewResponseDto,
   })
   findOneByPsychologistIdController(
     @Param('id') id: string,
@@ -52,7 +70,13 @@ export class ReviewsController {
   @ApiOperation({
     summary: 'Delete a review by ID (Admin only)',
   })
-  removeReviewByIdController(@Param('id') id: string) {
+  @ApiResponse({
+    status: 200,
+    description: 'Review removed successfully',
+  })
+  removeReviewByIdController(
+    @Param('id') id: string,
+  ): Promise<{ message: string }> {
     return this.reviewsService.removeReviewByIdService(id);
   }
 }

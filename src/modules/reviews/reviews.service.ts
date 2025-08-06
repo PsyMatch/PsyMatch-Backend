@@ -15,7 +15,9 @@ export class ReviewsService {
     private readonly psychologistRepository: Repository<Psychologist>,
   ) {}
 
-  async createNewReviewService(createReviewData: CreateReviewDto) {
+  async createNewReviewService(
+    createReviewData: CreateReviewDto,
+  ): Promise<{ message: string; review: Reviews }> {
     const foundReview = await this.reviewsRepository.findOne({
       where: { comment: createReviewData.comment },
     });
@@ -44,7 +46,7 @@ export class ReviewsService {
     return { message: 'Reviews found', reviews: psychologistReviews };
   }
 
-  async removeReviewByIdService(id: string) {
+  async removeReviewByIdService(id: string): Promise<{ message: string }> {
     await this.reviewsRepository.delete(id);
     return { message: 'Review removed successfully' };
   }
