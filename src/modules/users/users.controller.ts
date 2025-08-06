@@ -35,7 +35,7 @@ export class UsersController {
   @Get()
   @ResponseType(ResponseUserDto)
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(ERole.ADMIN)
+  @Roles([ERole.ADMIN])
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Get all users (Admin Only)',
