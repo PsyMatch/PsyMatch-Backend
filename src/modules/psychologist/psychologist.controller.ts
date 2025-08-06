@@ -6,18 +6,28 @@ import {
   Param,
   Delete,
   Put,
+  Req,
 } from '@nestjs/common';
 import { PsychologistService } from './psychologist.service';
-import { CreatePsychologistDto } from './dto/create-psychologist.dto';
+import { ValidatePsychologistDto } from './dto/validate-psychologist.dto';
 import { UpdatePsychologistDto } from './dto/update-psychologist.dto';
+import { IAuthRequest } from '../auth/interfaces/auth-request.interface';
 
 @Controller('psychologist')
 export class PsychologistController {
   constructor(private readonly psychologistService: PsychologistService) {}
 
   @Post()
-  create(@Body() createPsychologistDto: CreatePsychologistDto) {
-    return this.psychologistService.create(createPsychologistDto);
+  validateNewPsychologistAccountController(
+    @Req() req: IAuthRequest,
+    @Body() createPsychologistDto: ValidatePsychologistDto,
+  ): Promise<{ message: string }> {
+    return this.psychologistService.validateNewPsychologistAccountService({
+      createPsychologistDto,
+      req: {
+        user: { id: req.user.id },
+      },
+    });
   }
 
   @Get()

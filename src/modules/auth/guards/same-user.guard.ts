@@ -6,8 +6,8 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { IAuthRequest } from '../interfaces/auth-request.interface';
-import { ERole } from '../../users/enums/role.enum';
 import { validate as isUuid } from 'uuid';
+import { ERole } from '../../users/enums/role.enum';
 
 @Injectable()
 export class SameUserOrAdminGuard implements CanActivate {
@@ -20,13 +20,11 @@ export class SameUserOrAdminGuard implements CanActivate {
       throw new ForbiddenException('User not authenticated');
     }
 
-    if (user.role === ERole.ADMIN) return true;
-
     if (!isUuid(paramId)) {
       throw new BadRequestException('Validation failed (uuid is expected)');
     }
 
-    if (user.id !== paramId) {
+    if (user.id !== paramId || user.role !== ERole.ADMIN) {
       throw new ForbiddenException(
         'You are not allowed to access or modify this resource',
       );

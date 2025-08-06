@@ -16,9 +16,15 @@ const typeorm = {
   password: process.env.DB_PASSWORD ?? 'postgres',
 };
 
+const cloudinary = {
+  cloudName: process.env.CLOUDINARY_CLOUD_NAME ?? 'demo',
+  apiKey: process.env.CLOUDINARY_API_KEY ?? '1234567890',
+  apiSecret: process.env.CLOUDINARY_API_SECRET ?? 'secret',
+};
+
 const jwt = process.env.JWT_SECRET ?? 'default_jwt_secret';
 
-const config = { node, server, typeorm, jwt };
+const config = { node, server, typeorm, cloudinary, jwt };
 
 export const envs = config;
 

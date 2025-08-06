@@ -9,7 +9,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { ERole } from '../enums/role.enum';
-import { Psychologist } from 'src/modules/psychologist/entities/psychologist.entity';
+import { Psychologist } from '../../psychologist/entities/psychologist.entity';
 
 export class UpdateUserDto {
   @IsOptional()
