@@ -6,6 +6,9 @@ import {
   Matches,
   Length,
   Validate,
+  IsNumber,
+  Min,
+  Max,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { MatchPasswordHelper } from '../../utils/helpers/matchPassword.helper';
@@ -42,6 +45,30 @@ export class SignUpDto {
   @IsOptional()
   @IsString()
   address?: string;
+
+  @ApiPropertyOptional({
+    description: 'User location latitude (must be between -90 and 90)',
+    example: -34.6037,
+    minimum: -90,
+    maximum: 90,
+  })
+  @IsOptional()
+  @IsNumber({}, { message: 'Latitude must be a number.' })
+  @Min(-90, { message: 'Latitude must be between -90 and 90.' })
+  @Max(90, { message: 'Latitude must be between -90 and 90.' })
+  latitude?: number;
+
+  @ApiPropertyOptional({
+    description: 'User location longitude (must be between -180 and 180)',
+    example: -58.3816,
+    minimum: -180,
+    maximum: 180,
+  })
+  @IsOptional()
+  @IsNumber({}, { message: 'Longitude must be a number.' })
+  @Min(-180, { message: 'Longitude must be between -180 and 180.' })
+  @Max(180, { message: 'Longitude must be between -180 and 180.' })
+  longitude?: number;
 
   @ApiProperty({
     description: 'User email address (must be unique)',

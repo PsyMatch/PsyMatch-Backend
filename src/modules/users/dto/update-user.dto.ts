@@ -7,6 +7,8 @@ import {
   IsNumber,
   Length,
   MinLength,
+  Min,
+  Max,
 } from 'class-validator';
 import { ERole } from '../enums/role.enum';
 import { Psychologist } from '../../psychologist/entities/psychologist.entity';
@@ -33,6 +35,18 @@ export class UpdateUserDto {
     message: 'Address must be between 3 and 80 characters.',
   })
   address?: string;
+
+  @IsOptional()
+  @IsNumber({}, { message: 'Latitude must be a number.' })
+  @Min(-90, { message: 'Latitude must be between -90 and 90.' })
+  @Max(90, { message: 'Latitude must be between -90 and 90.' })
+  latitude?: number;
+
+  @IsOptional()
+  @IsNumber({}, { message: 'Longitude must be a number.' })
+  @Min(-180, { message: 'Longitude must be between -180 and 180.' })
+  @Max(180, { message: 'Longitude must be between -180 and 180.' })
+  longitude?: number;
 
   @IsOptional()
   @IsEmail({}, { message: 'Email must be valid.' })
