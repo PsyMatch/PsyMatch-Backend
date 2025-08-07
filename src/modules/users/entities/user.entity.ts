@@ -25,7 +25,19 @@ export class User {
   phone: number;
 
   @Column({ type: 'text', nullable: true })
+  birth_date: string;
+
+  @Column({ type: 'bigint', unique: true, nullable: false })
+  dni: number;
+
+  @Column({ type: 'text', nullable: true })
   address: string;
+
+  @Column({ type: 'decimal', precision: 10, scale: 8, nullable: true })
+  latitude: number;
+
+  @Column({ type: 'decimal', precision: 11, scale: 8, nullable: true })
+  longitude: number;
 
   @Column({ type: 'text', unique: true, nullable: false })
   email: string;

@@ -31,6 +31,20 @@ export class ResponseUserDto {
   @Expose()
   address?: string;
 
+  @ApiPropertyOptional({
+    description: 'User location latitude',
+    example: -34.6037,
+  })
+  @Expose()
+  latitude?: number;
+
+  @ApiPropertyOptional({
+    description: 'User location longitude',
+    example: -58.3816,
+  })
+  @Expose()
+  longitude?: number;
+
   @ApiProperty({
     description: 'User email address',
     example: 'john.doe@example.com',
