@@ -10,9 +10,9 @@ export const typeorm: DataSourceOptions = {
   username: envs.typeorm.username,
   password: envs.typeorm.password,
   ssl: envs.typeorm.ssl ? { rejectUnauthorized: false } : false,
-  synchronize: true,
-  dropSchema: true,
-  logging: true,
+  synchronize: false,
+  dropSchema: false,
+  logging: false,
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
   migrations: [__dirname + '/../migrations/*{.ts,.js}'],
 };
