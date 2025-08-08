@@ -24,7 +24,16 @@ const cloudinary = {
 
 const jwt = process.env.JWT_SECRET ?? 'default_jwt_secret';
 
-const config = { node, server, typeorm, cloudinary, jwt };
+const zeroAuth2 = {
+  googleClientId: process.env.GOOGLE_CLIENT_ID ?? 'your_google_client_id',
+  googleClientSecret:
+    process.env.GOOGLE_CLIENT_SECRET ?? 'your_google_client_secret',
+  googleCallbackUrl:
+    process.env.GOOGLE_CALLBACK_URL ??
+    'http://localhost:3000/auth/google/callback',
+};
+
+const config = { node, server, typeorm, cloudinary, jwt, zeroAuth2 };
 
 export const envs = config;
 
