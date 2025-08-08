@@ -73,9 +73,8 @@ export class RecordsService {
   }
 
   async update(id: string, dto: UpdateRecordDto): Promise<Record> {
-    const record = await this.findOne(id, true); // Include inactive for update
+    const record = await this.findOne(id, true);
 
-    // Apply updates
     Object.assign(record, dto);
 
     return await this.recordRepository.save(record);

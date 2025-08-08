@@ -34,7 +34,6 @@ export class AuthService {
       const existingUser = await userRepo.findOne({
         where: [{ email }, { phone }],
       });
-      // TEST
       if (existingUser) {
         throw new ConflictException(
           'User with this email or phone number already exists',
@@ -53,7 +52,6 @@ export class AuthService {
 
       const savedUser = await userRepo.save(newUser);
 
-      // Manejar la subida de imagen si está presente
       if (profilePicture && savedUser.id) {
         const profilePictureUrl =
           await this.filesService.uploadImageToCloudinary(
@@ -64,7 +62,6 @@ export class AuthService {
         await userRepo.save(savedUser);
       }
 
-      // Cargar el usuario con sus relaciones para el ResponseDto
       const userWithRelations = await userRepo.findOne({
         where: { id: savedUser.id },
         relations: ['professionals'],

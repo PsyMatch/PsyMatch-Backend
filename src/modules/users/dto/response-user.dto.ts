@@ -19,10 +19,10 @@ export class ResponseUserDto {
 
   @ApiPropertyOptional({
     description: 'User phone number',
-    example: 1234567890,
+    example: '+5411123456789',
   })
   @Expose()
-  phone?: number;
+  phone?: string;
 
   @ApiPropertyOptional({
     description: 'User birthdate in format (DD-MM-YYYY)',
@@ -37,6 +37,13 @@ export class ResponseUserDto {
   })
   @Expose()
   dni: number;
+
+  @ApiProperty({
+    description: 'User social security number (must be unique)',
+    example: '123-45-6789',
+  })
+  @Expose()
+  social_security_number: string;
 
   @ApiPropertyOptional({
     description: 'User address',

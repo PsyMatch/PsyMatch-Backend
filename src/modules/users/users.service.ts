@@ -128,20 +128,18 @@ export class UsersService {
         throw new NotFoundException(`User with UUID ${id} not found`);
       }
 
-      // Authorization check
       if (userRole === ERole.PATIENT && userIdFromToken !== id) {
         throw new UnauthorizedException(
           "You cannot update another user's profile picture",
         );
       }
 
-      // Upload image to Cloudinary
       const optimizedUrl = await this.filesService.uploadImageToCloudinary(
         file,
         id,
       );
 
-      // Update user profile picture
+      user.profile_picture = optimizedUrl;
       user.profile_picture = optimizedUrl;
       await userRepo.save(user);
 

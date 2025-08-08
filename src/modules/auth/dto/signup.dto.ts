@@ -16,7 +16,6 @@ import { Transform } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { MatchPasswordHelper } from '../../utils/helpers/matchPassword.helper';
 
-// Helper function for transforming strings to numbers
 const transformToNumber = (value: unknown): number | undefined => {
   if (typeof value === 'string' && value.trim() !== '') {
     const num = Number(value);
@@ -44,12 +43,17 @@ export class SignUpDto {
   profile_picture?: string;
 
   @ApiPropertyOptional({
-    description: 'User phone number',
-    example: 1123456789,
+    description: 'User phone number (international format supported)',
+    example: '+5411123456789',
   })
   @IsOptional()
-  @Transform(({ value }) => transformToNumber(value))
-  phone?: number;
+  @IsString({ message: 'Phone must be a string.' })
+  @Matches(/^(\+?[1-9]\d{1,14})$/, {
+    message:
+      'Phone must be a valid international phone number (e.g., +5411123456789 or 1123456789)',
+  })
+  @Length(8, 15, { message: 'Phone must be between 8 and 15 digits.' })
+  phone?: string;
 
   @ApiPropertyOptional({
     description: 'User birthdate in format (DD-MM-YYYY)',
@@ -77,6 +81,17 @@ export class SignUpDto {
   @Min(1000000, { message: 'DNI must be at least 7 digits long' })
   @Max(99999999, { message: 'DNI must not exceed 8 digits' })
   dni: number;
+
+  @ApiProperty({
+    description: 'User social security number (must be unique)',
+    example: '123-45-6789',
+  })
+  @IsNotEmpty({ message: 'Social security number is required' })
+  @IsString({ message: 'Social security number must be a string' })
+  @Matches(/^\d{3}-\d{2}-\d{4}$/, {
+    message: 'Social security number must be in the format XXX-XX-XXXX',
+  })
+  social_security_number: string;
 
   @ApiPropertyOptional({
     description: 'User address',

@@ -63,6 +63,11 @@ export class AuthController {
           example: 'SecurePass123!',
           description: 'Password confirmation (must match password)',
         },
+        social_security_number: {
+          type: 'string',
+          example: '123-45-6789',
+          description: 'User social security number (must be unique)',
+        },
         profile_picture: {
           type: 'string',
           format: 'binary',
@@ -95,7 +100,14 @@ export class AuthController {
           description: 'Optional longitude coordinate',
         },
       },
-      required: ['name', 'dni', 'email', 'password', 'confirmPassword'],
+      required: [
+        'name',
+        'dni',
+        'email',
+        'password',
+        'confirmPassword',
+        'social_security_number',
+      ],
     },
   })
   @ApiResponse({
