@@ -11,6 +11,7 @@ import { SignInDto } from './dto/signin.dto';
 import { SignUpDto } from './dto/signup.dto';
 import bcrypt from 'bcryptjs';
 import { QueryHelper } from '../utils/helpers/query.helper';
+import { FilesService } from '../files/files.service';
 
 @Injectable()
 export class AuthService {
@@ -19,9 +20,13 @@ export class AuthService {
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
     private readonly queryHelper: QueryHelper,
+    private readonly filesService: FilesService,
   ) {}
 
-  async signUpService(userData: SignUpDto): Promise<User> {
+  async signUpService(
+    userData: SignUpDto,
+    profilePicture?: Express.Multer.File,
+  ): Promise<User> {
     return this.queryHelper.runInTransaction(async (queryRunner) => {
       const userRepo = queryRunner.manager.getRepository(User);
       const { email, phone } = userData;
@@ -47,6 +52,17 @@ export class AuthService {
       });
 
       const savedUser = await userRepo.save(newUser);
+
+      // Manejar la subida de imagen si está presente
+      if (profilePicture && savedUser.id) {
+        const profilePictureUrl =
+          await this.filesService.uploadImageToCloudinary(
+            profilePicture,
+            savedUser.id,
+          );
+        savedUser.profile_picture = profilePictureUrl;
+        await userRepo.save(savedUser);
+      }
 
       // Cargar el usuario con sus relaciones para el ResponseDto
       const userWithRelations = await userRepo.findOne({

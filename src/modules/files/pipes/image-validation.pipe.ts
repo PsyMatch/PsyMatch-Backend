@@ -2,15 +2,20 @@ import { Injectable, PipeTransform, BadRequestException } from '@nestjs/common';
 
 @Injectable()
 export class ImageValidationPipe implements PipeTransform {
-  transform(file: Express.Multer.File) {
+  constructor(private readonly isOptional: boolean = false) {}
+
+  transform(file?: Express.Multer.File) {
     if (!file) {
+      if (this.isOptional) {
+        return undefined;
+      }
       throw new BadRequestException('No file uploaded');
     }
 
-    const maxSize = 200 * 1024;
+    const maxSize = 500 * 1024; // 500KB - mejor para imágenes 400x400
     if (file.size > maxSize) {
       throw new BadRequestException(
-        `File size should not exceed ${maxSize} KB`,
+        `File size should not exceed ${maxSize / 1024}KB`,
       );
     }
 
