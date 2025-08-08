@@ -5,6 +5,7 @@ import {
   ManyToOne,
   JoinColumn,
   CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { ETypeRecord } from '../enums/typeRecord.enum';
 import { User } from '../../users/entities/user.entity';
@@ -15,26 +16,44 @@ export class Record {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', nullable: false })
   psychologist_id: string;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', nullable: false })
   user_id: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: false })
   content: string;
 
-  @CreateDateColumn()
-  created_at: Date;
-
-  @Column({ type: 'enum', enum: ETypeRecord })
+  @Column({
+    type: 'enum',
+    enum: ETypeRecord,
+    nullable: false,
+    default: ETypeRecord.PERSONAL_NOTE,
+  })
   type: ETypeRecord;
 
-  @ManyToOne(() => User)
+  @Column({ type: 'boolean', default: true })
+  is_active: boolean;
+
+  @CreateDateColumn({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  created_at: Date;
+
+  @UpdateDateColumn({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  updated_at: Date;
+
+  // Relations
+  @ManyToOne(() => User, { eager: false })
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @ManyToOne(() => Psychologist)
+  @ManyToOne(() => Psychologist, { eager: false })
   @JoinColumn({ name: 'psychologist_id' })
   psychologist: Psychologist;
 }

@@ -55,7 +55,7 @@ export class FilesController {
   })
   async upload(
     @Param('id', ParseUUIDPipe) id: string,
-    @UploadedFile(ImageValidationPipe) file: Express.Multer.File,
+    @UploadedFile(new ImageValidationPipe()) file: Express.Multer.File,
   ): Promise<{ message: string; data: User }> {
     const updatedUser = await this.filesService.upload(id, file);
     return { message: 'Image upload successfully', data: updatedUser };

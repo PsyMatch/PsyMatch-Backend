@@ -5,10 +5,13 @@ import {
   Get,
   Param,
   ParseUUIDPipe,
+  Post,
   Put,
   Query,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -16,7 +19,10 @@ import {
   ApiOperation,
   ApiResponse,
   ApiQuery,
+  ApiConsumes,
+  ApiBody,
 } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -26,6 +32,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { ERole } from './enums/role.enum';
 import { Roles } from '../auth/decorators/role.decorator';
 import { ResponseType } from '../../common/decorators/response-type.decorator';
+import { ImageValidationPipe } from '../files/pipes/image-validation.pipe';
 
 @ApiTags('Users')
 @Controller('users')
@@ -100,6 +107,71 @@ export class UsersController {
       req.user.role,
     );
     return { message: 'User updated successfully', id: updatedUser };
+  }
+
+  @Post(':id/profile-picture')
+  @UseInterceptors(FileInterceptor('file'))
+  @UseGuards(AuthGuard, RolesGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: 'Update user profile picture',
+    description: 'Upload and update user profile picture using Cloudinary',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiResponse({
+    status: 200,
+    description: 'Profile picture updated successfully',
+    schema: {
+      example: {
+        message: 'Profile picture updated successfully',
+        data: {
+          id: 'user-uuid',
+          profile_picture: 'https://cloudinary.com/optimized-image-url',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Invalid or expired token' })
+  @ApiResponse({
+    status: 403,
+    description: "Access denied - Cannot change another user's profile image",
+  })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({ status: 400, description: 'Invalid or missing file' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description:
+            'Profile picture file (JPG, JPEG, PNG, WEBP - max 500KB)',
+        },
+      },
+    },
+  })
+  async updateProfilePicture(
+    @Req() req: IAuthRequest,
+    @Param('id', ParseUUIDPipe) id: string,
+    @UploadedFile(new ImageValidationPipe()) file: Express.Multer.File,
+  ): Promise<{
+    message: string;
+    data: { id: string; profile_picture: string };
+  }> {
+    const result = await this.usersService.updateProfilePicture(
+      id,
+      file,
+      req.user.id,
+      req.user.role,
+    );
+    return {
+      message: 'Profile picture updated successfully',
+      data: {
+        id: result.id,
+        profile_picture: result.profile_picture,
+      },
+    };
   }
 
   @Delete(':id')

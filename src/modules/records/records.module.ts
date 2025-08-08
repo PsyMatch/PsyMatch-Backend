@@ -5,11 +5,12 @@ import { RecordsController } from './records.controller';
 import { Record } from './entities/record.entity';
 import { User } from '../users/entities/user.entity';
 import { Psychologist } from '../psychologist/entities/psychologist.entity';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Record, User, Psychologist])],
   controllers: [RecordsController],
-  providers: [RecordsService],
+  providers: [RecordsService, JwtService],
   exports: [RecordsService],
 })
 export class RecordsModule {}

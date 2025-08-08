@@ -11,5 +11,6 @@ import { QueryHelper } from '../utils/helpers/query.helper';
   imports: [TypeOrmModule.forFeature([User])],
   controllers: [FilesController],
   providers: [FilesService, JwtService, QueryHelper, cloudinary],
+  exports: [FilesService],
 })
 export class FilesModule {}

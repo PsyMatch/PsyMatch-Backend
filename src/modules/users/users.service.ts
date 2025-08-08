@@ -10,6 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { QueryHelper } from '../utils/helpers/query.helper';
 import { ERole } from './enums/role.enum';
+import { FilesService } from '../files/files.service';
 
 @Injectable()
 export class UsersService {
@@ -17,6 +18,7 @@ export class UsersService {
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
     private readonly queryHelper: QueryHelper,
+    private readonly filesService: FilesService,
   ) {}
 
   async findAll(page: number, limit: number): Promise<User[]> {
@@ -109,6 +111,44 @@ export class UsersService {
       await userRepo.save(user);
 
       return user.id;
+    });
+  }
+
+  async updateProfilePicture(
+    id: string,
+    file: Express.Multer.File,
+    userIdFromToken: string,
+    userRole: ERole,
+  ): Promise<{ id: string; profile_picture: string }> {
+    return this.queryHelper.runInTransaction(async (queryRunner) => {
+      const userRepo = queryRunner.manager.getRepository(User);
+
+      const user = await userRepo.findOneBy({ id, is_active: true });
+      if (!user) {
+        throw new NotFoundException(`User with UUID ${id} not found`);
+      }
+
+      // Authorization check
+      if (userRole === ERole.PATIENT && userIdFromToken !== id) {
+        throw new UnauthorizedException(
+          "You cannot update another user's profile picture",
+        );
+      }
+
+      // Upload image to Cloudinary
+      const optimizedUrl = await this.filesService.uploadImageToCloudinary(
+        file,
+        id,
+      );
+
+      // Update user profile picture
+      user.profile_picture = optimizedUrl;
+      await userRepo.save(user);
+
+      return {
+        id: user.id,
+        profile_picture: user.profile_picture,
+      };
     });
   }
 }

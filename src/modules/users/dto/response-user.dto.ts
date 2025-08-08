@@ -25,25 +25,25 @@ export class ResponseUserDto {
   phone?: number;
 
   @ApiPropertyOptional({
+    description: 'User birthdate in format (DD-MM-YYYY)',
+    example: '15-05-1990',
+  })
+  @Expose()
+  birthdate?: string;
+
+  @ApiProperty({
+    description: 'User DNI (National Identity Document)',
+    example: 12345678,
+  })
+  @Expose()
+  dni: number;
+
+  @ApiPropertyOptional({
     description: 'User address',
     example: 'Av. Siempre Fernet 742',
   })
   @Expose()
   address?: string;
-
-  @ApiPropertyOptional({
-    description: 'User location latitude',
-    example: -34.6037,
-  })
-  @Expose()
-  latitude?: number;
-
-  @ApiPropertyOptional({
-    description: 'User location longitude',
-    example: -58.3816,
-  })
-  @Expose()
-  longitude?: number;
 
   @ApiProperty({
     description: 'User email address',
