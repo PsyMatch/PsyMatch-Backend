@@ -12,7 +12,7 @@ export class ImageValidationPipe implements PipeTransform {
       throw new BadRequestException('No file uploaded');
     }
 
-    const maxSize = 500 * 1024; // 500KB - mejor para imágenes 400x400
+    const maxSize = 500 * 1024;
     if (file.size > maxSize) {
       throw new BadRequestException(
         `File size should not exceed ${maxSize / 1024}KB`,

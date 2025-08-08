@@ -50,6 +50,52 @@ export class UsersController {
   @ApiResponse({
     status: 200,
     description: 'Users list retrieved successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string', example: 'uuid-string' },
+              name: { type: 'string', example: 'Juan Carlos Pérez' },
+              profile_picture: {
+                type: 'string',
+                example: 'https://cloudinary.com/profile.jpg',
+                nullable: true,
+              },
+              phone: {
+                type: 'string',
+                example: '+5411123456789',
+                nullable: true,
+              },
+              birthdate: {
+                type: 'string',
+                example: '15-05-1990',
+                nullable: true,
+              },
+              dni: { type: 'number', example: 12345678 },
+              social_security_number: {
+                type: 'string',
+                example: '123-45-6789',
+              },
+              address: {
+                type: 'string',
+                example: 'Av. Corrientes 1234, Buenos Aires',
+                nullable: true,
+              },
+              email: { type: 'string', example: 'juan.perez@email.com' },
+              professionals: {
+                type: 'array',
+                items: { type: 'object' },
+                nullable: true,
+              },
+            },
+          },
+        },
+      },
+    },
   })
   @ApiResponse({ status: 401, description: 'Invalid or expired token' })
   @ApiResponse({
@@ -76,7 +122,50 @@ export class UsersController {
   @UseGuards(AuthGuard, RolesGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Get user by ID' })
-  @ApiResponse({ status: 200, description: 'User found successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'User found successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', example: 'uuid-string' },
+            name: { type: 'string', example: 'Juan Carlos Pérez' },
+            profile_picture: {
+              type: 'string',
+              example: 'https://cloudinary.com/profile.jpg',
+              nullable: true,
+            },
+            phone: {
+              type: 'string',
+              example: '+5411123456789',
+              nullable: true,
+            },
+            birthdate: {
+              type: 'string',
+              example: '15-05-1990',
+              nullable: true,
+            },
+            dni: { type: 'number', example: 12345678 },
+            social_security_number: { type: 'string', example: '123-45-6789' },
+            address: {
+              type: 'string',
+              example: 'Av. Corrientes 1234, Buenos Aires',
+              nullable: true,
+            },
+            email: { type: 'string', example: 'juan.perez@email.com' },
+            professionals: {
+              type: 'array',
+              items: { type: 'object' },
+              nullable: true,
+            },
+          },
+        },
+      },
+    },
+  })
   @ApiResponse({ status: 401, description: 'Invalid or expired token' })
   @ApiResponse({ status: 403, description: 'Access denied' })
   @ApiResponse({ status: 404, description: 'User not found' })
@@ -91,7 +180,48 @@ export class UsersController {
   @UseGuards(AuthGuard, RolesGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Update user by ID' })
-  @ApiResponse({ status: 200, description: 'User updated successfully' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        profile_picture: {
+          type: 'string',
+          example: 'https://example.com/new-profile.jpg',
+          nullable: true,
+        },
+        phone: { type: 'string', example: '+5411987654321', nullable: true },
+        birthdate: { type: 'string', example: '20-12-1985', nullable: true },
+        address: {
+          type: 'string',
+          example: 'Av. Santa Fe 2000, Buenos Aires',
+          nullable: true,
+        },
+        latitude: { type: 'number', example: -34.5975, nullable: true },
+        longitude: { type: 'number', example: -58.3816, nullable: true },
+        password: {
+          type: 'string',
+          example: 'NewSecurePass123!',
+          nullable: true,
+        },
+        professionals: {
+          type: 'array',
+          items: { type: 'object' },
+          nullable: true,
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'User updated successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'User updated successfully' },
+        id: { type: 'string', example: 'uuid-string' },
+      },
+    },
+  })
   @ApiResponse({ status: 401, description: 'Invalid or expired token' })
   @ApiResponse({ status: 403, description: 'Access denied' })
   @ApiResponse({ status: 404, description: 'User not found' })
@@ -178,7 +308,17 @@ export class UsersController {
   @UseGuards(AuthGuard, RolesGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Delete user by ID' })
-  @ApiResponse({ status: 200, description: 'User deleted successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'User deleted successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'User deleted successfully' },
+        id: { type: 'string', example: 'uuid-string' },
+      },
+    },
+  })
   @ApiResponse({ status: 401, description: 'Invalid or expired token' })
   @ApiResponse({ status: 403, description: 'Access denied' })
   @ApiResponse({ status: 404, description: 'User not found' })

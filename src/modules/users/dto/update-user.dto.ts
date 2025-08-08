@@ -21,12 +21,17 @@ export class UpdateUserDto {
   profile_picture?: string;
 
   @ApiPropertyOptional({
-    description: 'User phone number',
-    example: 1123456789,
+    description: 'User phone number (international format supported)',
+    example: '+5411123456789',
   })
   @IsOptional()
-  @IsNumber({}, { message: 'Phone must be a number.' })
-  phone?: number;
+  @IsString({ message: 'Phone must be a string.' })
+  @Matches(/^(\+?[1-9]\d{1,14})$/, {
+    message:
+      'Phone must be a valid international phone number (e.g., +5411123456789 or 1123456789)',
+  })
+  @Length(8, 15, { message: 'Phone must be between 8 and 15 digits.' })
+  phone?: string;
 
   @ApiPropertyOptional({
     description: 'User birthdate in format (DD-MM-YYYY)',

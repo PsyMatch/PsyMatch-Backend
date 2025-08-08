@@ -17,14 +17,12 @@ export class TransformResponseInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     return next.handle().pipe(
       map((data: unknown) => {
-        // Obtener el tipo de respuesta del decorador de metadatos
         const responseType = this.reflector.get<ClassConstructor<unknown>>(
           RESPONSE_TYPE_KEY,
           context.getHandler(),
         );
 
         if (responseType && data) {
-          // Si hay un tipo específico, transformar los datos
           return this.transformData(data, responseType);
         }
 
@@ -37,7 +35,6 @@ export class TransformResponseInterceptor implements NestInterceptor {
     data: unknown,
     responseType: ClassConstructor<unknown>,
   ): unknown {
-    // Si es un objeto con estructura de respuesta API
     if (data && typeof data === 'object' && 'data' in data) {
       const responseData = data as { data: unknown; [key: string]: unknown };
       return {
@@ -48,14 +45,12 @@ export class TransformResponseInterceptor implements NestInterceptor {
       };
     }
 
-    // Si es un array
     if (Array.isArray(data)) {
       return plainToInstance(responseType, data, {
         excludeExtraneousValues: true,
       });
     }
 
-    // Si es un objeto simple
     return plainToInstance(responseType, data, {
       excludeExtraneousValues: true,
     });

@@ -48,7 +48,6 @@ export class Record {
   })
   updated_at: Date;
 
-  // Relations
   @ManyToOne(() => User, { eager: false })
   @JoinColumn({ name: 'user_id' })
   user: User;

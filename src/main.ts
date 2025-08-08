@@ -24,7 +24,7 @@ async function bootstrap() {
 
     await app.listen(envs.server.port);
 
-    if (envs.node === 'development') {
+    if (envs.node !== 'production') {
       console.log(
         `🌱 Environment: ${envs.node}, 🚀 App running on http://${envs.server.host}:${envs.server.port}/api`,
       );

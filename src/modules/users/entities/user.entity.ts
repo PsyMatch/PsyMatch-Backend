@@ -21,14 +21,17 @@ export class User {
   @Column({ type: 'text', nullable: true })
   profile_picture: string;
 
-  @Column({ type: 'bigint', nullable: true })
-  phone: number;
+  @Column({ type: 'text', nullable: true })
+  phone: string;
 
   @Column({ type: 'text', nullable: true })
   birthdate: string;
 
   @Column({ type: 'bigint', unique: true, nullable: false })
   dni: number;
+
+  @Column({ type: 'text', unique: true, nullable: false })
+  social_security_number: string;
 
   @Column({ type: 'text', nullable: true })
   address: string;

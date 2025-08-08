@@ -9,11 +9,12 @@ const server = {
 };
 
 const typeorm = {
-  port: parseInt(String(process.env.DB_PORT ?? 5432), 10),
   host: process.env.DB_HOST ?? 'localhost',
+  port: parseInt(String(process.env.DB_PORT ?? 5432), 10),
   name: process.env.DB_NAME ?? 'app_db',
   username: process.env.DB_USERNAME ?? 'postgres',
   password: process.env.DB_PASSWORD ?? 'postgres',
+  ssl: process.env.DB_SSL === 'true',
 };
 
 const cloudinary = {
@@ -24,16 +25,18 @@ const cloudinary = {
 
 const jwt = process.env.JWT_SECRET ?? 'default_jwt_secret';
 
-const zeroAuth2 = {
-  googleClientId: process.env.GOOGLE_CLIENT_ID ?? 'your_google_client_id',
-  googleClientSecret:
-    process.env.GOOGLE_CLIENT_SECRET ?? 'your_google_client_secret',
-  googleCallbackUrl:
-    process.env.GOOGLE_CALLBACK_URL ??
-    'http://localhost:3000/auth/google/callback',
+const oauth = {
+  google: {
+    clientId: process.env.GOOGLE_CLIENT_ID ?? 'your_google_client_id',
+    clientSecret:
+      process.env.GOOGLE_CLIENT_SECRET ?? 'your_google_client_secret',
+    callbackUrl:
+      process.env.GOOGLE_CALLBACK_URL ??
+      'http://localhost:3000/auth/google/callback',
+  },
 };
 
-const config = { node, server, typeorm, cloudinary, jwt, zeroAuth2 };
+const config = { node, server, typeorm, cloudinary, jwt, oauth };
 
 export const envs = config;
 
