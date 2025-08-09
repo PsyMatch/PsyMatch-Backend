@@ -16,7 +16,7 @@ import { UpdateRecordDto } from './dto/update-record.dto';
 import { Roles } from '../../modules/auth/decorators/role.decorator';
 import { RolesGuard } from '../../modules/auth/guards/roles.guard';
 import { AuthGuard } from '../../modules/auth/guards/auth.guard';
-import { ERole } from '../users/enums/role.enum';
+import { ERole } from '../../common/enums/role.enum';
 import {
   ApiBearerAuth,
   ApiOperation,

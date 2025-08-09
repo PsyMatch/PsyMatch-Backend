@@ -11,7 +11,7 @@ import { ReviewsService } from './reviews.service';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { ERole } from '../users/enums/role.enum';
+import { ERole } from '../../common/enums/role.enum';
 import { Roles } from '../auth/decorators/role.decorator';
 import {
   ApiBearerAuth,

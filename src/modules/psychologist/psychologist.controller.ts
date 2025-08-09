@@ -24,7 +24,7 @@ import {
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/role.decorator';
-import { ERole } from '../users/enums/role.enum';
+import { ERole } from '../../common/enums/role.enum';
 import { PaginatedPendingRequestsDto } from './dto/response-pending-psychologist.dto';
 
 @ApiTags('Psychologist')

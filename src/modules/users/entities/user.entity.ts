@@ -4,13 +4,17 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   CreateDateColumn,
-  ManyToOne,
-  JoinColumn,
+  TableInheritance,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
-import { ERole } from '../enums/role.enum';
-import { Psychologist } from '../../psychologist/entities/psychologist.entity';
+import { ERole } from '../../../common/enums/role.enum';
 
 @Entity('users')
+@TableInheritance({
+  column: { type: 'text', name: 'type' },
+  pattern: 'STI',
+})
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -48,6 +52,14 @@ export class User {
   @Column({ type: 'text', nullable: false })
   password: string;
 
+  @ManyToMany(() => User, { cascade: true })
+  @JoinTable({
+    name: 'patient_psychologists',
+    joinColumn: { name: 'patient_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'psychologist_id', referencedColumnName: 'id' },
+  })
+  psychologists: User[];
+
   @Column({
     type: 'enum',
     enum: ERole,
@@ -55,10 +67,6 @@ export class User {
     default: ERole.PATIENT,
   })
   role: ERole;
-
-  @ManyToOne(() => Psychologist, { nullable: true })
-  @JoinColumn({ name: 'professionals' })
-  professionals: Psychologist[];
 
   @Column({ type: 'boolean', default: true })
   is_active: boolean;
