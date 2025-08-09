@@ -16,6 +16,8 @@ import bcrypt from 'bcryptjs';
 import { QueryHelper } from '../utils/helpers/query.helper';
 import { FilesService } from '../files/files.service';
 import { ERole } from '../../common/enums/role.enum';
+import { Profile } from 'passport';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AuthService {
@@ -29,6 +31,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly queryHelper: QueryHelper,
     private readonly filesService: FilesService,
+    private readonly userService: UsersService,
   ) {}
 
   async signUpService(
@@ -226,5 +229,55 @@ export class AuthService {
       data: user,
       token,
     };
+  }
+
+  async validateOAuthLogin(oAuthUser: {
+    provider: string;
+    providerId: string;
+    email?: string;
+    fisrtName?: string;
+    lastName?: string;
+    picture?: string;
+    rawProfile?: Profile;
+  }) {
+    let user = await this.userService.findByProviderId(
+      oAuthUser.provider,
+      oAuthUser.providerId,
+    );
+
+    if (!user && oAuthUser.email) {
+      user = await this.userService.findByEmail(oAuthUser.email);
+
+      if (user) {
+        user.provider = oAuthUser.provider;
+        user.provider_id = oAuthUser.providerId;
+        if (!user.profile_picture && oAuthUser.picture) {
+          user.profile_picture = oAuthUser.picture;
+        }
+        await this.userService.save(user);
+      }
+    }
+
+    if (!user) {
+      user = await this.userService.createOAuthUser({
+        email: oAuthUser.email,
+        name: `${oAuthUser.fisrtName} ${oAuthUser.lastName}`.trim(),
+        profile_picture: oAuthUser.picture,
+        provider: oAuthUser.provider,
+        provider_id: oAuthUser.providerId,
+        is_active: true,
+      });
+    }
+
+    return user;
+  }
+
+  loginWithAuth(userPayload: { id: number; email: string }) {
+    const payload = {
+      id: userPayload.id,
+      email: userPayload.email,
+    };
+
+    return this.jwtService.sign(payload);
   }
 }
