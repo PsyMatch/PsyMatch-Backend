@@ -1,4 +1,4 @@
-import { ERole } from '../../users/enums/role.enum';
+import { ERole } from '../../../common/enums/role.enum';
 
 export interface IJwtPayload {
   id: string;

@@ -9,6 +9,7 @@ import {
   Matches,
 } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { User } from '../entities/user.entity';
 import { Psychologist } from '../../psychologist/entities/psychologist.entity';
 
 export class UpdateUserDto {
@@ -100,10 +101,11 @@ export class UpdateUserDto {
   password?: string;
 
   @ApiPropertyOptional({
-    description: 'Associated professionals/psychologists',
-    type: () => Psychologist,
+    description:
+      'Assigned psychologists for this patient (only applicable when user role is PATIENT)',
+    type: () => User,
     isArray: true,
   })
   @IsOptional()
-  professionals?: Psychologist[];
+  psychologists?: Psychologist[];
 }
