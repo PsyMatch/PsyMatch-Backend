@@ -1,8 +1,17 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
-import { Psychologist } from '../../psychologist/entities/psychologist.entity';
+import { Expose, Type } from 'class-transformer';
+import { ERole } from '../../../common/enums/role.enum';
+import { PsychologistSpecialty } from '../../psychologist/enums/specialities.enum';
+import { PsychologistStatus } from '../../psychologist/enums/verified.enum';
 
 export class ResponseUserDto {
+  @ApiProperty({
+    description: 'User unique identifier',
+    example: '4fc84832-3908-4639-8222-ecd5096120a2',
+  })
+  @Expose()
+  id: string;
+
   @ApiProperty({
     description: 'User name',
     example: 'John Doe',
@@ -59,11 +68,63 @@ export class ResponseUserDto {
   @Expose()
   email: string;
 
+  @ApiProperty({
+    description: 'User role',
+    enum: ERole,
+    example: ERole.PATIENT,
+  })
+  @Expose()
+  role: ERole;
+
   @ApiPropertyOptional({
-    description: 'Associated professionals/psychologists',
-    type: () => Psychologist,
+    description: 'Office address (only for psychologists)',
+    example: 'Av. Corrientes 1234, Oficina 302, Buenos Aires',
+  })
+  @Expose()
+  office_address?: string;
+
+  @ApiPropertyOptional({
+    description: 'Verification status (only for psychologists)',
+    enum: PsychologistStatus,
+    example: PsychologistStatus.VALIDATED,
+  })
+  @Expose()
+  verified?: PsychologistStatus;
+
+  @ApiPropertyOptional({
+    description: 'Professional license number (only for psychologists)',
+    example: 'PSI-12345-BA',
+  })
+  @Expose()
+  license_number?: string;
+
+  @ApiPropertyOptional({
+    description: 'Specialties (only for psychologists)',
+    enum: PsychologistSpecialty,
+    isArray: true,
+    example: [PsychologistSpecialty.CLINICAL, PsychologistSpecialty.COUNSELING],
+  })
+  @Expose()
+  specialities?: PsychologistSpecialty[];
+
+  // Relaciones
+  @ApiPropertyOptional({
+    description:
+      'Assigned psychologists (only populated when user role is PATIENT or ADMIN)',
+    type: () => ResponseUserDto,
     isArray: true,
   })
   @Expose()
-  professionals?: Psychologist[];
+  @Type(() => ResponseUserDto)
+  psychologists?: ResponseUserDto[];
+
+  @ApiPropertyOptional({
+    description:
+      'Assigned patients (only populated when user role is PSYCHOLOGIST)',
+    type: () => ResponseUserDto,
+    isArray: true,
+  })
+  @Expose()
+  @Type(() => ResponseUserDto)
+  patients?: ResponseUserDto[];
 }
