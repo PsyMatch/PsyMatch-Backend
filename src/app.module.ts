@@ -9,6 +9,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { AppointmentsModule } from './modules/appointments/appointments.module';
 import { UtilsModule } from './modules/utils/utils.module';
 import { FilesModule } from './modules/files/files.module';
+import { SeederModule } from './modules/seeder/seeder.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { FilesModule } from './modules/files/files.module';
     PsychologistModule,
     PaymentsModule,
     AppointmentsModule,
+    SeederModule,
   ],
   controllers: [],
   providers: [],

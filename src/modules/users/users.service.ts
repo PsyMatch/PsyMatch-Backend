@@ -1,51 +1,85 @@
 import {
   Injectable,
-  BadRequestException,
   NotFoundException,
   UnauthorizedException,
+  ConflictException,
 } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
+import { Patient } from './entities/patient.entity';
+import { Psychologist } from '../psychologist/entities/psychologist.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { QueryHelper } from '../utils/helpers/query.helper';
-import { ERole } from './enums/role.enum';
-import { FilesService } from '../files/files.service';
+import { ERole } from '../../common/enums/role.enum';
+import { PaginationService } from '../../common/services/pagination.service';
+import {
+  PaginationDto,
+  PaginatedResponse,
+} from '../../common/dto/pagination.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
+    @InjectRepository(Patient)
+    private readonly patientRepository: Repository<Patient>,
+    @InjectRepository(Psychologist)
+    private readonly psychologistRepository: Repository<Psychologist>,
     private readonly queryHelper: QueryHelper,
-    private readonly filesService: FilesService,
+    private readonly paginationService: PaginationService,
   ) {}
 
-  async findAll(page: number, limit: number): Promise<User[]> {
-    const [users, total] = await this.usersRepository.findAndCount({
-      where: { is_active: true },
-      skip: (page - 1) * limit,
-      take: limit,
-      relations: ['professionals'],
-    });
+  async findAll(
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResponse<User>> {
+    const queryBuilder = this.usersRepository
+      .createQueryBuilder('user')
+      .where('user.is_active = :isActive', { isActive: true })
+      .leftJoinAndSelect('user.psychologists', 'psychologists')
+      .leftJoinAndSelect('user.patients', 'patients');
 
-    if (!total) throw new NotFoundException('There are currently no users');
+    return await this.paginationService.paginate(queryBuilder, paginationDto);
+  }
 
-    const totalPages = Math.ceil(total / limit);
+  async findAllPatients(
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResponse<User>> {
+    const queryBuilder = this.usersRepository
+      .createQueryBuilder('user')
+      .where('user.role = :role', { role: ERole.PATIENT })
+      .andWhere('user.is_active = :isActive', { isActive: true })
+      .leftJoinAndSelect('user.psychologists', 'psychologists');
 
-    if (page > totalPages && total > 0) {
-      throw new BadRequestException(
-        `The requested page (${page}) exceeds the maximum (${totalPages})`,
-      );
-    }
-
-    return users;
+    return await this.paginationService.paginate(queryBuilder, paginationDto);
   }
 
   async findById(id: string): Promise<User> {
-    const user = await this.usersRepository.findOne({
+    // Primero intentamos encontrar como Patient
+    let user: User | null = await this.patientRepository.findOne({
       where: { id, is_active: true },
-      relations: ['professionals'],
+      relations: ['psychologists'],
+    });
+
+    if (user) {
+      return user;
+    }
+
+    // Si no es Patient, intentamos como Psychologist
+    user = await this.psychologistRepository.findOne({
+      where: { id, is_active: true },
+      relations: ['patients'],
+    });
+
+    if (user) {
+      return user;
+    }
+
+    // Si no es ninguno de los dos, buscamos en la tabla base (Admin)
+    user = await this.usersRepository.findOne({
+      where: { id, is_active: true, role: ERole.ADMIN },
+      relations: ['psychologists'], // Los admin pueden ver psychologists
     });
 
     if (!user) {
@@ -69,7 +103,7 @@ export class UsersService {
         throw new NotFoundException(`User with UUID ${id} not found`);
       }
 
-      if (userRole === ERole.PATIENT && userIdFromToken !== id) {
+      if (userRole !== ERole.ADMIN && userIdFromToken !== id) {
         throw new UnauthorizedException('You cannot update another user');
       }
 
@@ -77,7 +111,17 @@ export class UsersService {
         throw new UnauthorizedException('You cannot change your admin status');
       }
 
-      const { professionals: _professionals, ...restUserData } = userData;
+      if (userData.phone && userData.phone !== user.phone) {
+        const existingUser = await userRepo.findOne({
+          where: { phone: userData.phone, is_active: true },
+        });
+
+        if (existingUser && existingUser.id !== id) {
+          throw new ConflictException('Phone number already exists');
+        }
+      }
+
+      const { psychologists: _psychologists, ...restUserData } = userData;
 
       const updatedUser = userRepo.create({
         ...user,
@@ -103,7 +147,7 @@ export class UsersService {
         throw new NotFoundException(`User with ID ${id} not found`);
       }
 
-      if (userRole === ERole.PATIENT && userIdFromToken !== id) {
+      if (userRole !== ERole.ADMIN && userIdFromToken !== id) {
         throw new UnauthorizedException('You cannot delete another user');
       }
 
@@ -111,42 +155,6 @@ export class UsersService {
       await userRepo.save(user);
 
       return user.id;
-    });
-  }
-
-  async updateProfilePicture(
-    id: string,
-    file: Express.Multer.File,
-    userIdFromToken: string,
-    userRole: ERole,
-  ): Promise<{ id: string; profile_picture: string }> {
-    return this.queryHelper.runInTransaction(async (queryRunner) => {
-      const userRepo = queryRunner.manager.getRepository(User);
-
-      const user = await userRepo.findOneBy({ id, is_active: true });
-      if (!user) {
-        throw new NotFoundException(`User with UUID ${id} not found`);
-      }
-
-      if (userRole === ERole.PATIENT && userIdFromToken !== id) {
-        throw new UnauthorizedException(
-          "You cannot update another user's profile picture",
-        );
-      }
-
-      const optimizedUrl = await this.filesService.uploadImageToCloudinary(
-        file,
-        id,
-      );
-
-      user.profile_picture = optimizedUrl;
-      user.profile_picture = optimizedUrl;
-      await userRepo.save(user);
-
-      return {
-        id: user.id,
-        profile_picture: user.profile_picture,
-      };
     });
   }
 }
