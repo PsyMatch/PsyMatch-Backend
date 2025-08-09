@@ -6,11 +6,14 @@ import { User } from '../users/entities/user.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { FilesModule } from '../files/files.module';
+import { PassportModule } from '@nestjs/passport';
+import { UsersService } from '../users/users.service';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
     ConfigModule,
+    PassportModule,
     FilesModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -22,6 +25,6 @@ import { FilesModule } from '../files/files.module';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, UsersService, GoogleStrategy, JwtStrategy],
 })
 export class AuthModule {}
