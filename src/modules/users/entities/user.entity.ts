@@ -79,4 +79,11 @@ export class User {
 
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updated_at: Date;
+
+  // CODIGO ESCRITO POR PEDRO, NECESARIO PARA LA AUTENTICACION DE TERCEROS
+  @Column({ type: 'text', nullable: true })
+  provider: string;
+
+  @Column({ type: 'text', nullable: true })
+  provider_id: string;
 }

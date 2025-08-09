@@ -3,12 +3,10 @@ import { PsychologistSpecialty } from '../enums/specialities.enum';
 import { Reviews } from '../../reviews/entities/reviews.entity';
 import { User } from '../../users/entities/user.entity';
 import { PsychologistStatus } from '../enums/verified.enum';
+import { ERole } from '../../../common/enums/role.enum';
 
-@Entity('psychologist')
-export class Psychologist {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+@ChildEntity(ERole.PSYCHOLOGIST)
+export class Psychologist extends User {
   @Column({ type: 'text', nullable: true })
   office_address: string;
 

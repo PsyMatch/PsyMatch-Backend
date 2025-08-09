@@ -157,4 +157,30 @@ export class UsersService {
       return user.id;
     });
   }
+
+  //CODIGO ESCRITO POR PEDRO, NECESARIO PARA LA AUTENTICACION DE TERCEROS
+
+  async findByProviderId(
+    provider: string,
+    providerId: string,
+  ): Promise<User | null> {
+    return this.usersRepository.findOne({
+      where: { provider, provider_id: providerId },
+    });
+  }
+
+  async findByEmail(email: string): Promise<User | null> {
+    return this.usersRepository.findOne({
+      where: { email },
+    });
+  }
+
+  async createOAuthUser(userData: Partial<User>): Promise<User> {
+    const user = this.usersRepository.create(userData);
+    return this.usersRepository.save(user);
+  }
+
+  async save(user: User): Promise<User> {
+    return this.usersRepository.save(user);
+  }
 }
