@@ -26,8 +26,8 @@ export class User {
   @Column({ type: 'text', nullable: true })
   phone: string;
 
-  @Column({ type: 'text', nullable: true })
-  birthdate: string;
+  @Column({ type: 'date', nullable: true })
+  birthdate: Date;
 
   @Column({ type: 'bigint', unique: true, nullable: true })
   dni: number;
