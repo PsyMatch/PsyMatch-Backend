@@ -5,7 +5,7 @@ import { User } from '../users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { Psychologist } from './entities/psychologist.entity';
 import { ValidatePsychologistAccountParams } from './interface/validatePsychologistAccountParams.interface';
-import { PsychologistStatus } from './enums/verified.enum';
+import { EPsychologistStatus } from './enums/verified.enum';
 import { PaginatedPendingRequestsDto } from './dto/response-pending-psychologist.dto';
 
 @Injectable()
@@ -30,7 +30,7 @@ export class PsychologistService {
 
     const newPsychologist = this.psychologistRepository.create({
       ...validatePsychologistDto,
-      verified: PsychologistStatus.PENDING,
+      verified: EPsychologistStatus.PENDING,
     });
     await this.psychologistRepository.save(newPsychologist);
 
@@ -45,7 +45,7 @@ export class PsychologistService {
   ): Promise<PaginatedPendingRequestsDto> {
     const [pendingRequests, total] =
       await this.psychologistRepository.findAndCount({
-        where: { verified: PsychologistStatus.PENDING },
+        where: { verified: EPsychologistStatus.PENDING },
         skip: (page - 1) * limit,
         take: limit,
       });

@@ -1,8 +1,8 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
 import { ERole } from '../../../common/enums/role.enum';
-import { PsychologistSpecialty } from '../../psychologist/enums/specialities.enum';
-import { PsychologistStatus } from '../../psychologist/enums/verified.enum';
+import { EPsychologistSpecialty } from '../../psychologist/enums/specialities.enum';
+import { EPsychologistStatus } from '../../psychologist/enums/verified.enum';
 
 export class ResponseUserDto {
   @ApiProperty({
@@ -85,11 +85,11 @@ export class ResponseUserDto {
 
   @ApiPropertyOptional({
     description: 'Verification status (only for psychologists)',
-    enum: PsychologistStatus,
-    example: PsychologistStatus.VALIDATED,
+    enum: EPsychologistStatus,
+    example: EPsychologistStatus.VALIDATED,
   })
   @Expose()
-  verified?: PsychologistStatus;
+  verified?: EPsychologistStatus;
 
   @ApiPropertyOptional({
     description: 'Professional license number (only for psychologists)',
@@ -100,14 +100,16 @@ export class ResponseUserDto {
 
   @ApiPropertyOptional({
     description: 'Specialties (only for psychologists)',
-    enum: PsychologistSpecialty,
+    enum: EPsychologistSpecialty,
     isArray: true,
-    example: [PsychologistSpecialty.CLINICAL, PsychologistSpecialty.COUNSELING],
+    example: [
+      EPsychologistSpecialty.BIPOLAR_DISORDER,
+      EPsychologistSpecialty.DEPRESSION,
+    ],
   })
   @Expose()
-  specialities?: PsychologistSpecialty[];
+  specialities?: EPsychologistSpecialty[];
 
-  // Relaciones
   @ApiPropertyOptional({
     description:
       'Assigned psychologists (only populated when user role is PATIENT or ADMIN)',
