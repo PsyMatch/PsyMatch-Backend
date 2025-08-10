@@ -31,10 +31,10 @@ export class User {
   @Column({ type: 'text', nullable: true })
   birthdate: string;
 
-  @Column({ type: 'bigint', unique: true, nullable: false })
+  @Column({ type: 'bigint', unique: true, nullable: true })
   dni: number;
 
-  @Column({ type: 'text', unique: true, nullable: false })
+  @Column({ type: 'text', unique: true, nullable: true })
   social_security_number: string;
 
   @Column({ type: 'text', nullable: true })
@@ -49,7 +49,7 @@ export class User {
   @Column({ type: 'text', unique: true, nullable: false })
   email: string;
 
-  @Column({ type: 'text', nullable: false })
+  @Column({ type: 'text', nullable: true })
   password: string;
 
   @ManyToMany(() => User, { cascade: true })
