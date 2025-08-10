@@ -234,7 +234,7 @@ export class AuthService {
     provider: string;
     providerId: string;
     email?: string;
-    fisrtName?: string;
+    firstName?: string;
     lastName?: string;
     picture?: string;
     rawProfile?: Profile;
@@ -260,7 +260,7 @@ export class AuthService {
     if (!user) {
       user = await this.userService.createOAuthUser({
         email: oAuthUser.email,
-        name: `${oAuthUser.fisrtName} ${oAuthUser.lastName}`.trim(),
+        name: `${oAuthUser.firstName} ${oAuthUser.lastName}`.trim(),
         profile_picture: oAuthUser.picture,
         provider: oAuthUser.provider,
         provider_id: oAuthUser.providerId,
