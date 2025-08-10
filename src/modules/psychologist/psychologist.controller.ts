@@ -6,14 +6,12 @@ import {
   Param,
   Delete,
   Put,
-  Req,
   UseGuards,
   Query,
 } from '@nestjs/common';
 import { PsychologistService } from './psychologist.service';
-import { ValidatePsychologistDto } from './dto/validate-psychologist.dto';
+import { CreatePsychologistDto } from './dto/validate-psychologist.dto';
 import { UpdatePsychologistDto } from './dto/update-psychologist.dto';
-import { IAuthRequest } from '../auth/interfaces/auth-request.interface';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -32,56 +30,9 @@ import { PaginatedPendingRequestsDto } from './dto/response-pending-psychologist
 export class PsychologistController {
   constructor(private readonly psychologistService: PsychologistService) {}
 
-  @Post('register')
-  @UseGuards(AuthGuard, RolesGuard)
-  @Roles([ERole.PATIENT, ERole.ADMIN])
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({
-    summary: 'Register a new psychologist',
-    description:
-      'Submit a request to register as a psychologist. The request will be reviewed by an admin before approval.',
-  })
-  @ApiResponse({
-    status: 201,
-    description: 'Psychologist registration request submitted successfully',
-    schema: {
-      type: 'object',
-      properties: {
-        message: {
-          type: 'string',
-          example:
-            'Psychologist account validation request submitted successfully',
-        },
-      },
-    },
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Invalid data provided or validation errors',
-  })
-  @ApiResponse({
-    status: 403,
-    description: 'Access denied - Patient or Admin role required',
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Invalid or expired token',
-  })
-  validateNewPsychologistAccountController(
-    @Req() req: IAuthRequest,
-    @Body() createPsychologistDto: ValidatePsychologistDto,
-  ): Promise<{ message: string }> {
-    return this.psychologistService.validateNewPsychologistAccountService({
-      createPsychologistDto,
-      req: {
-        user: { id: req.user.id },
-      },
-    });
-  }
-
   @Get('pending')
-  @UseGuards(AuthGuard /*RolesGuard*/)
-  // @Roles([ERole.ADMIN])
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles([ERole.ADMIN])
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Get all pending psychologists (Admin Only)',

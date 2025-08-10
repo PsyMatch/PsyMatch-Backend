@@ -28,6 +28,7 @@ import { FileValidationPipe } from '../files/pipes/file-validation.pipe';
 import { User } from '../users/entities/user.entity';
 import { AuthGuard } from '@nestjs/passport';
 import { Request, Response } from 'express';
+import { envs } from 'src/configs/envs.config';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -330,9 +331,14 @@ export class AuthController {
       req.user as { id: number; email: string },
     );
 
-    return res.json({
-      message: 'Google authentication successful',
-      token: jwt,
+    res.cookie('auth_token', jwt, {
+      httpOnly: true,
+      secure: envs.server.node === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
+    return res.redirect(
+      `http://${envs.server.host}:${envs.server.port}/dashboard/user`,
+    );
   }
 }

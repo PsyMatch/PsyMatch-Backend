@@ -1,43 +1,25 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { UpdatePsychologistDto } from './dto/update-psychologist.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { Psychologist } from './entities/psychologist.entity';
-import { ValidatePsychologistAccountParams } from './interface/validatePsychologistAccountParams.interface';
 import { EPsychologistStatus } from './enums/verified.enum';
 import { PaginatedPendingRequestsDto } from './dto/response-pending-psychologist.dto';
+import { CreatePsychologistDto } from './dto/validate-psychologist.dto';
+import bcrypt from 'bcryptjs';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class PsychologistService {
   constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
     @InjectRepository(Psychologist)
     private readonly psychologistRepository: Repository<Psychologist>,
+    private readonly jwtService: JwtService,
   ) {}
-
-  async validateNewPsychologistAccountService({
-    createPsychologistDto: validatePsychologistDto,
-    req: {
-      user: { id: userId },
-    },
-  }: ValidatePsychologistAccountParams): Promise<{ message: string }> {
-    const userExists = await this.userRepository.findOne({
-      where: { id: userId },
-    });
-    if (!userExists) throw new NotFoundException('User not found');
-
-    const newPsychologist = this.psychologistRepository.create({
-      ...validatePsychologistDto,
-      verified: EPsychologistStatus.PENDING,
-    });
-    await this.psychologistRepository.save(newPsychologist);
-
-    return {
-      message: 'Psychologist account validation request submitted successfully',
-    };
-  }
 
   async getAllVerifiedRequestService(
     page: number,
