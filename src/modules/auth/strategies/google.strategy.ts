@@ -16,7 +16,22 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     super({
       clientID: env.GOOGLE_CLIENT_ID!,
       clientSecret: env.GOOGLE_CLIENT_SECRET!,
-      callbackURL: env.GOOGLE_CALLBACK_URL!,
+    const clientID = env.GOOGLE_CLIENT_ID;
+    const clientSecret = env.GOOGLE_CLIENT_SECRET;
+    const callbackURL = env.GOOGLE_CALLBACK_URL;
+    if (!clientID) {
+      throw new Error('Missing required environment variable: GOOGLE_CLIENT_ID');
+    }
+    if (!clientSecret) {
+      throw new Error('Missing required environment variable: GOOGLE_CLIENT_SECRET');
+    }
+    if (!callbackURL) {
+      throw new Error('Missing required environment variable: GOOGLE_CALLBACK_URL');
+    }
+    super({
+      clientID,
+      clientSecret,
+      callbackURL,
       scope: ['email', 'profile'],
     });
   }
