@@ -20,21 +20,20 @@ import { PaginationService } from 'src/common/services/pagination.service';
     TypeOrmModule.forFeature([User, Patient, Psychologist]),
     ConfigModule,
     FilesModule,
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     ThrottlerModule.forRoot([
       {
         name: 'short',
-        ttl: 1000, // 1 second
+        ttl: 1000,
         limit: 3,
       },
       {
         name: 'medium',
-        ttl: 10000, // 10 seconds
+        ttl: 10000,
         limit: 20,
       },
       {
         name: 'long',
-        ttl: 60000, // 1 minute
+        ttl: 60000,
         limit: 100,
       },
     ]),
@@ -53,7 +52,6 @@ import { PaginationService } from 'src/common/services/pagination.service';
     AuthService,
     {
       provide: APP_GUARD,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       useClass: ThrottlerGuard,
     },
     GoogleStrategy,

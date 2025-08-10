@@ -16,6 +16,7 @@ import bcrypt from 'bcryptjs';
 import { QueryHelper } from '../utils/helpers/query.helper';
 import { FilesService } from '../files/files.service';
 import { ERole } from '../../common/enums/role.enum';
+import { EPsychologistStatus } from '../psychologist/enums/verified.enum';
 import { Profile } from 'passport';
 import { UsersService } from '../users/users.service';
 
@@ -24,10 +25,6 @@ export class AuthService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    @InjectRepository(Patient)
-    private readonly patientRepository: Repository<Patient>,
-    @InjectRepository(Psychologist)
-    private readonly psychologistRepository: Repository<Psychologist>,
     private readonly jwtService: JwtService,
     private readonly queryHelper: QueryHelper,
     private readonly filesService: FilesService,
@@ -82,6 +79,7 @@ export class AuthService {
         ...userData,
         password: hashedPassword,
         role: ERole.PATIENT,
+        verified: null,
       });
 
       const savedUser = await patientRepo.save(newUser);
@@ -166,6 +164,7 @@ export class AuthService {
         ...psychologistData,
         password: hashedPassword,
         role: ERole.PSYCHOLOGIST,
+        verified: EPsychologistStatus.PENDING,
       });
 
       const savedPsychologist = await psychologistRepo.save(newPsychologist);

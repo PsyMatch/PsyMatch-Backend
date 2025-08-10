@@ -7,7 +7,7 @@ import {
   IsString,
   MaxLength,
 } from 'class-validator';
-import { PsychologistSpecialty } from '../enums/specialities.enum';
+import { EPsychologistSpecialty } from '../enums/specialities.enum';
 
 export class ValidatePsychologistDto {
   @IsOptional()
@@ -26,9 +26,9 @@ export class ValidatePsychologistDto {
 
   @IsArray({ message: 'Specialities must be an array' })
   @ArrayNotEmpty({ message: 'At least one speciality is required' })
-  @IsEnum(PsychologistSpecialty, {
+  @IsEnum(EPsychologistSpecialty, {
     each: true,
-    message: 'Each speciality must be a valid PsychologistSpecialty',
+    message: 'Each speciality must be a valid EPsychologistSpecialty',
   })
-  specialities: PsychologistSpecialty[];
+  specialities: EPsychologistSpecialty[];
 }
