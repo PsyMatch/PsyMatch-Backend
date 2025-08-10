@@ -80,6 +80,7 @@ export class PsychologistController {
   }
 
   @Get('pending')
+  @UseGuards(AuthGuard /*RolesGuard*/)
   @UseGuards(AuthGuard, RolesGuard)
   @Roles([ERole.ADMIN])
   @ApiBearerAuth('JWT-auth')
