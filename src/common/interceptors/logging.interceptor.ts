@@ -37,11 +37,8 @@ export class LoggingInterceptor implements NestInterceptor {
       return next.handle();
     }
 
-    const shouldLogBody = ['POST', 'PUT', 'PATCH'].includes(method);
-    const bodyLog = shouldLogBody ? ` - Body: ${JSON.stringify(body)}` : '';
-
     this.logger.log(
-      `→ ${method} ${url} - User: ${user?.id || 'Anonymous'} - IP: ${request.ip}${bodyLog}`,
+      `→ ${method} ${url} - User: ${user?.id || 'Anonymous'} - IP: ${request.ip}`,
     );
 
     return next.handle().pipe(
@@ -55,14 +52,16 @@ export class LoggingInterceptor implements NestInterceptor {
           );
 
           if (method === 'POST' && url?.includes('signin')) {
+            const maskedEmail = this.maskEmail(body?.email);
             this.logger.log(
-              `🔐 Login attempt - User: ${body?.email || 'Unknown'} - Status: ${statusCode}`,
+              `🔐 Login attempt - User: ${maskedEmail || 'Unknown'} - Status: ${statusCode}`,
             );
           }
 
           if (method === 'POST' && url?.includes('signup')) {
+            const maskedEmail = this.maskEmail(body?.email);
             this.logger.log(
-              `👤 Registration attempt - Email: ${body?.email || 'Unknown'} - Status: ${statusCode}`,
+              `👤 Registration attempt - Email: ${maskedEmail || 'Unknown'} - Status: ${statusCode}`,
             );
           }
         },
@@ -78,5 +77,17 @@ export class LoggingInterceptor implements NestInterceptor {
 
   private shouldIgnoreRequest(url: string): boolean {
     return this.ignoredPaths.some((path) => url.includes(path));
+  }
+
+  private maskEmail(email?: string): string {
+    if (!email || typeof email !== 'string') return 'Unknown';
+
+    const [localPart, domain] = email.split('@');
+    if (!domain) return '***';
+
+    const maskedLocal =
+      localPart.length > 2 ? localPart.substring(0, 2) + '***' : '***';
+
+    return `${maskedLocal}@${domain}`;
   }
 }
