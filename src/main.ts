@@ -4,15 +4,20 @@ import { envs } from './configs/envs.config';
 import { ValidationPipe } from '@nestjs/common';
 import { setupSwagger } from './configs/swagger.config';
 import { TransformResponseInterceptor } from './common/interceptors/transform-response.interceptor';
+import bodyParser from 'body-parser';
 
 async function bootstrap() {
   try {
     const app = await NestFactory.create(AppModule);
 
     app.enableCors({
-      origin: ['http://localhost:3000'],
+      origin:
+        envs.server.environment === 'production'
+          ? ['https://your-frontend-domain.com']
+          : true,
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
       credentials: true,
+      allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
     });
 
     app.useGlobalPipes(
@@ -22,6 +27,8 @@ async function bootstrap() {
         transform: true,
       }),
     );
+
+    app.use(bodyParser.json({ limit: '10mb' }));
 
     const reflector = app.get(Reflector);
     app.useGlobalInterceptors(new TransformResponseInterceptor(reflector));

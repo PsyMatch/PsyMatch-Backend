@@ -67,7 +67,8 @@ export class UsersController {
               },
               birthdate: {
                 type: 'string',
-                example: '15-05-1990',
+                format: 'date',
+                example: '2025-07-31',
                 nullable: true,
               },
               dni: { type: 'number', example: 12345678 },
@@ -151,7 +152,8 @@ export class UsersController {
               },
               birthdate: {
                 type: 'string',
-                example: '15-05-1990',
+                format: 'date',
+                example: '2025-07-31',
                 nullable: true,
               },
               dni: { type: 'number', example: 12345678 },
@@ -237,7 +239,12 @@ export class UsersController {
           nullable: true,
         },
         phone: { type: 'string', example: '+5411987654321', nullable: true },
-        birthdate: { type: 'string', example: '20-12-1985', nullable: true },
+        birthdate: {
+          type: 'string',
+          format: 'date',
+          example: '2025-07-31',
+          nullable: true,
+        },
         address: {
           type: 'string',
           example: 'Av. Santa Fe 2000, Buenos Aires',

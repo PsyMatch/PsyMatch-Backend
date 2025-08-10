@@ -34,25 +34,27 @@ export class ResponseUserDto {
   phone?: string;
 
   @ApiPropertyOptional({
-    description: 'User birthdate in format (DD-MM-YYYY)',
-    example: '15-05-1990',
+    description: 'User birthdate',
+    example: '2025-07-31',
+    type: 'string',
+    format: 'date',
   })
   @Expose()
-  birthdate?: string;
+  birthdate?: Date;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'User DNI (National Identity Document)',
     example: 12345678,
   })
   @Expose()
-  dni: number;
+  dni?: number;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'User social security number (must be unique)',
     example: '123-45-6789',
   })
   @Expose()
-  social_security_number: string;
+  social_security_number?: string;
 
   @ApiPropertyOptional({
     description: 'User address',
@@ -60,6 +62,27 @@ export class ResponseUserDto {
   })
   @Expose()
   address?: string;
+
+  @ApiPropertyOptional({
+    description: 'Emergency contact information',
+    example: 'María Pérez - +5411987654321 - Madre',
+  })
+  @Expose()
+  emergency_contact?: string;
+
+  @ApiPropertyOptional({
+    description: 'User location latitude',
+    example: -34.6037,
+  })
+  @Expose()
+  latitude?: number;
+
+  @ApiPropertyOptional({
+    description: 'User location longitude',
+    example: -58.3816,
+  })
+  @Expose()
+  longitude?: number;
 
   @ApiProperty({
     description: 'User email address',
