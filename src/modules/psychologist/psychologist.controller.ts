@@ -81,7 +81,8 @@ export class PsychologistController {
 
   @Get('pending')
   @UseGuards(AuthGuard /*RolesGuard*/)
-  // @Roles([ERole.ADMIN])
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles([ERole.ADMIN])
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Get all pending psychologists (Admin Only)',
