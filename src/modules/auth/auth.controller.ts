@@ -292,8 +292,7 @@ export class AuthController {
   }
 
   @Post('signin')
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  @Throttle({ default: { limit: 5, ttl: 60000 } }) // 5 intentos en 60 segundos
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @ResponseType(ResponseUserDto)
   @ApiOperation({ summary: 'Sign in and get JWT token' })
   @ApiResponse({

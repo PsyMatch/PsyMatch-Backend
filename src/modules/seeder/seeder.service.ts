@@ -6,8 +6,10 @@ import { Patient } from '../users/entities/patient.entity';
 import { Admin } from '../users/entities/admin.entity';
 import { Psychologist } from '../psychologist/entities/psychologist.entity';
 import { ERole } from '../../common/enums/role.enum';
-import { PsychologistSpecialty } from '../psychologist/enums/specialities.enum';
-import { PsychologistStatus } from '../psychologist/enums/verified.enum';
+import { EPsychologistSpecialty } from '../psychologist/enums/specialities.enum';
+import { EPsychologistStatus } from '../psychologist/enums/verified.enum';
+import { ESessionType } from '../psychologist/enums/session-types.enum';
+import { ETherapyApproach } from '../psychologist/enums/therapy-approaches.enum';
 
 @Injectable()
 export class SeederService {
@@ -23,18 +25,34 @@ export class SeederService {
   async seedUsers() {
     const hashPassword = (pass: string) => bcrypt.hash(pass, 10);
 
-    const adminUser = {
-      name: 'Franco Gauna',
-      email: 'francorgauna@gmail.com',
-      password: await hashPassword('SecurePass123!'),
-      dni: 12345678,
-      social_security_number: '123-45-6789',
-      address: 'Pasaje Fazio 1477',
-      phone: '+542226482075',
-      role: ERole.ADMIN,
-    };
+    const adminUser = [
+      {
+        name: 'Admin User',
+        email: 'admin@psymatch.com',
+        password: await hashPassword('Abcd1234!'),
+        dni: 12345678,
+        social_security_number: '123-45-6788',
+        address: 'Calle Falsa 123, Buenos Aires',
+        phone: '+5411222333444',
+        birthdate: '01-01-1980',
+        role: ERole.ADMIN,
+        verified: null,
+      },
+      {
+        name: 'Franco Gauna',
+        email: 'francorgauna@gmail.com',
+        password: await hashPassword('SecurePass123!'),
+        dni: 43394021,
+        social_security_number: '123-45-6789',
+        address: 'Pasaje Fazio 1477',
+        phone: '+542226482075',
+        birthdate: '01-01-1980',
+        role: ERole.ADMIN,
+        verified: null,
+      },
+    ];
 
-    await this.adminRepository.upsert([adminUser], ['email']);
+    await this.adminRepository.upsert(adminUser, ['email']);
     console.log('✅ Admin seeded successfully');
 
     const patients = [
@@ -48,6 +66,7 @@ export class SeederService {
         phone: '+5411123456789',
         birthdate: '15-05-1990',
         role: ERole.PATIENT,
+        verified: null,
       },
       {
         name: 'María González',
@@ -59,6 +78,7 @@ export class SeederService {
         phone: '+5411987654321',
         birthdate: '22-08-1985',
         role: ERole.PATIENT,
+        verified: null,
       },
       {
         name: 'Pedro Rodríguez',
@@ -70,6 +90,7 @@ export class SeederService {
         phone: '+5411777555333',
         birthdate: '10-12-1992',
         role: ERole.PATIENT,
+        verified: null,
       },
       {
         name: 'Ana López',
@@ -81,6 +102,7 @@ export class SeederService {
         phone: '+5411444555666',
         birthdate: '03-07-1988',
         role: ERole.PATIENT,
+        verified: null,
       },
       {
         name: 'Carlos Martínez',
@@ -92,6 +114,7 @@ export class SeederService {
         phone: '+5411333444555',
         birthdate: '28-03-1995',
         role: ERole.PATIENT,
+        verified: null,
       },
       {
         name: 'Laura Fernández',
@@ -103,6 +126,7 @@ export class SeederService {
         phone: '+5411222333444',
         birthdate: '17-11-1987',
         role: ERole.PATIENT,
+        verified: null,
       },
     ];
 
@@ -118,14 +142,20 @@ export class SeederService {
         social_security_number: '987-65-4321',
         address: 'Av. Callao 1000, Buenos Aires',
         phone: '+5411777888999',
+        birthdate: '10-10-1980',
         role: ERole.PSYCHOLOGIST,
         office_address: 'Consultorio en Av. Callao 1000, Piso 5',
         license_number: 'PSI-12345',
         specialities: [
-          PsychologistSpecialty.CLINICAL,
-          PsychologistSpecialty.COUNSELING,
+          EPsychologistSpecialty.ANGER_MANAGEMENT,
+          EPsychologistSpecialty.GRIEF_LOSS,
         ],
-        verified: PsychologistStatus.VALIDATED,
+        session_types: [ESessionType.INDIVIDUAL, ESessionType.COUPLE],
+        therapy_approaches: [
+          ETherapyApproach.COGNITIVE_BEHAVIORAL_THERAPY,
+          ETherapyApproach.PSYCHODYNAMIC_THERAPY,
+        ],
+        verified: EPsychologistStatus.VALIDATED,
       },
       {
         name: 'Dr. Roberto Silva',
@@ -135,14 +165,20 @@ export class SeederService {
         social_security_number: '987-65-4322',
         address: 'Santa Fe 2000, Buenos Aires',
         phone: '+5411666777888',
+        birthdate: '15-03-1975',
         role: ERole.PSYCHOLOGIST,
         office_address: 'Consultorio en Santa Fe 2000, Oficina 203',
         license_number: 'PSI-12346',
         specialities: [
-          PsychologistSpecialty.TRAUMA,
-          PsychologistSpecialty.ADDICTION,
+          EPsychologistSpecialty.SLEEP_DISORDERS,
+          EPsychologistSpecialty.FAMILY_THERAPY,
         ],
-        verified: PsychologistStatus.VALIDATED,
+        session_types: [ESessionType.FAMILY, ESessionType.GROUP],
+        therapy_approaches: [
+          ETherapyApproach.FAMILY_SYSTEMS_THERAPY,
+          ETherapyApproach.GROUP_THERAPY,
+        ],
+        verified: EPsychologistStatus.VALIDATED,
       },
       {
         name: 'Dra. Carmen Ruiz',
@@ -152,14 +188,20 @@ export class SeederService {
         social_security_number: '987-65-4323',
         address: 'Pueyrredón 1500, Buenos Aires',
         phone: '+5411555666777',
+        birthdate: '22-07-1982',
         role: ERole.PSYCHOLOGIST,
         office_address: 'Consultorio en Pueyrredón 1500, Suite 15',
         license_number: 'PSI-12347',
         specialities: [
-          PsychologistSpecialty.CHILD,
-          PsychologistSpecialty.FAMILY,
+          EPsychologistSpecialty.CHILD_ADOLESCENT_THERAPY,
+          EPsychologistSpecialty.FAMILY_THERAPY,
         ],
-        verified: PsychologistStatus.PENDING,
+        session_types: [ESessionType.INDIVIDUAL, ESessionType.FAMILY],
+        therapy_approaches: [
+          ETherapyApproach.PLAY_THERAPY,
+          ETherapyApproach.SOLUTION_FOCUSED_BRIEF_THERAPY,
+        ],
+        verified: EPsychologistStatus.PENDING,
       },
     ];
 

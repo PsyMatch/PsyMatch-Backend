@@ -9,10 +9,11 @@ import {
   JoinTable,
 } from 'typeorm';
 import { ERole } from '../../../common/enums/role.enum';
+import { EPsychologistStatus } from '../../psychologist/enums/verified.enum';
 
 @Entity('users')
 @TableInheritance({
-  column: { type: 'text', name: 'type' },
+  column: { type: 'enum', name: 'role', enum: ERole },
   pattern: 'STI',
 })
 export class User {
@@ -22,23 +23,29 @@ export class User {
   @Column({ type: 'text', nullable: false })
   name: string;
 
-  @Column({ type: 'text', nullable: true })
-  profile_picture: string;
-
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: 'text', nullable: false })
   phone: string;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: 'text', nullable: false })
   birthdate: string;
 
-  @Column({ type: 'bigint', unique: true, nullable: false })
+  @Column({ type: 'bigint', unique: true, nullable: true })
   dni: number;
 
+  @Column({ type: 'text', nullable: false })
+  address: string;
+
   @Column({ type: 'text', unique: true, nullable: false })
+  email: string;
+
+  @Column({ type: 'text', nullable: false })
+  password: string;
+
+  @Column({ type: 'text', unique: true, nullable: true })
   social_security_number: string;
 
   @Column({ type: 'text', nullable: true })
-  address: string;
+  emergency_contact: string;
 
   @Column({ type: 'decimal', precision: 10, scale: 8, nullable: true })
   latitude: number;
@@ -46,11 +53,8 @@ export class User {
   @Column({ type: 'decimal', precision: 11, scale: 8, nullable: true })
   longitude: number;
 
-  @Column({ type: 'text', unique: true, nullable: false })
-  email: string;
-
-  @Column({ type: 'text', nullable: false })
-  password: string;
+  @Column({ type: 'text', nullable: true })
+  profile_picture: string;
 
   @ManyToMany(() => User, { cascade: true })
   @JoinTable({
@@ -68,6 +72,13 @@ export class User {
   })
   role: ERole;
 
+  @Column({
+    type: 'enum',
+    enum: EPsychologistStatus,
+    nullable: true,
+  })
+  verified: EPsychologistStatus | null;
+
   @Column({ type: 'boolean', default: true })
   is_active: boolean;
 
@@ -80,7 +91,6 @@ export class User {
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updated_at: Date;
 
-  // CODIGO ESCRITO POR PEDRO, NECESARIO PARA LA AUTENTICACION DE TERCEROS
   @Column({ type: 'text', nullable: true })
   provider: string;
 

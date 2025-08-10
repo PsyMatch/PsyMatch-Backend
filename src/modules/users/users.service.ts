@@ -6,8 +6,6 @@ import {
 } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
-import { Patient } from './entities/patient.entity';
-import { Psychologist } from '../psychologist/entities/psychologist.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { QueryHelper } from '../utils/helpers/query.helper';
@@ -23,10 +21,6 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
-    @InjectRepository(Patient)
-    private readonly patientRepository: Repository<Patient>,
-    @InjectRepository(Psychologist)
-    private readonly psychologistRepository: Repository<Psychologist>,
     private readonly queryHelper: QueryHelper,
     private readonly paginationService: PaginationService,
   ) {}
@@ -56,9 +50,8 @@ export class UsersService {
   }
 
   async findById(id: string): Promise<User> {
-    // Primero intentamos encontrar como Patient
-    let user: User | null = await this.patientRepository.findOne({
-      where: { id, is_active: true },
+    let user: User | null = await this.usersRepository.findOne({
+      where: { id, is_active: true, role: ERole.PATIENT },
       relations: ['psychologists'],
     });
 
@@ -66,9 +59,8 @@ export class UsersService {
       return user;
     }
 
-    // Si no es Patient, intentamos como Psychologist
-    user = await this.psychologistRepository.findOne({
-      where: { id, is_active: true },
+    user = await this.usersRepository.findOne({
+      where: { id, is_active: true, role: ERole.PSYCHOLOGIST },
       relations: ['patients'],
     });
 
@@ -76,10 +68,9 @@ export class UsersService {
       return user;
     }
 
-    // Si no es ninguno de los dos, buscamos en la tabla base (Admin)
     user = await this.usersRepository.findOne({
       where: { id, is_active: true, role: ERole.ADMIN },
-      relations: ['psychologists'], // Los admin pueden ver psychologists
+      relations: ['psychologists'],
     });
 
     if (!user) {
@@ -176,7 +167,13 @@ export class UsersService {
   }
 
   async createOAuthUser(userData: Partial<User>): Promise<User> {
-    const user = this.usersRepository.create(userData);
+    const userDataWithDefaults = {
+      ...userData,
+      role: userData.role || ERole.PATIENT,
+      verified: null,
+    };
+
+    const user = this.usersRepository.create(userDataWithDefaults);
     return this.usersRepository.save(user);
   }
 
