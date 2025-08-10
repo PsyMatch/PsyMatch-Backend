@@ -9,6 +9,12 @@ async function bootstrap() {
   try {
     const app = await NestFactory.create(AppModule);
 
+    app.enableCors({
+      origin: ['http://localhost:3000'],
+      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+      credentials: true,
+    });
+
     app.useGlobalPipes(
       new ValidationPipe({
         whitelist: true,
@@ -24,9 +30,9 @@ async function bootstrap() {
 
     await app.listen(envs.server.port);
 
-    if (envs.node !== 'production') {
+    if (envs.server.environment !== 'production') {
       console.log(
-        `🌱 Environment: ${envs.node}, 🚀 App running on http://${envs.server.host}:${envs.server.port}/api`,
+        `🌱 Environment: ${envs.server.environment}, 🚀 App running on http://${envs.server.host}:${envs.server.port}/api`,
       );
     }
   } catch (err) {

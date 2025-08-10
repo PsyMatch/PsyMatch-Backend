@@ -1,0 +1,15 @@
+export enum ETherapyApproach {
+  COGNITIVE_BEHAVIORAL_THERAPY = 'cognitive_behavioral_therapy',
+  ACCEPTANCE_COMMITMENT_THERAPY = 'acceptance_commitment_therapy',
+  PSYCHODYNAMIC_THERAPY = 'psychodynamic_therapy',
+  FAMILY_SYSTEMS_THERAPY = 'family_systems_therapy',
+  SOLUTION_FOCUSED_BRIEF_THERAPY = 'solution_focused_brief_therapy',
+  PLAY_THERAPY = 'play_therapy',
+  DIALECTICAL_BEHAVIORAL_THERAPY = 'dialectical_behavioral_therapy',
+  EYE_MOVEMENT_DESENSITIZATION_REPROCESSING = 'eye_movement_desensitization_reprocessing',
+  HUMANISTIC_CENTRED_THERAPY = 'humanistic_centred_therapy',
+  MINDFULNESS_BASED_THERAPY = 'mindfulness_based_therapy',
+  GESTALT_THERAPY = 'gestalt_therapy',
+  ART_THERAPY = 'art_therapy',
+  GROUP_THERAPY = 'group_therapy',
+}

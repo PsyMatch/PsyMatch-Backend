@@ -1,9 +1,8 @@
 import 'dotenv/config';
 import { registerAs } from '@nestjs/config';
 
-const node = process.env.NODE_ENV ?? 'development';
-
 const server = {
+  environment: process.env.ENVIRONMENT ?? 'development',
   port: parseInt(String(process.env.PORT ?? 3000), 10),
   host: process.env.HOST ?? 'localhost',
 };
@@ -36,7 +35,7 @@ const oauth = {
   },
 };
 
-const config = { node, server, typeorm, cloudinary, jwt, oauth };
+const config = { server, typeorm, cloudinary, jwt, oauth };
 
 export const envs = config;
 

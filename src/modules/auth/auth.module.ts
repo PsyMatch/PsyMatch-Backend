@@ -10,6 +10,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { FilesModule } from '../files/files.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { PassportModule } from '@nestjs/passport';
+import { GoogleStrategy } from './strategies/google.strategy';
+import { UsersService } from '../users/users.service';
+import { PaginationService } from 'src/common/services/pagination.service';
 
 @Module({
   imports: [
@@ -19,17 +23,17 @@ import { APP_GUARD } from '@nestjs/core';
     ThrottlerModule.forRoot([
       {
         name: 'short',
-        ttl: 1000, // 1 second
+        ttl: 1000,
         limit: 3,
       },
       {
         name: 'medium',
-        ttl: 10000, // 10 seconds
+        ttl: 10000,
         limit: 20,
       },
       {
         name: 'long',
-        ttl: 60000, // 1 minute
+        ttl: 60000,
         limit: 100,
       },
     ]),
@@ -41,6 +45,7 @@ import { APP_GUARD } from '@nestjs/core';
         signOptions: { expiresIn: '1d' },
       }),
     }),
+    PassportModule.register({ session: false }),
   ],
   controllers: [AuthController],
   providers: [
@@ -49,6 +54,10 @@ import { APP_GUARD } from '@nestjs/core';
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
+    GoogleStrategy,
+    UsersService,
+    PaginationService,
   ],
+  exports: [AuthService],
 })
 export class AuthModule {}

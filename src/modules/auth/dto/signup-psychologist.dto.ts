@@ -13,7 +13,7 @@ import {
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { PsychologistSpecialty } from '../../psychologist/enums/specialities.enum';
+import { EPsychologistSpecialty } from '../../psychologist/enums/specialities.enum';
 
 const transformToNumber = (value: unknown): number | undefined => {
   if (typeof value === 'string' && value.trim() !== '') {
@@ -140,11 +140,11 @@ export class SignUpPsychologistDto {
   @ApiProperty({
     description: 'Array of specialties',
     example: ['CLINICAL', 'COUNSELING'],
-    enum: PsychologistSpecialty,
+    enum: EPsychologistSpecialty,
     isArray: true,
   })
   @IsArray()
   @ArrayNotEmpty()
-  @IsEnum(PsychologistSpecialty, { each: true })
-  specialities: PsychologistSpecialty[];
+  @IsEnum(EPsychologistSpecialty, { each: true })
+  specialities: EPsychologistSpecialty[];
 }

@@ -1,8 +1,12 @@
 import {
   Body,
   Controller,
+  Get,
   Post,
+  Req,
+  Res,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import {
@@ -11,6 +15,7 @@ import {
   ApiResponse,
   ApiConsumes,
   ApiBody,
+  ApiExcludeEndpoint,
 } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Throttle } from '@nestjs/throttler';
@@ -22,6 +27,8 @@ import { SignUpPsychologistDto } from './dto/signup-psychologist.dto';
 import { ResponseType } from '../../common/decorators/response-type.decorator';
 import { FileValidationPipe } from '../files/pipes/file-validation.pipe';
 import { User } from '../users/entities/user.entity';
+import { AuthGuard } from '@nestjs/passport';
+import { Request, Response } from 'express';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -286,7 +293,7 @@ export class AuthController {
   }
 
   @Post('signin')
-  @Throttle({ default: { limit: 5, ttl: 60000 } }) // 5 intentos en 60 segundos
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @ResponseType(ResponseUserDto)
   @ApiOperation({ summary: 'Sign in and get JWT token' })
   @ApiResponse({
@@ -311,5 +318,24 @@ export class AuthController {
       data: validatedUser.data,
       token: validatedUser.token,
     };
+  }
+
+  @Get('google')
+  @ApiExcludeEndpoint()
+  @UseGuards(AuthGuard('google'))
+  async googleAuth() {}
+
+  @Get('google/callback')
+  @ApiExcludeEndpoint()
+  @UseGuards(AuthGuard('google'))
+  googleAuthCallback(@Req() req: Request, @Res() res: Response) {
+    const jwt = this.authService.loginWithAuth(
+      req.user as { id: number; email: string },
+    );
+
+    return res.json({
+      message: 'Google authentication successful',
+      token: jwt,
+    });
   }
 }
