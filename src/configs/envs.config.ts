@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { registerAs } from '@nestjs/config';
 
 const server = {
-  node: process.env.NODE ?? 'development',
+  environment: process.env.ENVIRONMENT ?? 'development',
   port: parseInt(String(process.env.PORT ?? 3000), 10),
   host: process.env.HOST ?? 'localhost',
 };
