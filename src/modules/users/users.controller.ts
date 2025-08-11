@@ -9,7 +9,10 @@ import {
   Query,
   Req,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiTags,
   ApiBearerAuth,
@@ -17,6 +20,7 @@ import {
   ApiResponse,
   ApiQuery,
   ApiBody,
+  ApiConsumes,
 } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { AuthGuard } from '../auth/guards/auth.guard';
@@ -24,6 +28,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { SameUserOrAdminGuard } from '../auth/guards/same-user.guard';
 import { IAuthRequest } from '../auth/interfaces/auth-request.interface';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { FileValidationPipe } from '../files/pipes/file-validation.pipe';
 import { ERole } from '../../common/enums/role.enum';
 import { Roles } from '../auth/decorators/role.decorator';
 import { ResponseType } from '../../common/decorators/response-type.decorator';
@@ -72,9 +77,29 @@ export class UsersController {
                 nullable: true,
               },
               dni: { type: 'number', example: 12345678 },
-              social_security_number: {
+              health_insurance: {
                 type: 'string',
-                example: '123-45-6789',
+                example: 'osde',
+                description: 'Health insurance provider',
+                enum: [
+                  'osde',
+                  'swiss-medical',
+                  'ioma',
+                  'pami',
+                  'unión-personal',
+                  'osdepy',
+                  'luis-pasteur',
+                  'jerarquicos-salud',
+                  'sancor-salud',
+                  'osecac',
+                  'osmecón-salud',
+                  'apross',
+                  'osprera',
+                  'ospat',
+                  'ase-nacional',
+                  'ospsip',
+                ],
+                nullable: true,
               },
               address: {
                 type: 'string',
@@ -157,9 +182,29 @@ export class UsersController {
                 nullable: true,
               },
               dni: { type: 'number', example: 12345678 },
-              social_security_number: {
+              health_insurance: {
                 type: 'string',
-                example: '123-45-6789',
+                example: 'osde',
+                description: 'Health insurance provider',
+                enum: [
+                  'osde',
+                  'swiss-medical',
+                  'ioma',
+                  'pami',
+                  'unión-personal',
+                  'osdepy',
+                  'luis-pasteur',
+                  'jerarquicos-salud',
+                  'sancor-salud',
+                  'osecac',
+                  'osmecón-salud',
+                  'apross',
+                  'osprera',
+                  'ospat',
+                  'ase-nacional',
+                  'ospsip',
+                ],
+                nullable: true,
               },
               address: {
                 type: 'string',
@@ -227,49 +272,52 @@ export class UsersController {
 
   @Put(':id')
   @UseGuards(AuthGuard, SameUserOrAdminGuard)
+  @UseInterceptors(FileInterceptor('profile_picture'))
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Update user by ID' })
+  @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
       type: 'object',
       properties: {
+        phone: { type: 'string', example: '+5411987654321' },
+        birthdate: { type: 'string', example: '1990-05-15' },
+        address: { type: 'string', example: 'Av. Santa Fe 2000, Buenos Aires' },
+        latitude: { type: 'string', example: '-34.5975' },
+        longitude: { type: 'string', example: '-58.3816' },
+        password: { type: 'string', example: 'NewPassword123!' },
+        health_insurance: {
+          type: 'string',
+          example: 'osde',
+          description: 'Health insurance provider',
+          enum: [
+            'osde',
+            'swiss-medical',
+            'ioma',
+            'pami',
+            'unión-personal',
+            'osdepy',
+            'luis-pasteur',
+            'jerarquicos-salud',
+            'sancor-salud',
+            'osecac',
+            'osmecón-salud',
+            'apross',
+            'osprera',
+            'ospat',
+            'ase-nacional',
+            'ospsip',
+          ],
+        },
+        emergency_contact: {
+          type: 'string',
+          example: 'Juan Perez - +5411111111 - Hermano',
+        },
         profile_picture: {
           type: 'string',
-          example: 'https://example.com/new-profile.jpg',
-          nullable: true,
-        },
-        phone: { type: 'string', example: '+5411987654321', nullable: true },
-        birthdate: {
-          type: 'string',
-          format: 'date',
-          example: '2025-07-31',
-          nullable: true,
-        },
-        address: {
-          type: 'string',
-          example: 'Av. Santa Fe 2000, Buenos Aires',
-          nullable: true,
-        },
-        latitude: { type: 'number', example: -34.5975, nullable: true },
-        longitude: { type: 'number', example: -58.3816, nullable: true },
-        password: {
-          type: 'string',
-          example: 'NewSecurePass123!',
-          nullable: true,
-        },
-        psychologists: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              name: { type: 'string', example: 'Dr. Ana García' },
-              email: { type: 'string', example: 'ana.garcia@psychologist.com' },
-              role: { type: 'string', example: 'psychologist' },
-            },
-          },
-          nullable: true,
+          format: 'binary',
           description:
-            'Assigned psychologists for this patient (only applicable when user role is PATIENT)',
+            'Optional profile picture file (JPG, JPEG, PNG, WEBP - max 2MB)',
         },
       },
     },
@@ -292,6 +340,8 @@ export class UsersController {
     @Req() req: IAuthRequest,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() userData: UpdateUserDto,
+    @UploadedFile(new FileValidationPipe({ isOptional: true }))
+    _profilePicture?: Express.Multer.File,
   ): Promise<{ message: string; id: string }> {
     const updatedUser = await this.usersService.update(
       id,

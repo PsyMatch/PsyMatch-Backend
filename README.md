@@ -410,7 +410,7 @@ La base de datos utiliza **Single Table Inheritance (STI)** para optimizar las c
 - email (VARCHAR, UNIQUE)
 - password (VARCHAR, HASHED)
 - dni (INTEGER, UNIQUE)
-- social_security_number (VARCHAR, UNIQUE)
+- health_insurance (ENUM: EInsurance, NULLABLE) -- Nuevo campo, reemplaza social_security_number
 - phone (VARCHAR, NULLABLE)
 - address (VARCHAR, NULLABLE)
 - latitude (DECIMAL, NULLABLE)
@@ -435,6 +435,7 @@ La base de datos utiliza **Single Table Inheritance (STI)** para optimizar las c
 - specialities (ENUM ARRAY)
 - session_types (ENUM ARRAY)
 - therapy_approaches (ENUM ARRAY)
+- insurance_accepted (ENUM ARRAY: EInsurance, NOT NULL) -- Nuevo campo, reemplaza malpractice_insurance
 ```
 
 **Appointments**
@@ -741,11 +742,15 @@ phone: '+542614567890'; // Mendoza
 phone: '+543514567890'; // Córdoba
 ```
 
-**Números de Obra Social**
+**Seguros de Salud**
 
 ```typescript
-// Formato estándar argentino XXX-XX-XXXX
-social_security_number: '123-45-6789';
+// Proveedores de seguro de salud disponibles
+health_insurance: 'osde'; // OSDE
+health_insurance: 'swiss-medical'; // Swiss Medical
+health_insurance: 'ioma'; // IOMA
+health_insurance: 'pami'; // PAMI
+// Y otros según enum EInsurance
 ```
 
 ### Validaciones Específicas
@@ -1101,3 +1106,19 @@ Agradecemos a todos los desarrolladores que han contribuido a este proyecto y a 
 **🔄 Última actualización**: Agosto 2025  
 **📊 Estado del proyecto**: En desarrollo activo  
 **🚀 Versión actual**: 1.0.0-beta
+
+### Ejemplo de respuesta para `/auth/signup-psychologist`
+
+```json
+{
+  "id": "12345",
+  "name": "Dr. John Doe",
+  "email": "johndoe@example.com",
+  "availability": ["Monday", "Wednesday", "Friday"],
+  "specialties": ["Cognitive Behavioral Therapy", "Family Therapy"],
+  "languages": ["English", "Spanish"],
+  "sessionTypes": ["Online", "In-Person"],
+  "createdAt": "2023-10-01T12:00:00Z",
+  "updatedAt": "2023-10-01T12:00:00Z"
+}
+```

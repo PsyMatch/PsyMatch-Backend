@@ -8,11 +8,12 @@ import {
   Max,
   Matches,
   IsDateString,
+  IsEnum,
+  IsArray,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { User } from '../entities/user.entity';
-import { Psychologist } from '../../psychologist/entities/psychologist.entity';
+import { EInsurance } from '../enums/insurance_accepted .enum';
 
 const transformToDate = (value: unknown): Date | undefined => {
   if (!value) return undefined;
@@ -84,15 +85,27 @@ export class UpdateUserDto {
   dni?: number;
 
   @ApiPropertyOptional({
-    description: 'User social security number (must be unique)',
-    example: '123-45-6789',
+    description: 'Health insurance provider',
+    example: 'osde',
+    enum: EInsurance,
   })
   @IsOptional()
-  @IsString({ message: 'Social security number must be a string' })
-  @Matches(/^\d{3}-\d{2}-\d{4}$/, {
-    message: 'Social security number must be in the format XXX-XX-XXXX',
+  @IsEnum(EInsurance, { message: 'Health insurance must be a valid provider' })
+  health_insurance?: EInsurance;
+
+  @ApiPropertyOptional({
+    description: 'Insurance providers accepted (only for psychologists)',
+    example: ['osde', 'swiss-medical', 'ioma'],
+    enum: EInsurance,
+    isArray: true,
   })
-  social_security_number?: string;
+  @IsOptional()
+  @IsArray({ message: 'Insurance accepted must be an array' })
+  @IsEnum(EInsurance, {
+    each: true,
+    message: 'Each insurance must be a valid provider',
+  })
+  insurance_accepted?: EInsurance[];
 
   @ApiPropertyOptional({
     description: 'User address (updating this should also update coordinates)',
@@ -169,13 +182,4 @@ export class UpdateUserDto {
       'Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character',
   })
   password?: string;
-
-  @ApiPropertyOptional({
-    description:
-      'Assigned psychologists for this patient (only applicable when user role is PATIENT)',
-    type: () => User,
-    isArray: true,
-  })
-  @IsOptional()
-  psychologists?: Psychologist[];
 }

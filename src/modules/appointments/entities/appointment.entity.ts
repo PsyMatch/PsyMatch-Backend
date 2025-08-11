@@ -8,17 +8,13 @@ import {
 } from 'typeorm';
 import { Psychologist } from '../../psychologist/entities/psychologist.entity';
 import { User } from '../../users/entities/user.entity';
+import { EModality } from 'src/modules/psychologist/enums/modality.enum';
 
 export enum AppointmentStatus {
   PENDING = 'PENDING',
   CONFIRMED = 'CONFIRMED',
   CANCELLED = 'CANCELLED',
   COMPLETED = 'COMPLETED',
-}
-
-export enum Modality {
-  ONLINE = 'ONLINE',
-  IN_PERSON = 'IN_PERSON',
 }
 
 @Entity('appointments')
@@ -44,10 +40,10 @@ export class Appointment {
 
   @Column({
     type: 'enum',
-    enum: Modality,
-    default: Modality.ONLINE,
+    enum: EModality,
+    default: EModality.ONLINE,
   })
-  modality: Modality;
+  modality: EModality;
 
   @CreateDateColumn()
   created_at: Date;
