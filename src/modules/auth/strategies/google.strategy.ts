@@ -1,5 +1,4 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-google-oauth2';
 import { VerifiedCallback } from 'passport-jwt';
@@ -9,14 +8,29 @@ import { Profile } from 'passport';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
-  constructor(
-    private readonly configService: ConfigService,
-    private readonly authService: AuthService,
-  ) {
+  constructor(private readonly authService: AuthService) {
+    const clientID = env.GOOGLE_CLIENT_ID;
+    const clientSecret = env.GOOGLE_CLIENT_SECRET;
+    const callbackURL = env.GOOGLE_CALLBACK_URL;
+    if (!clientID) {
+      throw new ServiceUnavailableException(
+        'Missing required environment variable: GOOGLE_CLIENT_ID',
+      );
+    }
+    if (!clientSecret) {
+      throw new ServiceUnavailableException(
+        'Missing required environment variable: GOOGLE_CLIENT_SECRET',
+      );
+    }
+    if (!callbackURL) {
+      throw new ServiceUnavailableException(
+        'Missing required environment variable: GOOGLE_CALLBACK_URL',
+      );
+    }
     super({
-      clientID: env.GOOGLE_CLIENT_ID!,
-      clientSecret: env.GOOGLE_CLIENT_SECRET!,
-      callbackURL: env.GOOGLE_CALLBACK_URL!,
+      clientID,
+      clientSecret,
+      callbackURL,
       scope: ['email', 'profile'],
     });
   }
@@ -41,8 +55,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
 
       const user = await this.authService.validateOAuthLogin(oAuthUser);
       done(null, user);
-    } catch (error) {
-      done(error, false);
+    } catch (ServiceUnavailableException) {
+      done(ServiceUnavailableException, false);
     }
   }
 }

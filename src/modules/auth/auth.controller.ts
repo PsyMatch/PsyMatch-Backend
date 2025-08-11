@@ -15,6 +15,7 @@ import {
   ApiResponse,
   ApiConsumes,
   ApiBody,
+  ApiExcludeEndpoint,
 } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Throttle } from '@nestjs/throttler';
@@ -50,63 +51,64 @@ export class AuthController {
       properties: {
         name: {
           type: 'string',
-          example: 'Juan Carlos Pérez',
+          example: 'María González',
           description: 'Full name of the user',
         },
         dni: {
           type: 'string',
-          example: '12345678',
+          example: '98765432',
           description: 'User DNI (National Identity Document)',
         },
         email: {
           type: 'string',
-          example: 'juan.perez@email.com',
+          example: 'maria.gonzalez@gmail.com',
           description: 'User email address (must be unique)',
         },
         password: {
           type: 'string',
-          example: 'SecurePass123!',
+          example: 'MyPassword123!',
           description: 'User password with security requirements',
         },
         confirmPassword: {
           type: 'string',
-          example: 'SecurePass123!',
+          example: 'MyPassword123!',
           description: 'Password confirmation (must match password)',
         },
         social_security_number: {
           type: 'string',
-          example: '123-45-6789',
+          example: '987-65-4381',
           description: 'User social security number (must be unique)',
         },
         profile_picture: {
           type: 'string',
           format: 'binary',
           description:
-            'Optional profile picture (JPG, JPEG, PNG, WEBP - max 500KB)',
+            'Optional profile picture (JPG, JPEG, PNG, WEBP - max 2MB)',
         },
         phone: {
           type: 'string',
-          example: '1123456789',
+          example: '+5491155443322',
           description: 'Optional phone number',
         },
         birthdate: {
           type: 'string',
-          example: '15-05-1990',
-          description: 'Optional birthdate in DD-MM-YYYY format',
+          format: 'date',
+          example: '1995-03-15',
+          description: 'Optional birthdate in YYYY-MM-DD format',
         },
         address: {
           type: 'string',
-          example: 'Av. Corrientes 1234, Buenos Aires, Argentina',
+          example: 'Av. Santa Fe 1234, CABA, Argentina',
           description: 'Optional address',
         },
         latitude: {
           type: 'string',
-          example: '-34.6037',
+          example: '-34.5998',
           description: 'Optional latitude coordinate',
         },
         longitude: {
           type: 'string',
-          example: '-58.3816',
+          example: '-58.3837',
           description: 'Optional longitude coordinate',
         },
       },
@@ -122,10 +124,11 @@ export class AuthController {
   })
   @ApiResponse({
     status: 201,
-    description: 'User registered successfully',
+    description:
+      'User registered successfully - JWT Token included for automatic login',
     schema: {
       example: {
-        message: 'User created successfully',
+        message: 'User successfully registered',
         data: {
           id: 'user-uuid',
           name: 'Juan Carlos Pérez',
@@ -133,6 +136,7 @@ export class AuthController {
           dni: 12345678,
           profile_picture: 'https://cloudinary.com/optimized-url',
         },
+        token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
       },
     },
   })
@@ -145,12 +149,9 @@ export class AuthController {
   ): Promise<{
     message: string;
     data: User;
+    token: string;
   }> {
-    const newUser = await this.authService.signUpService(
-      userData,
-      profilePicture,
-    );
-    return { message: 'User created successfully', data: newUser };
+    return await this.authService.signUpService(userData, profilePicture);
   }
 
   @Post('signup-psychologist')
@@ -236,7 +237,7 @@ export class AuthController {
           type: 'string',
           format: 'binary',
           description:
-            'Optional profile picture (JPG, JPEG, PNG, WEBP - max 500KB)',
+            'Optional profile picture (JPG, JPEG, PNG, WEBP - max 2MB)',
         },
       },
       required: [
@@ -254,10 +255,11 @@ export class AuthController {
   })
   @ApiResponse({
     status: 201,
-    description: 'Psychologist registered successfully',
+    description:
+      'Psychologist registered successfully - JWT Token included for automatic login',
     schema: {
       example: {
-        message: 'Psychologist created successfully',
+        message: 'Psychologist successfully registered',
         data: {
           id: 'psychologist-uuid',
           name: 'Dr. Ana García',
@@ -269,6 +271,7 @@ export class AuthController {
           verified: 'PENDING',
           profile_picture: 'https://cloudinary.com/optimized-url',
         },
+        token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
       },
     },
   })
@@ -281,15 +284,12 @@ export class AuthController {
   ): Promise<{
     message: string;
     data: User;
+    token: string;
   }> {
-    const newPsychologist = await this.authService.signUpPsychologistService(
+    return await this.authService.signUpPsychologistService(
       userData,
       profilePicture,
     );
-    return {
-      message: 'Psychologist created successfully',
-      data: newPsychologist,
-    };
   }
 
   @Post('signin')
@@ -321,10 +321,12 @@ export class AuthController {
   }
 
   @Get('google')
+  @ApiExcludeEndpoint()
   @UseGuards(AuthGuard('google'))
   async googleAuth() {}
 
   @Get('google/callback')
+  @ApiExcludeEndpoint()
   @UseGuards(AuthGuard('google'))
   googleAuthCallback(@Req() req: Request, @Res() res: Response) {
     const jwt = this.authService.loginWithAuth(
@@ -333,12 +335,10 @@ export class AuthController {
 
     res.cookie('auth_token', jwt, {
       httpOnly: true,
-      secure: envs.server.node === 'production',
+      secure: envs.server.environment === 'production',
       sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-    return res.redirect(
-      `http://${envs.server.host}:${envs.server.port}/dashboard/user`,
-    );
+    return res.redirect('http://localhost:3000/dashboard/user');
   }
 }

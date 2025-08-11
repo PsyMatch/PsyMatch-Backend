@@ -1,16 +1,10 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { UpdatePsychologistDto } from './dto/update-psychologist.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Psychologist } from './entities/psychologist.entity';
 import { EPsychologistStatus } from './enums/verified.enum';
 import { PaginatedPendingRequestsDto } from './dto/response-pending-psychologist.dto';
-import { CreatePsychologistDto } from './dto/validate-psychologist.dto';
-import bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()

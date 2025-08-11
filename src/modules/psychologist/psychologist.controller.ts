@@ -1,7 +1,6 @@
 import {
   Controller,
   Get,
-  Post,
   Body,
   Param,
   Delete,
@@ -10,7 +9,6 @@ import {
   Query,
 } from '@nestjs/common';
 import { PsychologistService } from './psychologist.service';
-import { CreatePsychologistDto } from './dto/validate-psychologist.dto';
 import { UpdatePsychologistDto } from './dto/update-psychologist.dto';
 import {
   ApiBearerAuth,

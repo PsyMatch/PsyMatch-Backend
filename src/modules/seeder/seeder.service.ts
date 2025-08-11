@@ -10,6 +10,7 @@ import { EPsychologistSpecialty } from '../psychologist/enums/specialities.enum'
 import { EPsychologistStatus } from '../psychologist/enums/verified.enum';
 import { ESessionType } from '../psychologist/enums/session-types.enum';
 import { ETherapyApproach } from '../psychologist/enums/therapy-approaches.enum';
+import { envs } from 'src/configs/envs.config';
 
 @Injectable()
 export class SeederService {
@@ -34,7 +35,7 @@ export class SeederService {
         social_security_number: '123-45-6788',
         address: 'Calle Falsa 123, Buenos Aires',
         phone: '+5411222333444',
-        birthdate: '01-01-1980',
+        birthdate: '1980-01-01',
         role: ERole.ADMIN,
         verified: null,
       },
@@ -46,14 +47,16 @@ export class SeederService {
         social_security_number: '123-45-6789',
         address: 'Pasaje Fazio 1477',
         phone: '+542226482075',
-        birthdate: '01-01-1980',
+        birthdate: '1980-01-01',
         role: ERole.ADMIN,
         verified: null,
       },
     ];
 
     await this.adminRepository.upsert(adminUser, ['email']);
-    console.log('✅ Admin seeded successfully');
+    if (envs.server.environment !== 'production') {
+      console.log('✅ Admin seeded successfully');
+    }
 
     const patients = [
       {
@@ -64,7 +67,7 @@ export class SeederService {
         social_security_number: '123-45-6790',
         address: 'Av. Corrientes 1234, Buenos Aires',
         phone: '+5411123456789',
-        birthdate: '15-05-1990',
+        birthdate: '1990-05-15',
         role: ERole.PATIENT,
         verified: null,
       },
@@ -76,7 +79,7 @@ export class SeederService {
         social_security_number: '123-45-6791',
         address: 'Calle Falsa 123, Rosario',
         phone: '+5411987654321',
-        birthdate: '22-08-1985',
+        birthdate: '1985-08-22',
         role: ERole.PATIENT,
         verified: null,
       },
@@ -88,7 +91,7 @@ export class SeederService {
         social_security_number: '123-45-6792',
         address: 'San Martín 456, Córdoba',
         phone: '+5411777555333',
-        birthdate: '10-12-1992',
+        birthdate: '1992-12-10',
         role: ERole.PATIENT,
         verified: null,
       },
@@ -100,7 +103,7 @@ export class SeederService {
         social_security_number: '123-45-6793',
         address: 'Rivadavia 789, La Plata',
         phone: '+5411444555666',
-        birthdate: '03-07-1988',
+        birthdate: '1988-07-03',
         role: ERole.PATIENT,
         verified: null,
       },
@@ -112,7 +115,7 @@ export class SeederService {
         social_security_number: '123-45-6794',
         address: 'Belgrano 321, Mendoza',
         phone: '+5411333444555',
-        birthdate: '28-03-1995',
+        birthdate: '1995-03-28',
         role: ERole.PATIENT,
         verified: null,
       },
@@ -124,14 +127,16 @@ export class SeederService {
         social_security_number: '123-45-6795',
         address: 'Mitre 654, Tucumán',
         phone: '+5411222333444',
-        birthdate: '17-11-1987',
+        birthdate: '1987-11-17',
         role: ERole.PATIENT,
         verified: null,
       },
     ];
 
     await this.patientRepository.upsert(patients, ['email']);
-    console.log('✅ Patients seeded successfully');
+    if (envs.server.environment !== 'production') {
+      console.log('✅ Patients seeded successfully');
+    }
 
     const psychologists = [
       {
@@ -142,7 +147,7 @@ export class SeederService {
         social_security_number: '987-65-4321',
         address: 'Av. Callao 1000, Buenos Aires',
         phone: '+5411777888999',
-        birthdate: '10-10-1980',
+        birthdate: '1980-10-10',
         role: ERole.PSYCHOLOGIST,
         office_address: 'Consultorio en Av. Callao 1000, Piso 5',
         license_number: 'PSI-12345',
@@ -165,7 +170,7 @@ export class SeederService {
         social_security_number: '987-65-4322',
         address: 'Santa Fe 2000, Buenos Aires',
         phone: '+5411666777888',
-        birthdate: '15-03-1975',
+        birthdate: '1975-03-15',
         role: ERole.PSYCHOLOGIST,
         office_address: 'Consultorio en Santa Fe 2000, Oficina 203',
         license_number: 'PSI-12346',
@@ -188,7 +193,7 @@ export class SeederService {
         social_security_number: '987-65-4323',
         address: 'Pueyrredón 1500, Buenos Aires',
         phone: '+5411555666777',
-        birthdate: '22-07-1982',
+        birthdate: '1982-07-22',
         role: ERole.PSYCHOLOGIST,
         office_address: 'Consultorio en Pueyrredón 1500, Suite 15',
         license_number: 'PSI-12347',
@@ -206,6 +211,8 @@ export class SeederService {
     ];
 
     await this.psychologistRepository.upsert(psychologists, ['email']);
-    console.log('✅ Psychologists seeded successfully');
+    if (envs.server.environment !== 'production') {
+      console.log('✅ Psychologists seeded successfully');
+    }
   }
 }

@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { registerAs } from '@nestjs/config';
 
 const server = {
-  node: process.env.NODE ?? 'development',
+  environment: process.env.ENVIRONMENT ?? 'development',
   port: parseInt(String(process.env.PORT ?? 3000), 10),
   host: process.env.HOST ?? 'localhost',
 };
@@ -31,7 +31,7 @@ const oauth = {
       process.env.GOOGLE_CLIENT_SECRET ?? 'your_google_client_secret',
     callbackUrl:
       process.env.GOOGLE_CALLBACK_URL ??
-      'http://localhost:3000/auth/google/callback',
+      'http://your_google_callback/auth/google/callback',
   },
 };
 
