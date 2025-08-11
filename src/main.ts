@@ -13,7 +13,7 @@ async function bootstrap() {
     app.enableCors({
       origin:
         envs.server.environment === 'production'
-          ? ['https://your-frontend-domain.com']
+          ? ['http://localhost:3000']
           : true,
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
       credentials: true,

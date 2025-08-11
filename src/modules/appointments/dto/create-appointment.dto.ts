@@ -8,7 +8,8 @@ import {
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { AppointmentStatus, Modality } from '../entities/appointment.entity';
+import { AppointmentStatus } from '../entities/appointment.entity';
+import { EModality } from 'src/modules/psychologist/enums/modality.enum';
 
 export class CreateAppointmentDto {
   @ApiProperty({
@@ -67,10 +68,10 @@ export class CreateAppointmentDto {
   status?: AppointmentStatus;
 
   @ApiProperty({
-    description: 'Modality of the appointment (in-person or virtual)',
-    enum: Modality,
-    example: Modality.IN_PERSON,
+    description: 'Modality of the appointment (in-person, virtual o hybrid)',
+    enum: EModality,
+    example: EModality.IN_PERSON,
   })
-  @IsEnum(Modality, { message: 'modality must be a valid modality type' })
-  modality: Modality;
+  @IsEnum(EModality, { message: 'modality must be a valid modality type' })
+  modality: EModality;
 }

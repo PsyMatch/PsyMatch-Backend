@@ -31,6 +31,18 @@ export class AuthService {
     private readonly userService: UsersService,
   ) {}
 
+  private cleanEmptyStrings<T extends Record<string, unknown>>(
+    obj: T,
+  ): Partial<T> {
+    const cleaned: Partial<T> = { ...obj };
+    Object.keys(cleaned).forEach((key) => {
+      if (cleaned[key as keyof T] === '' || cleaned[key as keyof T] === null) {
+        delete cleaned[key as keyof T];
+      }
+    });
+    return cleaned;
+  }
+
   async signUpService(
     userData: SignUpDto,
     profilePicture?: Express.Multer.File,
@@ -38,7 +50,7 @@ export class AuthService {
     return this.queryHelper.runInTransaction(async (queryRunner) => {
       const userRepo = queryRunner.manager.getRepository(User);
       const patientRepo = queryRunner.manager.getRepository(Patient);
-      const { email, phone, dni, social_security_number } = userData;
+      const { email, phone, dni } = userData;
 
       const existingUserByEmail = await userRepo.findOne({
         where: { email, is_active: true },
@@ -53,15 +65,6 @@ export class AuthService {
         });
         if (existingUserByDni) {
           throw new ConflictException('DNI already exists');
-        }
-      }
-
-      if (social_security_number) {
-        const existingUserBySsn = await userRepo.findOne({
-          where: { social_security_number, is_active: true },
-        });
-        if (existingUserBySsn) {
-          throw new ConflictException('Social security number already exists');
         }
       }
 
@@ -85,13 +88,13 @@ export class AuthService {
         hashedPassword = await bcrypt.hash(userData.password, 10);
       }
 
-      const newUser = patientRepo.create({
+      const cleanedData = this.cleanEmptyStrings({
         name: userData.name,
         email: userData.email,
         phone: userData.phone,
         birthdate: userData.birthdate,
         dni: userData.dni,
-        social_security_number: userData.social_security_number,
+        health_insurance: userData.health_insurance,
         address: userData.address,
         emergency_contact: userData.emergency_contact,
         latitude: userData.latitude,
@@ -99,8 +102,9 @@ export class AuthService {
         profile_picture: userData.profile_picture,
         password: hashedPassword,
         role: ERole.PATIENT,
-        verified: null,
       });
+
+      const newUser = patientRepo.create(cleanedData);
 
       const savedUser = await patientRepo.save(newUser);
 
@@ -123,7 +127,6 @@ export class AuthService {
         throw new BadRequestException('Error creating user');
       }
 
-      // Generate JWT token for automatic login
       const payload = {
         id: userWithRelations.id,
         email: userWithRelations.email,
@@ -147,7 +150,7 @@ export class AuthService {
     return this.queryHelper.runInTransaction(async (queryRunner) => {
       const userRepo = queryRunner.manager.getRepository(User);
       const psychologistRepo = queryRunner.manager.getRepository(Psychologist);
-      const { email, phone, dni, social_security_number } = userData;
+      const { email, phone, dni } = userData;
 
       const existingUserByEmail = await userRepo.findOne({
         where: { email, is_active: true },
@@ -161,13 +164,6 @@ export class AuthService {
       });
       if (existingUserByDni) {
         throw new ConflictException('DNI already exists');
-      }
-
-      const existingUserBySsn = await userRepo.findOne({
-        where: { social_security_number, is_active: true },
-      });
-      if (existingUserBySsn) {
-        throw new ConflictException('Social security number already exists');
       }
 
       const existingUserByLicense = await psychologistRepo.findOne({
@@ -193,12 +189,15 @@ export class AuthService {
 
       const { confirmPassword: _confirmPassword, ...psychologistData } =
         userData;
-      const newPsychologist = psychologistRepo.create({
+
+      const cleanedPsychologistData = this.cleanEmptyStrings({
         ...psychologistData,
         password: hashedPassword,
         role: ERole.PSYCHOLOGIST,
         verified: EPsychologistStatus.PENDING,
       });
+
+      const newPsychologist = psychologistRepo.create(cleanedPsychologistData);
 
       const savedPsychologist = await psychologistRepo.save(newPsychologist);
 
@@ -212,26 +211,25 @@ export class AuthService {
         await psychologistRepo.save(savedPsychologist);
       }
 
-      const psychologistWithRelations = await psychologistRepo.findOne({
+      const psychologistForToken = await psychologistRepo.findOne({
         where: { id: savedPsychologist.id },
-        relations: ['patients'],
       });
 
-      if (!psychologistWithRelations) {
+      if (!psychologistForToken) {
         throw new BadRequestException('Error creating psychologist');
       }
 
       const payload = {
-        id: psychologistWithRelations.id,
-        email: psychologistWithRelations.email,
-        role: psychologistWithRelations.role,
+        id: psychologistForToken.id,
+        email: psychologistForToken.email,
+        role: psychologistForToken.role,
       };
 
       const token = this.jwtService.sign(payload);
 
       return {
         message: 'Psychologist successfully registered',
-        data: psychologistWithRelations,
+        data: psychologistForToken,
         token,
       };
     });
@@ -244,7 +242,6 @@ export class AuthService {
 
     const user = await this.userRepository.findOne({
       where: { email },
-      relations: ['psychologists'],
     });
 
     if (!user) {
