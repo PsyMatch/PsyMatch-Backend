@@ -11,10 +11,13 @@ import {
   Max,
   IsPositive,
   IsInt,
+  IsDateString,
+  IsEnum,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { MatchPasswordHelper } from '../../utils/helpers/matchPassword.helper';
+import { EInsurance } from '../../users/enums/insurance_accepted .enum';
 
 const transformToNumber = (value: unknown): number | undefined => {
   if (typeof value === 'string' && value.trim() !== '') {
@@ -56,42 +59,40 @@ export class SignUpDto {
   phone?: string;
 
   @ApiPropertyOptional({
-    description: 'User birthdate in format (DD-MM-YYYY)',
-    example: '15-05-1990',
-    pattern: '^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-[0-9]{4}$',
+    description: 'User birthdate',
+    example: '2001-05-01',
+    type: 'string',
+    format: 'date',
   })
   @IsOptional()
-  @IsString({ message: 'Birthdate must be a string.' })
-  @Matches(/^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-[0-9]{4}$/, {
-    message: 'Birthdate must be in DD-MM-YYYY format (e.g., 15-05-1990)',
-  })
-  birthdate?: string;
+  @IsDateString({}, { message: 'Birthdate must be a valid date' })
+  birthdate?: Date;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'User DNI (National Identity Document) - must be unique',
     example: 12345678,
     minimum: 1000000,
     maximum: 99999999,
   })
-  @IsNotEmpty({ message: 'DNI is required' })
+  @IsOptional()
   @Transform(({ value }) => transformToNumber(value))
   @IsNumber({}, { message: 'DNI must be a number' })
   @IsInt({ message: 'DNI must be an integer' })
   @IsPositive({ message: 'DNI must be a positive number' })
   @Min(1000000, { message: 'DNI must be at least 7 digits long' })
   @Max(99999999, { message: 'DNI must not exceed 8 digits' })
-  dni: number;
+  dni?: number;
 
-  @ApiProperty({
-    description: 'User social security number (must be unique)',
-    example: '123-45-6789',
+  @ApiPropertyOptional({
+    description: 'User health insurance provider',
+    example: 'osde',
+    enum: EInsurance,
   })
-  @IsNotEmpty({ message: 'Social security number is required' })
-  @IsString({ message: 'Social security number must be a string' })
-  @Matches(/^\d{3}-\d{2}-\d{4}$/, {
-    message: 'Social security number must be in the format XXX-XX-XXXX',
+  @IsOptional()
+  @IsEnum(EInsurance, {
+    message: 'Health insurance must be a valid insurance provider',
   })
-  social_security_number: string;
+  health_insurance?: EInsurance;
 
   @ApiPropertyOptional({
     description: 'User address',
@@ -100,6 +101,17 @@ export class SignUpDto {
   @IsOptional()
   @IsString()
   address?: string;
+
+  @ApiPropertyOptional({
+    description: 'Emergency contact information',
+    example: 'María Pérez - +5411987654321 - Madre',
+  })
+  @IsOptional()
+  @IsString({ message: 'Emergency contact must be a string' })
+  @Length(1, 255, {
+    message: 'Emergency contact must be between 1 and 255 characters',
+  })
+  emergency_contact?: string;
 
   @ApiPropertyOptional({
     description: 'User location latitude (must be between -90 and 90)',
@@ -135,13 +147,15 @@ export class SignUpDto {
   @IsEmail()
   email: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description:
       'User password (must contain at least one lowercase letter, one uppercase letter, one number, and one special character)',
     example: 'SecurePass123!',
     minLength: 8,
     maxLength: 100,
   })
+  @IsOptional()
+  @IsString({ message: 'Password must be a string' })
   @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).+$/, {
     message:
       'Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character',
@@ -149,12 +163,13 @@ export class SignUpDto {
   @Length(8, 100, {
     message: 'The length of the password must be  between 8 and 100 characters',
   })
-  password: string;
+  password?: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Password confirmation (must match the password)',
     example: 'SecurePass123!',
   })
+  @IsOptional()
   @Validate(MatchPasswordHelper, ['password'])
-  confirmPassword: string;
+  confirmPassword?: string;
 }

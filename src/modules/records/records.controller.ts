@@ -28,6 +28,8 @@ import {
   ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiInternalServerErrorResponse,
+  ApiConsumes,
+  ApiBody,
 } from '@nestjs/swagger';
 
 @Controller('records')
@@ -47,10 +49,27 @@ export class RecordsController {
   constructor(private readonly recordsService: RecordsService) {}
 
   @Post()
+  @ApiConsumes('multipart/form-data')
   @ApiOperation({
     summary: 'Create a new medical record',
     description:
       'Creates a new medical record entry. Only psychologists can create records for their patients.',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        patient_id: { type: 'string', example: 'patient-uuid' },
+        title: { type: 'string', example: 'Session Notes' },
+        description: { type: 'string', example: 'Patient progress notes...' },
+        session_type: { type: 'string', example: 'individual' },
+        treatment_plan: { type: 'string', example: 'Continue CBT sessions' },
+        diagnosis: { type: 'string', example: 'Generalized Anxiety Disorder' },
+        medications: { type: 'string', example: 'Sertraline 50mg daily' },
+        next_appointment: { type: 'string', example: '2024-03-22T10:00:00Z' },
+        notes: { type: 'string', example: 'Patient showed improvement' },
+      },
+    },
   })
   @ApiResponse({
     status: 201,
@@ -278,10 +297,26 @@ export class RecordsController {
   }
 
   @Put(':id')
+  @ApiConsumes('multipart/form-data')
   @ApiOperation({
     summary: 'Update a medical record',
     description:
       'Updates an existing medical record. Only admins and the psychologist who created the record can update it.',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        title: { type: 'string', example: 'Updated Session Notes' },
+        description: { type: 'string', example: 'Updated patient progress...' },
+        session_type: { type: 'string', example: 'individual' },
+        treatment_plan: { type: 'string', example: 'Modified CBT approach' },
+        diagnosis: { type: 'string', example: 'Updated diagnosis' },
+        medications: { type: 'string', example: 'Adjusted medication' },
+        next_appointment: { type: 'string', example: '2024-03-29T10:00:00Z' },
+        notes: { type: 'string', example: 'Additional notes' },
+      },
+    },
   })
   @ApiParam({
     name: 'id',

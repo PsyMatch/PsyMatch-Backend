@@ -31,7 +31,7 @@ const oauth = {
       process.env.GOOGLE_CLIENT_SECRET ?? 'your_google_client_secret',
     callbackUrl:
       process.env.GOOGLE_CALLBACK_URL ??
-      'http://localhost:3000/auth/google/callback',
+      'http://your_google_callback/auth/google/callback',
   },
 };
 

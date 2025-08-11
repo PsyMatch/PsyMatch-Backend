@@ -3,6 +3,7 @@ import { Expose, Type } from 'class-transformer';
 import { ERole } from '../../../common/enums/role.enum';
 import { EPsychologistSpecialty } from '../../psychologist/enums/specialities.enum';
 import { EPsychologistStatus } from '../../psychologist/enums/verified.enum';
+import { EInsurance } from '../enums/insurance_accepted .enum';
 
 export class ResponseUserDto {
   @ApiProperty({
@@ -34,25 +35,28 @@ export class ResponseUserDto {
   phone?: string;
 
   @ApiPropertyOptional({
-    description: 'User birthdate in format (DD-MM-YYYY)',
-    example: '15-05-1990',
+    description: 'User birthdate',
+    example: '2025-07-31',
+    type: 'string',
+    format: 'date',
   })
   @Expose()
-  birthdate?: string;
+  birthdate?: Date;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'User DNI (National Identity Document)',
     example: 12345678,
   })
   @Expose()
-  dni: number;
+  dni?: number;
 
-  @ApiProperty({
-    description: 'User social security number (must be unique)',
-    example: '123-45-6789',
+  @ApiPropertyOptional({
+    description: 'User health insurance provider',
+    enum: EInsurance,
+    example: EInsurance.OSDE,
   })
   @Expose()
-  social_security_number: string;
+  health_insurance?: EInsurance;
 
   @ApiPropertyOptional({
     description: 'User address',
@@ -60,6 +64,27 @@ export class ResponseUserDto {
   })
   @Expose()
   address?: string;
+
+  @ApiPropertyOptional({
+    description: 'Emergency contact information',
+    example: 'María Pérez - +5411987654321 - Madre',
+  })
+  @Expose()
+  emergency_contact?: string;
+
+  @ApiPropertyOptional({
+    description: 'User location latitude',
+    example: -34.6037,
+  })
+  @Expose()
+  latitude?: number;
+
+  @ApiPropertyOptional({
+    description: 'User location longitude',
+    example: -58.3816,
+  })
+  @Expose()
+  longitude?: number;
 
   @ApiProperty({
     description: 'User email address',
@@ -109,6 +134,15 @@ export class ResponseUserDto {
   })
   @Expose()
   specialities?: EPsychologistSpecialty[];
+
+  @ApiPropertyOptional({
+    description: 'Insurance providers accepted (only for psychologists)',
+    enum: EInsurance,
+    isArray: true,
+    example: [EInsurance.OSDE, EInsurance.SWISSMEDICAL, EInsurance.IOMA],
+  })
+  @Expose()
+  insurance_accepted?: EInsurance[];
 
   @ApiPropertyOptional({
     description:

@@ -1,7 +1,8 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateAppointmentDto } from './create-appointment.dto';
 import { IsEnum, IsOptional, IsUUID, IsDateString } from 'class-validator';
-import { AppointmentStatus, Modality } from '../entities/appointment.entity';
+import { EModality } from 'src/modules/psychologist/enums/modality.enum';
+import { AppointmentStatus } from '../entities/appointment.entity';
 
 export class UpdateAppointmentDto extends PartialType(CreateAppointmentDto) {
   @IsOptional()
@@ -21,6 +22,6 @@ export class UpdateAppointmentDto extends PartialType(CreateAppointmentDto) {
   status?: AppointmentStatus;
 
   @IsOptional()
-  @IsEnum(Modality)
-  modality?: Modality;
+  @IsEnum(EModality)
+  modality?: EModality;
 }

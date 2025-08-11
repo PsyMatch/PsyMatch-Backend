@@ -5,11 +5,9 @@ import {
   UpdateDateColumn,
   CreateDateColumn,
   TableInheritance,
-  ManyToMany,
-  JoinTable,
 } from 'typeorm';
 import { ERole } from '../../../common/enums/role.enum';
-import { EPsychologistStatus } from '../../psychologist/enums/verified.enum';
+import { EInsurance } from '../enums/insurance_accepted .enum';
 
 @Entity('users')
 @TableInheritance({
@@ -26,8 +24,8 @@ export class User {
   @Column({ type: 'text', nullable: true })
   phone: string;
 
-  @Column({ type: 'text', nullable: true })
-  birthdate: string;
+  @Column({ type: 'date', nullable: true })
+  birthdate: Date;
 
   @Column({ type: 'bigint', unique: true, nullable: true })
   dni: number;
@@ -41,8 +39,8 @@ export class User {
   @Column({ type: 'text', nullable: true })
   password: string;
 
-  @Column({ type: 'text', unique: true, nullable: true })
-  social_security_number: string;
+  @Column({ type: 'enum', enum: EInsurance, nullable: true })
+  health_insurance: EInsurance;
 
   @Column({ type: 'text', nullable: true })
   emergency_contact: string;
@@ -56,14 +54,6 @@ export class User {
   @Column({ type: 'text', nullable: true })
   profile_picture: string;
 
-  @ManyToMany(() => User, { cascade: true })
-  @JoinTable({
-    name: 'patient_psychologists',
-    joinColumn: { name: 'patient_id', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'psychologist_id', referencedColumnName: 'id' },
-  })
-  psychologists: User[];
-
   @Column({
     type: 'enum',
     enum: ERole,
@@ -71,13 +61,6 @@ export class User {
     default: ERole.PATIENT,
   })
   role: ERole;
-
-  @Column({
-    type: 'enum',
-    enum: EPsychologistStatus,
-    nullable: true,
-  })
-  verified: EPsychologistStatus | null;
 
   @Column({ type: 'boolean', default: true })
   is_active: boolean;
