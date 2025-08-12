@@ -3,12 +3,14 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
+  OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Psychologist } from '../../psychologist/entities/psychologist.entity';
 import { User } from '../../users/entities/user.entity';
 import { EModality } from 'src/modules/psychologist/enums/modality.enum';
+import { Payment } from '../../payments/entities/payment.entity';
 
 export enum AppointmentStatus {
   PENDING = 'PENDING',
@@ -27,6 +29,9 @@ export class Appointment {
 
   @ManyToOne(() => Psychologist)
   psychologist: Psychologist;
+
+  @OneToMany(() => Payment, (payment) => payment.appointment)
+  payments: Payment[];
 
   @Column({ type: 'date' })
   date: string;

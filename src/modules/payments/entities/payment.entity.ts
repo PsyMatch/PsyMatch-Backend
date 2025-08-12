@@ -4,6 +4,8 @@ import {
   Column,
   ManyToOne,
   CreateDateColumn,
+  UpdateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 import { Appointment } from '../../appointments/entities/appointment.entity';
 
@@ -11,31 +13,43 @@ export enum PayMethod {
   CREDIT_CARD = 'CREDIT_CARD',
   DEBIT_CARD = 'DEBIT_CARD',
   PAYPAL = 'PAYPAL',
-  TRANSFER = 'TRANSFER',
+  BANK_TRANSFER = 'BANK_TRANSFER',
 }
 
 export enum PayStatus {
   PENDING = 'PENDING',
-  PAID = 'PAID',
+  COMPLETED = 'COMPLETED',
   FAILED = 'FAILED',
 }
 
 @Entity('payments')
 export class Payment {
   @PrimaryGeneratedColumn('uuid')
-  pay_id: string;
+  payment_id: string;
 
-  @ManyToOne(() => Appointment)
+  @Column({ type: 'uuid' })
+  appointment_id: string;
+
+  @ManyToOne(() => Appointment, (appointment) => appointment.payments, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'appointment_id' })
   appointment: Appointment;
 
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
   amount: number;
 
-  @Column({
-    type: 'enum',
-    enum: PayMethod,
-  })
+  @Column({ type: 'varchar', length: 3, default: 'USD' })
+  currency: string;
+
+  @Column({ type: 'enum', enum: PayMethod })
   pay_method: PayMethod;
+
+  @Column({ nullable: true })
+  notes?: string;
+
+  @Column({ type: 'decimal', nullable: true })
+  refund_amount?: number;
 
   @Column({
     type: 'enum',
@@ -45,5 +59,8 @@ export class Payment {
   pay_status: PayStatus;
 
   @CreateDateColumn()
-  pay_date: Date;
+  created_at: Date;
+
+  @UpdateDateColumn()
+  updated_at: Date;
 }
