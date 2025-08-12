@@ -46,15 +46,36 @@ export class PsychologistService {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} psychologist`;
+  async findOne(id: string): Promise<Psychologist> {
+    const psychologist = await this.psychologistRepository.findOne({
+      where: { id, is_active: true },
+      relations: ['patients', 'reviews'],
+    });
+
+    if (!psychologist) {
+      throw new NotFoundException('Psychologist not found');
+    }
+
+    return psychologist;
   }
 
-  update(id: number, _updatePsychologistDto: UpdatePsychologistDto) {
-    return `This action updates a #${id} psychologist`;
+  async update(
+    id: string,
+    updatePsychologistDto: UpdatePsychologistDto,
+  ): Promise<Psychologist> {
+    const psychologist = await this.findOne(id);
+
+    Object.assign(psychologist, updatePsychologistDto);
+
+    return await this.psychologistRepository.save(psychologist);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} psychologist`;
+  async remove(id: string): Promise<{ message: string }> {
+    const psychologist = await this.findOne(id);
+
+    psychologist.is_active = false;
+    await this.psychologistRepository.save(psychologist);
+
+    return { message: 'Psychologist removed successfully' };
   }
 }

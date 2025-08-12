@@ -20,6 +20,7 @@ import {
   ApiTags,
   ApiParam,
   ApiBody,
+  ApiConsumes,
 } from '@nestjs/swagger';
 import { reviewResponseDto } from './dto/review-response.dto';
 import { Reviews } from './entities/reviews.entity';
@@ -34,12 +35,23 @@ export class ReviewsController {
   @Post()
   @UseGuards(RolesGuard)
   @Roles([ERole.PATIENT, ERole.ADMIN, ERole.PSYCHOLOGIST])
+  @ApiConsumes('multipart/form-data')
   @ApiOperation({
     summary: 'Create a new review',
     description:
       'Create a review for a psychologist. Can be done by patients who have had sessions with the psychologist.',
   })
-  @ApiBody({ type: CreateReviewDto })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        psychologist_id: { type: 'string', example: 'psychologist-uuid' },
+        rating: { type: 'string', example: '5' },
+        comment: { type: 'string', example: 'Excellent professional service' },
+        session_date: { type: 'string', example: '2024-03-15T10:00:00Z' },
+      },
+    },
+  })
   @ApiResponse({
     status: 201,
     description: 'Review created successfully',

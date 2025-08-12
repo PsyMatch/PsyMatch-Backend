@@ -74,11 +74,6 @@ export class AuthController {
           example: 'MyPassword123!',
           description: 'Password confirmation (must match password)',
         },
-        social_security_number: {
-          type: 'string',
-          example: '987-65-4381',
-          description: 'User social security number (must be unique)',
-        },
         profile_picture: {
           type: 'string',
           format: 'binary',
@@ -111,15 +106,36 @@ export class AuthController {
           example: '-58.3837',
           description: 'Optional longitude coordinate',
         },
+        health_insurance: {
+          type: 'string',
+          example: 'osde',
+          description: 'Optional health insurance provider',
+          enum: [
+            'osde',
+            'swiss-medical',
+            'ioma',
+            'pami',
+            'unión-personal',
+            'osdepy',
+            'luis-pasteur',
+            'jerarquicos-salud',
+            'sancor-salud',
+            'osecac',
+            'osmecón-salud',
+            'apross',
+            'osprera',
+            'ospat',
+            'ase-nacional',
+            'ospsip',
+          ],
+        },
+        emergency_contact: {
+          type: 'string',
+          example: 'María Pérez - +5411987654321 - Madre',
+          description: 'Optional emergency contact information',
+        },
       },
-      required: [
-        'name',
-        'dni',
-        'email',
-        'password',
-        'confirmPassword',
-        'social_security_number',
-      ],
+      required: ['name', 'dni', 'email', 'password', 'confirmPassword'],
     },
   })
   @ApiResponse({
@@ -154,7 +170,7 @@ export class AuthController {
     return await this.authService.signUpService(userData, profilePicture);
   }
 
-  @Post('signup-psychologist')
+  @Post('signup/psychologist')
   @UseInterceptors(FileInterceptor('profile_picture'))
   @ResponseType(ResponseUserDto)
   @ApiOperation({
@@ -169,69 +185,166 @@ export class AuthController {
       properties: {
         name: {
           type: 'string',
-          example: 'Dr. Ana García',
+          example: 'Dr. Carlos Mendoza',
           description: 'Full name of the psychologist',
-        },
-        dni: {
-          type: 'string',
-          example: '87654321',
-          description: 'DNI (National Identity Document)',
-        },
-        email: {
-          type: 'string',
-          example: 'ana.garcia@psychologist.com',
-          description: 'Email address (must be unique)',
-        },
-        password: {
-          type: 'string',
-          example: 'SecurePass123!',
-          description: 'Password with security requirements',
-        },
-        confirmPassword: {
-          type: 'string',
-          example: 'SecurePass123!',
-          description: 'Password confirmation (must match password)',
-        },
-        social_security_number: {
-          type: 'string',
-          example: '987-65-4321',
-          description: 'Social security number (must be unique)',
         },
         phone: {
           type: 'string',
-          example: '+5411777888999',
+          example: '+5411555123456',
           description: 'Optional phone number',
         },
-        address: {
+        dni: {
+          type: 'number',
+          example: 20123456,
+          description: 'DNI (National Identity Document)',
+        },
+        birthdate: {
           type: 'string',
-          example: 'Av. Callao 1000, Buenos Aires',
-          description: 'Optional address',
+          format: 'date',
+          example: '1985-03-15',
+          description: 'Optional birthdate in YYYY-MM-DD format',
+        },
+        email: {
+          type: 'string',
+          example: 'carlos.mendoza@psychologist.com',
+          description: 'Email address (must be unique)',
         },
         latitude: {
           type: 'string',
-          example: '-34.6037',
+          example: '-34.6118',
           description: 'Optional latitude coordinate',
         },
         longitude: {
           type: 'string',
-          example: '-58.3816',
+          example: '-58.4173',
           description: 'Optional longitude coordinate',
         },
         office_address: {
           type: 'string',
-          example: 'Consultorio en Av. Callao 1000, Piso 5',
-          description: 'Office address for consultations',
+          example: 'Consultorio en Av. Rivadavia 5000, 2do Piso',
+          description: 'Optional office address for consultations',
         },
         license_number: {
+          type: 'number',
+          example: 123451,
+          description: 'Professional license number (6 digits)',
+          minimum: 100000,
+          maximum: 999999,
+        },
+        personal_biography: {
           type: 'string',
-          example: 'PSI-12345',
-          description: 'Professional license number',
+          example:
+            'Psychologist specialized in cognitive behavioral therapy with 10 years of experience.',
+          description: 'Optional personal biography',
+        },
+        professional_experience: {
+          type: 'number',
+          example: 5,
+          description: 'Optional years of professional experience',
+        },
+        languages: {
+          type: 'string',
+          example: 'spanish,english',
+          description: 'Optional comma-separated languages spoken',
+        },
+        therapy_approaches: {
+          type: 'string',
+          example: 'cognitive_behavioral_therapy,psychodynamic_therapy',
+          description: 'Optional comma-separated therapy approaches',
+        },
+        session_types: {
+          type: 'string',
+          example: 'individual,couple',
+          description: 'Optional comma-separated session types offered',
+        },
+        modality: {
+          type: 'string',
+          example: 'in_person',
+          description: 'Optional consultation modality',
+          enum: ['in_person', 'online', 'hybrid'],
         },
         specialities: {
           type: 'array',
-          items: { type: 'string' },
-          example: ['CLINICAL', 'COUNSELING'],
+          items: {
+            type: 'string',
+            enum: [
+              'anxiety_disorder',
+              'depression',
+              'trauma_ptsd',
+              'addiction',
+              'eating_disorder',
+              'personality_disorder',
+              'bipolar_disorder',
+              'schizophrenia',
+              'autism_spectrum',
+              'adhd',
+              'obsessive_compulsive',
+              'panic_disorder',
+              'social_anxiety',
+              'phobias',
+              'grief_loss',
+              'relationship_issues',
+              'family_therapy',
+              'couples_therapy',
+              'child_adolescent',
+              'geriatric_psychology',
+            ],
+          },
+          example: ['anxiety_disorder', 'depression', 'trauma_ptsd'],
           description: 'Array of professional specialties',
+        },
+        insurance_accepted: {
+          type: 'array',
+          items: {
+            type: 'string',
+            enum: [
+              'osde',
+              'swiss-medical',
+              'ioma',
+              'pami',
+              'unión-personal',
+              'osdepy',
+              'luis-pasteur',
+              'jerarquicos-salud',
+              'sancor-salud',
+              'osecac',
+              'osmecón-salud',
+              'apross',
+              'osprera',
+              'ospat',
+              'ase-nacional',
+              'ospsip',
+            ],
+          },
+          example: ['osde', 'swiss-medical', 'ioma'],
+          description: 'Array of insurance providers accepted',
+        },
+        availability: {
+          type: 'array',
+          items: {
+            type: 'string',
+            enum: [
+              'monday',
+              'tuesday',
+              'wednesday',
+              'thursday',
+              'friday',
+              'saturday',
+              'sunday',
+            ],
+          },
+          example: ['monday', 'wednesday', 'friday'],
+          description: 'Array of available days for appointments',
+        },
+        password: {
+          type: 'string',
+          example: 'MySecurePassword123!',
+          description: 'Password with security requirements',
+        },
+        confirmPassword: {
+          type: 'string',
+          example: 'MySecurePassword123!',
+          description: 'Password confirmation (must match password)',
         },
         profile_picture: {
           type: 'string',
@@ -246,10 +359,10 @@ export class AuthController {
         'email',
         'password',
         'confirmPassword',
-        'social_security_number',
-        'office_address',
         'license_number',
+        'insurance_accepted',
         'specialities',
+        'availability',
       ],
     },
   })
@@ -262,13 +375,15 @@ export class AuthController {
         message: 'Psychologist successfully registered',
         data: {
           id: 'psychologist-uuid',
-          name: 'Dr. Ana García',
-          email: 'ana.garcia@psychologist.com',
-          dni: 87654321,
-          office_address: 'Consultorio en Av. Callao 1000, Piso 5',
-          license_number: 'PSI-12345',
-          specialities: ['CLINICAL', 'COUNSELING'],
-          verified: 'PENDING',
+          name: 'Dr. Carlos Mendoza',
+          email: 'carlos.mendoza@psychologist.com',
+          dni: 20123456,
+          office_address: 'Consultorio en Av. Rivadavia 5000, 2do Piso',
+          license_number: 123456,
+          specialities: ['anxiety_disorder', 'depression', 'trauma_ptsd'],
+          insurance_accepted: ['osde', 'swiss-medical', 'ioma'],
+          availability: ['monday', 'wednesday', 'friday'],
+          verified: 'pending',
           profile_picture: 'https://cloudinary.com/optimized-url',
         },
         token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
@@ -293,9 +408,29 @@ export class AuthController {
   }
 
   @Post('signin')
+  @UseInterceptors(FileInterceptor(''))
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @ResponseType(ResponseUserDto)
   @ApiOperation({ summary: 'Sign in and get JWT token' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        email: {
+          type: 'string',
+          example: 'admin@psymatch.com',
+          description: 'User email address',
+        },
+        password: {
+          type: 'string',
+          example: 'Abcd1234!',
+          description: 'User password',
+        },
+      },
+      required: ['email', 'password'],
+    },
+  })
   @ApiResponse({
     status: 200,
     description:

@@ -15,6 +15,7 @@ import {
   ApiResponse,
   ApiBody,
   ApiParam,
+  ApiConsumes,
 } from '@nestjs/swagger';
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
@@ -34,7 +35,20 @@ export class AppointmentsController {
     description:
       'Schedule a new appointment between a patient and psychologist',
   })
-  @ApiBody({ type: CreateAppointmentDto })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        patient_id: { type: 'string', example: 'patient-uuid' },
+        psychologist_id: { type: 'string', example: 'psychologist-uuid' },
+        date: { type: 'string', example: '2024-03-15T10:00:00Z' },
+        duration: { type: 'string', example: '60' },
+        session_type: { type: 'string', example: 'individual' },
+        notes: { type: 'string', example: 'Initial consultation' },
+      },
+    },
+  })
   @ApiResponse({
     status: 201,
     description: 'Appointment created successfully',

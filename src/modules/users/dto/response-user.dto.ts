@@ -3,6 +3,7 @@ import { Expose, Type } from 'class-transformer';
 import { ERole } from '../../../common/enums/role.enum';
 import { EPsychologistSpecialty } from '../../psychologist/enums/specialities.enum';
 import { EPsychologistStatus } from '../../psychologist/enums/verified.enum';
+import { EInsurance } from '../enums/insurance_accepted .enum';
 
 export class ResponseUserDto {
   @ApiProperty({
@@ -50,11 +51,12 @@ export class ResponseUserDto {
   dni?: number;
 
   @ApiPropertyOptional({
-    description: 'User social security number (must be unique)',
-    example: '123-45-6789',
+    description: 'User health insurance provider',
+    enum: EInsurance,
+    example: EInsurance.OSDE,
   })
   @Expose()
-  social_security_number?: string;
+  health_insurance?: EInsurance;
 
   @ApiPropertyOptional({
     description: 'User address',
@@ -132,6 +134,15 @@ export class ResponseUserDto {
   })
   @Expose()
   specialities?: EPsychologistSpecialty[];
+
+  @ApiPropertyOptional({
+    description: 'Insurance providers accepted (only for psychologists)',
+    enum: EInsurance,
+    isArray: true,
+    example: [EInsurance.OSDE, EInsurance.SWISSMEDICAL, EInsurance.IOMA],
+  })
+  @Expose()
+  insurance_accepted?: EInsurance[];
 
   @ApiPropertyOptional({
     description:

@@ -30,9 +30,7 @@ export class UsersService {
   ): Promise<PaginatedResponse<User>> {
     const queryBuilder = this.usersRepository
       .createQueryBuilder('user')
-      .where('user.is_active = :isActive', { isActive: true })
-      .leftJoinAndSelect('user.psychologists', 'psychologists')
-      .leftJoinAndSelect('user.patients', 'patients');
+      .where('user.is_active = :isActive', { isActive: true });
 
     return await this.paginationService.paginate(queryBuilder, paginationDto);
   }
@@ -43,34 +41,14 @@ export class UsersService {
     const queryBuilder = this.usersRepository
       .createQueryBuilder('user')
       .where('user.role = :role', { role: ERole.PATIENT })
-      .andWhere('user.is_active = :isActive', { isActive: true })
-      .leftJoinAndSelect('user.psychologists', 'psychologists');
+      .andWhere('user.is_active = :isActive', { isActive: true });
 
     return await this.paginationService.paginate(queryBuilder, paginationDto);
   }
 
   async findById(id: string): Promise<User> {
-    let user: User | null = await this.usersRepository.findOne({
-      where: { id, is_active: true, role: ERole.PATIENT },
-      relations: ['psychologists'],
-    });
-
-    if (user) {
-      return user;
-    }
-
-    user = await this.usersRepository.findOne({
-      where: { id, is_active: true, role: ERole.PSYCHOLOGIST },
-      relations: ['patients'],
-    });
-
-    if (user) {
-      return user;
-    }
-
-    user = await this.usersRepository.findOne({
-      where: { id, is_active: true, role: ERole.ADMIN },
-      relations: ['psychologists'],
+    const user: User | null = await this.usersRepository.findOne({
+      where: { id, is_active: true },
     });
 
     if (!user) {
@@ -112,11 +90,9 @@ export class UsersService {
         }
       }
 
-      const { psychologists: _psychologists, ...restUserData } = userData;
-
       const updatedUser = userRepo.create({
         ...user,
-        ...restUserData,
+        ...userData,
       });
 
       await userRepo.save(updatedUser);

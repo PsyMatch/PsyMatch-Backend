@@ -16,6 +16,8 @@ import {
   ApiQuery,
   ApiResponse,
   ApiTags,
+  ApiConsumes,
+  ApiBody,
 } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -64,7 +66,7 @@ export class PsychologistController {
                 items: { type: 'string' },
                 example: ['CLINICAL', 'COUNSELING'],
               },
-              verified: { type: 'string', example: 'PENDING' },
+              verified: { type: 'string', example: 'pending' },
             },
           },
         },
@@ -120,7 +122,7 @@ export class PsychologistController {
   @ApiOperation({
     summary: 'Verify a psychologist by ID (Admin Only)',
     description:
-      'Approve or reject a psychologist registration request. Changes the verification status from PENDING to VALIDATED or REJECTED.',
+      'Approve or reject a psychologist registration request. Changes the verification status from pending to validated or rejected.',
   })
   @ApiResponse({
     status: 200,
@@ -156,19 +158,68 @@ export class PsychologistController {
     description: 'Psychologist not found',
   })
   verifyAPsychologistById(@Param('id') id: string) {
-    return this.psychologistService.findOne(+id);
+    return this.psychologistService.findOne(id);
   }
 
   @Put(':id')
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({
+    summary: 'Update psychologist information',
+    description: 'Update psychologist profile information.',
+  })
+  @ApiBody({
+    description: 'Psychologist update data (form-data)',
+    schema: {
+      type: 'object',
+      properties: {
+        license_number: {
+          type: 'string',
+          description: 'Professional license number',
+          example: 'PSY-123456',
+        },
+        specialities: {
+          type: 'string',
+          description: 'Comma-separated specialties',
+          example: 'anxiety,depression,trauma',
+        },
+        experience_years: {
+          type: 'string',
+          description: 'Years of experience',
+          example: '5',
+        },
+        modality: {
+          type: 'string',
+          description: 'Therapy modality',
+          enum: ['PRESENTIAL', 'VIRTUAL', 'MIXED'],
+          example: 'VIRTUAL',
+        },
+        rate_per_session: {
+          type: 'string',
+          description: 'Session rate in USD',
+          example: '80.00',
+        },
+        bio: {
+          type: 'string',
+          description: 'Professional biography',
+          example: 'Licensed clinical psychologist with 5+ years experience...',
+        },
+        availability: {
+          type: 'string',
+          description: 'Available time slots (JSON format)',
+          example: '{"monday": ["09:00-12:00", "14:00-18:00"]}',
+        },
+      },
+    },
+  })
   update(
     @Param('id') id: string,
     @Body() updatePsychologistDto: UpdatePsychologistDto,
   ) {
-    return this.psychologistService.update(+id, updatePsychologistDto);
+    return this.psychologistService.update(id, updatePsychologistDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.psychologistService.remove(+id);
+    return this.psychologistService.remove(id);
   }
 }

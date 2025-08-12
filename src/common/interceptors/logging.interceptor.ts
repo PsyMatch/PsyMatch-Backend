@@ -9,13 +9,14 @@ import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Request, Response } from 'express';
 
-interface LoginBody {
-  email?: string;
+interface AuthenticatedRequest extends Request {
+  user?: { id: string };
 }
 
-interface AuthenticatedRequest extends Request {
-  user?: { id: string; role: string; email: string };
-  body: LoginBody;
+interface AuthResponse {
+  data?: {
+    id?: string;
+  };
 }
 
 @Injectable()
@@ -29,39 +30,37 @@ export class LoggingInterceptor implements NestInterceptor {
     const response = context.switchToHttp().getResponse<Response>();
     const method = request.method;
     const url = request.url;
-    const body = request.body;
-    const user = request.user;
     const now = Date.now();
 
     if (this.shouldIgnoreRequest(url)) {
       return next.handle();
     }
 
-    this.logger.log(
-      `→ ${method} ${url} - User: ${user?.id || 'Anonymous'} - IP: ${request.ip}`,
-    );
+    this.logger.log(`→ ${method} ${url} - IP: ${request.ip}`);
 
     return next.handle().pipe(
       tap({
-        next: (_responseBody) => {
+        next: (responseBody) => {
           const statusCode = response.statusCode;
           const responseTime = Date.now() - now;
 
           this.logger.log(
-            `← ${method} ${url} - ${statusCode} - ${responseTime}ms - User: ${user?.id || 'Anonymous'}`,
+            `← ${method} ${url} - ${statusCode} - ${responseTime}ms`,
           );
 
           if (method === 'POST' && url?.includes('signin')) {
-            const maskedEmail = this.maskEmail(body?.email);
+            const userId =
+              (responseBody as AuthResponse)?.data?.id || 'Unknown';
             this.logger.log(
-              `🔐 Login attempt - User: ${maskedEmail || 'Unknown'} - Status: ${statusCode}`,
+              `🔐 Login attempt - User: ${userId} - Status: ${statusCode}`,
             );
           }
 
           if (method === 'POST' && url?.includes('signup')) {
-            const maskedEmail = this.maskEmail(body?.email);
+            const userId =
+              (responseBody as AuthResponse)?.data?.id || 'Unknown';
             this.logger.log(
-              `👤 Registration attempt - Email: ${maskedEmail || 'Unknown'} - Status: ${statusCode}`,
+              `👤 Registration attempt - User: ${userId} - Status: ${statusCode}`,
             );
           }
         },

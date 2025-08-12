@@ -12,10 +12,12 @@ import {
   IsPositive,
   IsInt,
   IsDateString,
+  IsEnum,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { MatchPasswordHelper } from '../../utils/helpers/matchPassword.helper';
+import { EInsurance } from '../../users/enums/insurance_accepted .enum';
 
 const transformToNumber = (value: unknown): number | undefined => {
   if (typeof value === 'string' && value.trim() !== '') {
@@ -82,15 +84,15 @@ export class SignUpDto {
   dni?: number;
 
   @ApiPropertyOptional({
-    description: 'User social security number (must be unique)',
-    example: '123-45-6789',
+    description: 'User health insurance provider',
+    example: 'osde',
+    enum: EInsurance,
   })
   @IsOptional()
-  @IsString({ message: 'Social security number must be a string' })
-  @Matches(/^\d{3}-\d{2}-\d{4}$/, {
-    message: 'Social security number must be in the format XXX-XX-XXXX',
+  @IsEnum(EInsurance, {
+    message: 'Health insurance must be a valid insurance provider',
   })
-  social_security_number?: string;
+  health_insurance?: EInsurance;
 
   @ApiPropertyOptional({
     description: 'User address',
