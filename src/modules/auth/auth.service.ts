@@ -120,7 +120,6 @@ export class AuthService {
 
       const userWithRelations = await patientRepo.findOne({
         where: { id: savedUser.id },
-        relations: ['psychologists'],
       });
 
       if (!userWithRelations) {
