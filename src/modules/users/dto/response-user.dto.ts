@@ -2,7 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
 import { EPsychologistSpecialty } from '../../psychologist/enums/specialities.enum';
 import { EPsychologistStatus } from '../../psychologist/enums/verified.enum';
-import { EInsurance } from '../enums/insurances .enum';
+import { EInsurance } from '../enums/insurances.enum';
 import { EAvailability } from '../../psychologist/enums/availability.enum';
 import { ELanguage } from '../../psychologist/enums/languages.enum';
 import { EModality } from '../../psychologist/enums/modality.enum';

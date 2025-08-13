@@ -8,6 +8,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { ERole } from '../../../common/enums/role.enum';
+import { Appointment } from 'src/modules/appointments/entities/appointment.entity';
 
 @Entity('users')
 @TableInheritance({

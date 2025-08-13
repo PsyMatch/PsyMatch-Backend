@@ -1,6 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
-import { EModality } from '../../psychologist/enums/modality.enum';
+import { Psychologist } from 'src/modules/psychologist/entities/psychologist.entity';
+import { AppointmentStatus } from '../enums/appointment-status.enum';
+import { EModality } from 'src/modules/psychologist/enums/modality.enum';
 
 @Entity('appointments')
 export class Appointment {

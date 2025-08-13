@@ -13,7 +13,7 @@ import {
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { EInsurance } from '../enums/insurances .enum';
+import { EInsurance } from '../enums/insurances.enum';
 
 const transformToDate = (value: unknown): Date | undefined => {
   if (!value) return undefined;

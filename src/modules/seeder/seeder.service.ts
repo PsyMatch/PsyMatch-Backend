@@ -12,7 +12,7 @@ import { ESessionType } from '../psychologist/enums/session-types.enum';
 import { ETherapyApproach } from '../psychologist/enums/therapy-approaches.enum';
 import { envs } from '../../configs/envs.config';
 import { EModality } from '../psychologist/enums/modality.enum';
-import { EInsurance } from '../users/enums/insurances .enum';
+import { EInsurance } from '../users/enums/insurances.enum';
 import { ELanguage } from '../psychologist/enums/languages.enum';
 import { EAvailability } from '../psychologist/enums/availability.enum';
 

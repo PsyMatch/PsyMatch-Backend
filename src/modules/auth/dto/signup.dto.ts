@@ -18,7 +18,7 @@ import {
 import { Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { MatchPasswordHelper } from '../../utils/helpers/matchPassword.helper';
-import { EInsurance } from '../../users/enums/insurances .enum';
+import { EInsurance } from '../../users/enums/insurances.enum';
 
 const transformToNumber = (value: unknown): number | undefined =>
   typeof value === 'number'
