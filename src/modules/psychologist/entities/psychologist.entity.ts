@@ -5,10 +5,10 @@ import { ETherapyApproach } from '../enums/therapy-approaches.enum';
 import { Reviews } from '../../reviews/entities/reviews.entity';
 import { User } from '../../users/entities/user.entity';
 import { ERole } from '../../../common/enums/role.enum';
-import { ELanguages } from '../enums/languages.enum';
+import { ELanguage } from '../enums/languages.enum';
 import { EModality } from '../enums/modality.enum';
 import { EPsychologistStatus } from '../enums/verified.enum';
-import { EInsurance } from 'src/modules/users/enums/insurance_accepted .enum';
+import { EInsurance } from '../../users/enums/insurances .enum';
 import { EAvailability } from '../enums/availability.enum';
 
 @ChildEntity(ERole.PSYCHOLOGIST)
@@ -16,8 +16,8 @@ export class Psychologist extends User {
   @Column({ type: 'text', nullable: true })
   personal_biography: string;
 
-  @Column({ type: 'enum', enum: ELanguages, array: true, nullable: true })
-  languages: ELanguages[];
+  @Column({ type: 'enum', enum: ELanguage, array: true, nullable: true })
+  languages: ELanguage[];
 
   @Column({ type: 'int', nullable: true })
   professional_experience: number;

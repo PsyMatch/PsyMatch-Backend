@@ -25,7 +25,7 @@ import { Roles } from '../auth/decorators/role.decorator';
 import { ERole } from '../../common/enums/role.enum';
 import { PaginatedPendingRequestsDto } from './dto/response-pending-psychologist.dto';
 
-@ApiTags('Psychologist')
+@ApiTags('Psicólogos')
 @Controller('psychologist')
 export class PsychologistController {
   constructor(private readonly psychologistService: PsychologistService) {}
@@ -35,13 +35,13 @@ export class PsychologistController {
   @Roles([ERole.ADMIN])
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
-    summary: 'Get all pending psychologists (Admin Only)',
+    summary: 'Obtener todos los psicólogos pendientes (Solo administradores)',
     description:
-      'Retrieve a paginated list of psychologists waiting for verification. Only accessible by administrators.',
+      'Recuperar una lista paginada de psicólogos esperando verificación. Solo accesible por administradores.',
   })
   @ApiResponse({
     status: 200,
-    description: 'Pending psychologists retrieved successfully',
+    description: 'Psicólogos pendientes recuperados exitosamente',
     schema: {
       type: 'object',
       properties: {
@@ -79,28 +79,28 @@ export class PsychologistController {
   })
   @ApiResponse({
     status: 403,
-    description: 'Access denied - Admin role required',
+    description: 'Acceso denegado - Se requiere rol de administrador',
   })
   @ApiResponse({
     status: 401,
-    description: 'Invalid or expired token',
+    description: 'Token inválido o expirado',
   })
   @ApiResponse({
     status: 404,
-    description: 'No pending psychologist requests found',
+    description: 'No se encontraron solicitudes de psicólogos pendientes',
   })
   @ApiQuery({
     name: 'page',
     required: false,
     type: Number,
-    description: 'Page number (default: 1)',
+    description: 'Número de página (por defecto: 1)',
     example: 1,
   })
   @ApiQuery({
     name: 'limit',
     required: false,
     type: Number,
-    description: 'Items per page (default: 5)',
+    description: 'Elementos por página (por defecto: 5)',
     example: 10,
   })
   getAllVerifiedRequestController(
@@ -120,19 +120,20 @@ export class PsychologistController {
   @Roles([ERole.ADMIN])
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
-    summary: 'Verify a psychologist by ID (Admin Only)',
+    summary: 'Verificar un psicólogo por ID (Solo administradores)',
     description:
-      'Approve or reject a psychologist registration request. Changes the verification status from pending to validated or rejected.',
+      'Aprobar o rechazar una solicitud de registro de psicólogo. Cambia el estado de verificación de pendiente a validado o rechazado.',
   })
   @ApiResponse({
     status: 200,
-    description: 'Psychologist verification status updated successfully',
+    description:
+      'Estado de verificación del psicólogo actualizado exitosamente',
     schema: {
       type: 'object',
       properties: {
         message: {
           type: 'string',
-          example: 'Psychologist verified successfully',
+          example: 'Psicólogo verificado exitosamente',
         },
         psychologist: {
           type: 'object',
@@ -147,15 +148,15 @@ export class PsychologistController {
   })
   @ApiResponse({
     status: 403,
-    description: 'Access denied - Admin role required',
+    description: 'Acceso denegado - Se requiere rol de administrador',
   })
   @ApiResponse({
     status: 401,
-    description: 'Invalid or expired token',
+    description: 'Token inválido o expirado',
   })
   @ApiResponse({
     status: 404,
-    description: 'Psychologist not found',
+    description: 'Psicólogo no encontrado',
   })
   verifyAPsychologistById(@Param('id') id: string) {
     return this.psychologistService.findOne(id);
@@ -164,48 +165,49 @@ export class PsychologistController {
   @Put(':id')
   @ApiConsumes('multipart/form-data')
   @ApiOperation({
-    summary: 'Update psychologist information',
-    description: 'Update psychologist profile information.',
+    summary: 'Actualizar información del psicólogo',
+    description: 'Actualizar información del perfil del psicólogo.',
   })
   @ApiBody({
-    description: 'Psychologist update data (form-data)',
+    description: 'Datos de actualización del psicólogo (form-data)',
     schema: {
       type: 'object',
       properties: {
         license_number: {
           type: 'string',
-          description: 'Professional license number',
+          description: 'Número de matrícula profesional',
           example: 'PSY-123456',
         },
         specialities: {
           type: 'string',
-          description: 'Comma-separated specialties',
-          example: 'anxiety,depression,trauma',
+          description: 'Especialidades separadas por comas',
+          example: 'ansiedad,depresión,trauma',
         },
         experience_years: {
           type: 'string',
-          description: 'Years of experience',
+          description: 'Años de experiencia',
           example: '5',
         },
         modality: {
           type: 'string',
-          description: 'Therapy modality',
+          description: 'Modalidad de terapia',
           enum: ['PRESENTIAL', 'VIRTUAL', 'MIXED'],
           example: 'VIRTUAL',
         },
         rate_per_session: {
           type: 'string',
-          description: 'Session rate in USD',
+          description: 'Tarifa por sesión en USD',
           example: '80.00',
         },
         bio: {
           type: 'string',
-          description: 'Professional biography',
-          example: 'Licensed clinical psychologist with 5+ years experience...',
+          description: 'Biografía profesional',
+          example:
+            'Psicólogo clínico licenciado con más de 5 años de experiencia...',
         },
         availability: {
           type: 'string',
-          description: 'Available time slots (JSON format)',
+          description: 'Horarios disponibles (formato JSON)',
           example: '{"monday": ["09:00-12:00", "14:00-18:00"]}',
         },
       },

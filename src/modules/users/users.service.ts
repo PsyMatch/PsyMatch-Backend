@@ -86,7 +86,7 @@ export class UsersService {
         });
 
         if (existingUser && existingUser.id !== id) {
-          throw new ConflictException('Phone number already exists');
+          throw new ConflictException('El número de teléfono ya existe');
         }
       }
 

@@ -1,5 +1,5 @@
 export enum EPsychologistStatus {
-  PENDING = 'pending',
-  VALIDATED = 'validated',
-  REJECTED = 'rejected',
+  PENDING = 'Pendiente',
+  VALIDATED = 'Validado',
+  REJECTED = 'Rechazado',
 }

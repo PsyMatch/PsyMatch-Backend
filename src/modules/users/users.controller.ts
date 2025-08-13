@@ -35,7 +35,7 @@ import { ResponseType } from '../../common/decorators/response-type.decorator';
 import { ResponseUserDto } from './dto/response-user.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 
-@ApiTags('Users')
+@ApiTags('Usuarios')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -45,11 +45,11 @@ export class UsersController {
   @Roles([ERole.ADMIN])
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
-    summary: 'Get all users (Admin Only)',
+    summary: 'Obtener todos los usuarios (Solo administradores)',
   })
   @ApiResponse({
     status: 200,
-    description: 'Users list retrieved successfully',
+    description: 'Lista de usuarios recuperada exitosamente',
     schema: {
       type: 'object',
       properties: {
@@ -154,7 +154,7 @@ export class UsersController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Users list retrieved successfully',
+    description: 'Lista de usuarios obtenida exitosamente',
     schema: {
       type: 'object',
       properties: {
@@ -257,7 +257,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Get user by ID' })
   @ApiResponse({
     status: 200,
-    description: 'User found successfully',
+    description: 'Usuario encontrado exitosamente',
     type: ResponseUserDto,
   })
   @ApiResponse({ status: 401, description: 'Invalid or expired token' })
@@ -317,18 +317,21 @@ export class UsersController {
           type: 'string',
           format: 'binary',
           description:
-            'Optional profile picture file (JPG, JPEG, PNG, WEBP - max 2MB)',
+            'Archivo opcional de foto de perfil (JPG, JPEG, PNG, WEBP - máx 2MB)',
         },
       },
     },
   })
   @ApiResponse({
     status: 200,
-    description: 'User updated successfully',
+    description: 'Usuario actualizado exitosamente',
     schema: {
       type: 'object',
       properties: {
-        message: { type: 'string', example: 'User updated successfully' },
+        message: {
+          type: 'string',
+          example: 'Usuario actualizado exitosamente',
+        },
         id: { type: 'string', example: 'uuid-string' },
       },
     },
@@ -349,7 +352,7 @@ export class UsersController {
       req.user.id,
       req.user.role,
     );
-    return { message: 'User updated successfully', id: updatedUser };
+    return { message: 'Usuario actualizado exitosamente', id: updatedUser };
   }
 
   @Delete(':id')
@@ -358,11 +361,11 @@ export class UsersController {
   @ApiOperation({ summary: 'Delete user by ID' })
   @ApiResponse({
     status: 200,
-    description: 'User deleted successfully',
+    description: 'Usuario eliminado exitosamente',
     schema: {
       type: 'object',
       properties: {
-        message: { type: 'string', example: 'User deleted successfully' },
+        message: { type: 'string', example: 'Usuario eliminado exitosamente' },
         id: { type: 'string', example: 'uuid-string' },
       },
     },
@@ -379,6 +382,6 @@ export class UsersController {
       req.user.id,
       req.user.role,
     );
-    return { message: 'User deleted successfully', id: userId };
+    return { message: 'Usuario eliminado exitosamente', id: userId };
   }
 }

@@ -25,7 +25,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/role.decorator';
 import { ERole } from '../../common/enums/role.enum';
 
-@ApiTags('Payments')
+@ApiTags('Pagos')
 @Controller('payments')
 @UseGuards(AuthGuard, RolesGuard)
 @ApiBearerAuth('JWT-auth')
@@ -36,9 +36,9 @@ export class PaymentsController {
   @Roles([ERole.PATIENT, ERole.ADMIN])
   @ApiConsumes('multipart/form-data')
   @ApiOperation({
-    summary: 'Create a new payment',
+    summary: 'Crear un nuevo pago',
     description:
-      'Process a new payment for psychological services. Patients can create payments for their appointments.',
+      'Procesar un nuevo pago por servicios psicológicos. Los pacientes pueden crear pagos para sus citas.',
   })
   @ApiBody({
     schema: {
@@ -51,13 +51,13 @@ export class PaymentsController {
         card_number: { type: 'string', example: '4111111111111111' },
         expiry_date: { type: 'string', example: '12/25' },
         cvv: { type: 'string', example: '123' },
-        description: { type: 'string', example: 'Payment for therapy session' },
+        description: { type: 'string', example: 'Pago por sesión de terapia' },
       },
     },
   })
   @ApiResponse({
     status: 201,
-    description: 'Payment processed successfully',
+    description: 'Pago procesado exitosamente',
     schema: {
       type: 'object',
       properties: {
@@ -83,15 +83,16 @@ export class PaymentsController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid payment data or payment processing failed',
+    description: 'Datos de pago inválidos o fallo en el procesamiento del pago',
   })
   @ApiResponse({
     status: 401,
-    description: 'Invalid or expired token',
+    description: 'Token inválido o expirado',
   })
   @ApiResponse({
     status: 403,
-    description: 'Access denied - Patient or Admin role required',
+    description:
+      'Acceso denegado - Se requiere rol de Paciente o Administrador',
   })
   create(@Body() dto: CreatePaymentDto) {
     return this.service.create(dto);
@@ -100,13 +101,13 @@ export class PaymentsController {
   @Get()
   @Roles([ERole.ADMIN])
   @ApiOperation({
-    summary: 'Get all payments (Admin only)',
+    summary: 'Obtener todos los pagos (Solo administradores)',
     description:
-      'Retrieve all payments in the system. Only accessible by administrators.',
+      'Recuperar todos los pagos del sistema. Solo accesible por administradores.',
   })
   @ApiResponse({
     status: 200,
-    description: 'Payments retrieved successfully',
+    description: 'Pagos recuperados exitosamente',
     schema: {
       type: 'array',
       items: {
@@ -144,11 +145,11 @@ export class PaymentsController {
   })
   @ApiResponse({
     status: 401,
-    description: 'Invalid or expired token',
+    description: 'Token inválido o expirado',
   })
   @ApiResponse({
     status: 403,
-    description: 'Access denied - Admin role required',
+    description: 'Acceso denegado - Se requiere rol de administrador',
   })
   findAll() {
     return this.service.findAll();
@@ -157,18 +158,18 @@ export class PaymentsController {
   @Get(':id')
   @Roles([ERole.PATIENT, ERole.PSYCHOLOGIST, ERole.ADMIN])
   @ApiOperation({
-    summary: 'Get payment by ID',
+    summary: 'Obtener pago por ID',
     description:
-      'Retrieve a specific payment by its ID. Users can only view their own payments unless they are admins.',
+      'Recuperar un pago específico por su ID. Los usuarios solo pueden ver sus propios pagos a menos que sean administradores.',
   })
   @ApiParam({
     name: 'id',
-    description: 'Payment UUID',
+    description: 'UUID del pago',
     example: 'payment-uuid',
   })
   @ApiResponse({
     status: 200,
-    description: 'Payment retrieved successfully',
+    description: 'Pago recuperado exitosamente',
     schema: {
       type: 'object',
       properties: {
@@ -218,15 +219,15 @@ export class PaymentsController {
   })
   @ApiResponse({
     status: 401,
-    description: 'Invalid or expired token',
+    description: 'Token inválido o expirado',
   })
   @ApiResponse({
     status: 403,
-    description: 'Access denied - Insufficient permissions',
+    description: 'Acceso denegado - Permisos insuficientes',
   })
   @ApiResponse({
     status: 404,
-    description: 'Payment not found',
+    description: 'Pago no encontrado',
   })
   findOne(@Param('id') id: string) {
     return this.service.findOne(id);
@@ -236,47 +237,47 @@ export class PaymentsController {
   @Roles([ERole.ADMIN])
   @ApiConsumes('multipart/form-data')
   @ApiOperation({
-    summary: 'Update payment by ID (Admin only)',
+    summary: 'Actualizar pago por ID (Solo administradores)',
     description:
-      'Update payment details such as status or refund information. Only administrators can update payments.',
+      'Actualizar detalles del pago como estado o información de reembolso. Solo los administradores pueden actualizar pagos.',
   })
   @ApiParam({
     name: 'id',
-    description: 'Payment UUID',
+    description: 'UUID del pago',
     example: 'payment-uuid',
   })
   @ApiBody({
-    description: 'Update payment data (form-data)',
+    description: 'Datos de actualización del pago (form-data)',
     schema: {
       type: 'object',
       properties: {
         status: {
           type: 'string',
-          description: 'Payment status',
+          description: 'Estado del pago',
           enum: ['PENDING', 'COMPLETED', 'FAILED', 'REFUNDED'],
           example: 'COMPLETED',
         },
         refund_amount: {
           type: 'string',
-          description: 'Refund amount (if applicable)',
+          description: 'Monto de reembolso (si aplica)',
           example: '50.00',
         },
         refund_reason: {
           type: 'string',
-          description: 'Reason for refund',
-          example: 'Customer request',
+          description: 'Razón del reembolso',
+          example: 'Solicitud del cliente',
         },
         notes: {
           type: 'string',
-          description: 'Additional notes',
-          example: 'Processed manually',
+          description: 'Notas adicionales',
+          example: 'Procesado manualmente',
         },
       },
     },
   })
   @ApiResponse({
     status: 200,
-    description: 'Payment updated successfully',
+    description: 'Pago actualizado exitosamente',
     schema: {
       type: 'object',
       properties: {
@@ -293,19 +294,19 @@ export class PaymentsController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid update data',
+    description: 'Datos de actualización inválidos',
   })
   @ApiResponse({
     status: 401,
-    description: 'Invalid or expired token',
+    description: 'Token inválido o expirado',
   })
   @ApiResponse({
     status: 403,
-    description: 'Access denied - Admin role required',
+    description: 'Acceso denegado - Se requiere rol de administrador',
   })
   @ApiResponse({
     status: 404,
-    description: 'Payment not found',
+    description: 'Pago no encontrado',
   })
   update(@Param('id') id: string, @Body() dto: UpdatePaymentDto) {
     return this.service.update(id, dto);
@@ -314,24 +315,24 @@ export class PaymentsController {
   @Delete(':id')
   @Roles([ERole.ADMIN])
   @ApiOperation({
-    summary: 'Delete payment by ID (Admin only)',
+    summary: 'Eliminar pago por ID (Solo administradores)',
     description:
-      'Remove a payment record from the system. Only administrators can delete payments.',
+      'Remover un registro de pago del sistema. Solo los administradores pueden eliminar pagos.',
   })
   @ApiParam({
     name: 'id',
-    description: 'Payment UUID',
+    description: 'UUID del pago',
     example: 'payment-uuid',
   })
   @ApiResponse({
     status: 200,
-    description: 'Payment deleted successfully',
+    description: 'Pago eliminado exitosamente',
     schema: {
       type: 'object',
       properties: {
         message: {
           type: 'string',
-          example: 'Payment deleted successfully',
+          example: 'Pago eliminado exitosamente',
         },
         payment_id: { type: 'string', example: 'payment-uuid' },
       },
@@ -339,15 +340,15 @@ export class PaymentsController {
   })
   @ApiResponse({
     status: 401,
-    description: 'Invalid or expired token',
+    description: 'Token inválido o expirado',
   })
   @ApiResponse({
     status: 403,
-    description: 'Access denied - Admin role required',
+    description: 'Acceso denegado - Se requiere rol de administrador',
   })
   @ApiResponse({
     status: 404,
-    description: 'Payment not found',
+    description: 'Pago no encontrado',
   })
   remove(@Param('id') id: string) {
     return this.service.remove(id);
