@@ -13,7 +13,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { PassportModule } from '@nestjs/passport';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { UsersService } from '../users/users.service';
-import { PaginationService } from 'src/common/services/pagination.service';
+import { PaginationService } from '../../common/services/pagination.service';
 
 @Module({
   imports: [

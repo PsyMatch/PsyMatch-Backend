@@ -5,19 +5,25 @@ import { ETherapyApproach } from '../enums/therapy-approaches.enum';
 import { Reviews } from '../../reviews/entities/reviews.entity';
 import { User } from '../../users/entities/user.entity';
 import { ERole } from '../../../common/enums/role.enum';
-import { ELanguages } from '../enums/languages.enum';
+import { ELanguage } from '../enums/languages.enum';
 import { EModality } from '../enums/modality.enum';
 import { EPsychologistStatus } from '../enums/verified.enum';
-import { EInsurance } from 'src/modules/users/enums/insurance_accepted .enum';
+import { EInsurance } from 'src/modules/users/enums/insurances.enum';
 import { EAvailability } from '../enums/availability.enum';
+import { Appointment } from 'src/modules/appointments/entities/appointment.entity';
 
 @ChildEntity(ERole.PSYCHOLOGIST)
 export class Psychologist extends User {
   @Column({ type: 'text', nullable: true })
   personal_biography: string;
 
-  @Column({ type: 'enum', enum: ELanguages, array: true, nullable: true })
-  languages: ELanguages[];
+  @Column({
+    type: 'enum',
+    enum: ELanguage,
+    array: true,
+    nullable: true,
+  })
+  languages: ELanguage[] | null;
 
   @Column({ type: 'int', nullable: true })
   professional_experience: number;
@@ -73,4 +79,8 @@ export class Psychologist extends User {
 
   @OneToMany(() => Reviews, (reviews) => reviews.psychologist)
   reviews: Reviews[];
+
+  // Relación inversa con citas (psicólogo)
+  @OneToMany(() => Appointment, (appointment) => appointment.psychologist)
+  declare appointments: Appointment[];
 }

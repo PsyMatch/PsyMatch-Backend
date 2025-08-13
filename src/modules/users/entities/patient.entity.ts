@@ -1,6 +1,16 @@
-import { ChildEntity } from 'typeorm';
+import { ChildEntity, Column } from 'typeorm';
 import { ERole } from '../../../common/enums/role.enum';
 import { User } from './user.entity';
+import { EInsurance } from '../enums/insurances.enum';
 
 @ChildEntity(ERole.PATIENT)
-export class Patient extends User {}
+export class Patient extends User {
+  @Column({ type: 'text', nullable: true })
+  address: string;
+
+  @Column({ type: 'enum', enum: EInsurance, nullable: true })
+  health_insurance: EInsurance;
+
+  @Column({ type: 'text', nullable: true })
+  emergency_contact: string;
+}

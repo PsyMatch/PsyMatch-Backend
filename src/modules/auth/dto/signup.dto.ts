@@ -13,23 +13,26 @@ import {
   IsInt,
   IsDateString,
   IsEnum,
+  MaxLength,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { MatchPasswordHelper } from '../../utils/helpers/matchPassword.helper';
-import { EInsurance } from '../../users/enums/insurance_accepted .enum';
+import { EInsurance } from '../../users/enums/insurances.enum';
 
-const transformToNumber = (value: unknown): number | undefined => {
-  if (typeof value === 'string' && value.trim() !== '') {
-    const num = Number(value);
-    return isNaN(num) ? undefined : num;
-  }
-  return typeof value === 'number' ? value : undefined;
-};
+const transformToNumber = (value: unknown): number | undefined =>
+  typeof value === 'number'
+    ? value
+    : typeof value === 'string' && value.trim() !== ''
+      ? Number(value)
+      : undefined;
+
+const cleanEmpty = (value: unknown): string | undefined =>
+  value === '' ? undefined : (value as string);
 
 export class SignUpDto {
   @ApiProperty({
-    description: 'Full name of the user',
+    description: 'Nombre completo del usuario',
     example: 'Juan Carlos Pérez',
     minLength: 1,
   })
@@ -37,139 +40,146 @@ export class SignUpDto {
   @IsString()
   name: string;
 
-  @ApiPropertyOptional({
-    description: 'URL of the user profile picture',
+  @ApiProperty({
+    description: 'URL de la foto de perfil del usuario',
     example: 'https://example.com/profile/juan-perez.jpg',
   })
-  @IsOptional()
   @IsString()
-  profile_picture?: string;
+  profile_picture: string;
 
-  @ApiPropertyOptional({
-    description: 'User phone number (international format supported)',
+  @ApiProperty({
+    description:
+      'Número de teléfono del usuario (formato internacional soportado)',
     example: '+5411123456789',
   })
-  @IsOptional()
-  @IsString({ message: 'Phone must be a string.' })
+  @IsString({ message: 'El teléfono debe ser un string.' })
   @Matches(/^(\+?[1-9]\d{1,14})$/, {
     message:
-      'Phone must be a valid international phone number (e.g., +5411123456789 or 1123456789)',
+      'El teléfono debe ser un número válido en formato internacional (ej: +5411123456789 o 1123456789)',
   })
-  @Length(8, 15, { message: 'Phone must be between 8 and 15 digits.' })
-  phone?: string;
+  @Length(8, 15, { message: 'El teléfono debe tener entre 8 y 15 dígitos.' })
+  phone: string;
 
-  @ApiPropertyOptional({
-    description: 'User birthdate',
+  @ApiProperty({
+    description: 'Fecha de nacimiento del usuario',
     example: '2001-05-01',
     type: 'string',
     format: 'date',
   })
-  @IsOptional()
-  @IsDateString({}, { message: 'Birthdate must be a valid date' })
-  birthdate?: Date;
+  @IsDateString(
+    {},
+    { message: 'La fecha de nacimiento debe ser una fecha válida.' },
+  )
+  birthdate: Date;
 
-  @ApiPropertyOptional({
-    description: 'User DNI (National Identity Document) - must be unique',
+  @ApiProperty({
+    description:
+      'DNI del usuario (Documento Nacional de Identidad) - debe ser único',
     example: 12345678,
     minimum: 1000000,
     maximum: 99999999,
   })
-  @IsOptional()
   @Transform(({ value }) => transformToNumber(value))
-  @IsNumber({}, { message: 'DNI must be a number' })
-  @IsInt({ message: 'DNI must be an integer' })
-  @IsPositive({ message: 'DNI must be a positive number' })
-  @Min(1000000, { message: 'DNI must be at least 7 digits long' })
-  @Max(99999999, { message: 'DNI must not exceed 8 digits' })
-  dni?: number;
+  @IsNumber({}, { message: 'El DNI debe ser un número.' })
+  @IsInt({ message: 'El DNI debe ser un número entero.' })
+  @IsPositive({ message: 'El DNI debe ser un número positivo.' })
+  @Min(1000000, { message: 'El DNI debe tener al menos 7 dígitos.' })
+  @Max(99999999, { message: 'El DNI no debe exceder los 8 dígitos.' })
+  dni: number;
 
-  @ApiPropertyOptional({
-    description: 'User health insurance provider',
+  @ApiProperty({
+    description: 'Obra social del usuario',
     example: 'osde',
     enum: EInsurance,
   })
+  @Transform(({ value }) => cleanEmpty(value))
   @IsOptional()
   @IsEnum(EInsurance, {
-    message: 'Health insurance must be a valid insurance provider',
+    message: 'La obra social debe ser una opción válida.',
   })
   health_insurance?: EInsurance;
 
-  @ApiPropertyOptional({
-    description: 'User address',
+  @ApiProperty({
+    description: 'Dirección del usuario',
     example: 'Av. Corrientes 1234, Buenos Aires, Argentina',
   })
-  @IsOptional()
   @IsString()
-  address?: string;
+  address: string;
 
-  @ApiPropertyOptional({
-    description: 'Emergency contact information',
+  @ApiProperty({
+    description: 'Contacto de emergencia',
     example: 'María Pérez - +5411987654321 - Madre',
   })
+  @Transform(({ value }) => cleanEmpty(value))
   @IsOptional()
-  @IsString({ message: 'Emergency contact must be a string' })
-  @Length(1, 255, {
-    message: 'Emergency contact must be between 1 and 255 characters',
+  @IsString({ message: 'El contacto de emergencia debe ser un string.' })
+  @MaxLength(255, {
+    message: 'El contacto de emergencia debe tener entre 1 y 255 caracteres.',
   })
   emergency_contact?: string;
 
-  @ApiPropertyOptional({
-    description: 'User location latitude (must be between -90 and 90)',
+  @ApiProperty({
+    description:
+      'Latitud de la ubicación del usuario (debe estar entre -90 y 90)',
     example: -34.6037,
     minimum: -90,
     maximum: 90,
   })
   @IsOptional()
   @Transform(({ value }) => transformToNumber(value))
-  @IsNumber({}, { message: 'Latitude must be a number.' })
-  @Min(-90, { message: 'Latitude must be between -90 and 90.' })
-  @Max(90, { message: 'Latitude must be between -90 and 90.' })
+  @IsNumber({}, { message: 'La latitud debe ser un número.' })
+  @Min(-90, { message: 'La latitud debe estar entre -90 y 90.' })
+  @Max(90, { message: 'La latitud debe estar entre -90 y 90.' })
   latitude?: number;
 
-  @ApiPropertyOptional({
-    description: 'User location longitude (must be between -180 and 180)',
+  @ApiProperty({
+    description:
+      'Longitud de la ubicación del usuario (debe estar entre -180 y 180)',
     example: -58.3816,
     minimum: -180,
     maximum: 180,
+    required: false,
   })
   @IsOptional()
   @Transform(({ value }) => transformToNumber(value))
-  @IsNumber({}, { message: 'Longitude must be a number.' })
-  @Min(-180, { message: 'Longitude must be between -180 and 180.' })
-  @Max(180, { message: 'Longitude must be between -180 and 180.' })
+  @IsNumber({}, { message: 'La longitud debe ser un número.' })
+  @Min(-180, { message: 'La longitud debe estar entre -180 y 180.' })
+  @Max(180, { message: 'La longitud debe estar entre -180 y 180.' })
   longitude?: number;
 
   @ApiProperty({
-    description: 'User email address (must be unique)',
+    description: 'Correo electrónico del usuario (debe ser único)',
     example: 'juan.perez@email.com',
   })
   @IsNotEmpty()
-  @IsEmail()
+  @IsEmail(
+    {},
+    { message: 'El correo electrónico debe tener un formato válido.' },
+  )
   email: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description:
-      'User password (must contain at least one lowercase letter, one uppercase letter, one number, and one special character)',
+      'Contraseña del usuario (debe contener al menos una minúscula, una mayúscula, un número y un carácter especial)',
     example: 'SecurePass123!',
     minLength: 8,
     maxLength: 100,
   })
-  @IsOptional()
-  @IsString({ message: 'Password must be a string' })
+  @IsString({ message: 'La contraseña debe ser un string.' })
   @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).+$/, {
     message:
-      'Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character',
+      'La contraseña debe contener al menos una minúscula, una mayúscula, un número y un carácter especial.',
   })
   @Length(8, 100, {
-    message: 'The length of the password must be  between 8 and 100 characters',
+    message: 'La contraseña debe tener entre 8 y 100 caracteres.',
   })
-  password?: string;
+  password: string;
 
-  @ApiPropertyOptional({
-    description: 'Password confirmation (must match the password)',
+  @ApiProperty({
+    description:
+      'Confirmación de contraseña (debe coincidir con la contraseña)',
     example: 'SecurePass123!',
   })
-  @IsOptional()
   @Validate(MatchPasswordHelper, ['password'])
-  confirmPassword?: string;
+  confirmPassword: string;
 }

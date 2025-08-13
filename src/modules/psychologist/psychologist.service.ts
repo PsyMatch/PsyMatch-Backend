@@ -77,6 +77,6 @@ export class PsychologistService {
     psychologist.is_active = false;
     await this.psychologistRepository.save(psychologist);
 
-    return { message: 'Psychologist removed successfully' };
+    return { message: 'Psicólogo eliminado exitosamente' };
   }
 }
