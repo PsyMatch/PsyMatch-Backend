@@ -8,36 +8,38 @@ import { ERole } from '../../../common/enums/role.enum';
 import { ELanguage } from '../enums/languages.enum';
 import { EModality } from '../enums/modality.enum';
 import { EPsychologistStatus } from '../enums/verified.enum';
-import { EInsurance } from 'src/modules/users/enums/insurances.enum';
+import { EInsurance } from '../../users/enums/insurances.enum';
 import { EAvailability } from '../enums/availability.enum';
-import { Appointment } from 'src/modules/appointments/entities/appointment.entity';
+import { Appointment } from '../../appointments/entities/appointment.entity';
 
 @ChildEntity(ERole.PSYCHOLOGIST)
 export class Psychologist extends User {
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: 'text', nullable: false })
   personal_biography: string;
 
   @Column({
     type: 'enum',
     enum: ELanguage,
     array: true,
-    nullable: true,
+    nullable: false,
   })
   languages: ELanguage[] | null;
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'int', nullable: false })
   professional_experience: number;
 
-  @Column({ type: 'bigint', unique: true, nullable: true })
+  @Column({ type: 'text', nullable: false })
+  professional_title: string;
+
+  @Column({ type: 'bigint', unique: true, nullable: false })
   license_number: number;
 
   @Column({
     type: 'enum',
     enum: EPsychologistStatus,
-    nullable: true,
+    nullable: false,
   })
-  verified: EPsychologistStatus | null;
-
+  verified: EPsychologistStatus;
   @Column({ type: 'text', nullable: true })
   office_address: string;
 
@@ -53,7 +55,7 @@ export class Psychologist extends User {
     type: 'enum',
     enum: ETherapyApproach,
     array: true,
-    nullable: true,
+    nullable: false,
   })
   therapy_approaches: ETherapyApproach[];
 
@@ -61,27 +63,26 @@ export class Psychologist extends User {
     type: 'enum',
     enum: ESessionType,
     array: true,
-    nullable: true,
+    nullable: false,
   })
   session_types: ESessionType[];
 
   @Column({
     type: 'enum',
     enum: EModality,
-    nullable: true,
+    nullable: false,
   })
   modality: EModality;
 
-  @Column({ type: 'enum', enum: EInsurance, array: true, nullable: true })
+  @Column({ type: 'enum', enum: EInsurance, array: true, nullable: false })
   insurance_accepted: EInsurance[];
 
-  @Column({ type: 'enum', enum: EAvailability, array: true, nullable: true })
+  @Column({ type: 'enum', enum: EAvailability, array: true, nullable: false })
   availability: EAvailability[];
 
   @OneToMany(() => Reviews, (reviews) => reviews.psychologist)
   reviews: Reviews[];
 
-  // Relación inversa con citas (psicólogo)
   @OneToMany(() => Appointment, (appointment) => appointment.psychologist)
-  declare appointments: Appointment[];
+  appointments: Appointment[];
 }

@@ -160,18 +160,19 @@ export class SignUpDto {
 
   @ApiProperty({
     description:
-      'Contraseña del usuario (debe contener al menos una minúscula, una mayúscula, un número y un carácter especial)',
-    example: 'SecurePass123!',
-    minLength: 8,
+      'Contraseña del usuario (debe contener al menos una minúscula, una mayúscula y un número; el carácter especial es opcional)',
+    example: 'MiContraseña123!',
+    minLength: 6,
     maxLength: 100,
   })
   @IsString({ message: 'La contraseña debe ser un string.' })
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).+$/, {
+  @IsNotEmpty({ message: 'La contraseña es obligatoria.' })
+  @Matches(/^(?=.*\p{Lu})(?=.*\p{Ll})(?=.*\d).{6,100}$/u, {
     message:
-      'La contraseña debe contener al menos una minúscula, una mayúscula, un número y un carácter especial.',
+      'La contraseña debe contener al menos una minúscula, una mayúscula y un número. El carácter especial es opcional.',
   })
-  @Length(8, 100, {
-    message: 'La contraseña debe tener entre 8 y 100 caracteres.',
+  @Length(6, 100, {
+    message: 'La contraseña debe tener entre 6 y 100 caracteres.',
   })
   password: string;
 

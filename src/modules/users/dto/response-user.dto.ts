@@ -8,6 +8,7 @@ import { ELanguage } from '../../psychologist/enums/languages.enum';
 import { EModality } from '../../psychologist/enums/modality.enum';
 import { ESessionType } from '../../psychologist/enums/session-types.enum';
 import { ETherapyApproach } from '../../psychologist/enums/therapy-approaches.enum';
+import { ERole } from '../../../common/enums/role.enum';
 
 export class ResponseUserDto {
   @ApiProperty({
@@ -109,6 +110,13 @@ export class ResponseUserDto {
   @Expose()
   @Type(() => ResponseUserDto)
   psychologists?: ResponseUserDto[];
+
+  @ApiPropertyOptional({
+    description: 'Título profesional (solo para psicólogos)',
+    example: 'Psicólogo Clínico',
+  })
+  @Expose()
+  professional_title?: string;
 
   @ApiPropertyOptional({
     description: 'Número de matrícula profesional (solo para psicólogos)',
@@ -215,13 +223,13 @@ export class ResponseUserDto {
   @Type(() => ResponseUserDto)
   patients?: ResponseUserDto[];
 
-  // @ApiProperty({
-  //   description: 'Rol del usuario',
-  //   enum: ERole,
-  //   example: ERole.PATIENT,
-  // })
-  // @Expose()
-  // role: ERole;
+  @ApiProperty({
+    description: 'Rol del usuario',
+    enum: ERole,
+    example: ERole.PATIENT,
+  })
+  @Expose()
+  role: ERole;
 
   @ApiPropertyOptional({
     description: 'URL de la foto de perfil del usuario',

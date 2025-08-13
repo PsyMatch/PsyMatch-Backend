@@ -15,6 +15,7 @@ import {
   ApiResponse,
   ApiBody,
   ApiParam,
+  ApiConsumes,
 } from '@nestjs/swagger';
 import { PaymentsService } from './payments.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
@@ -55,7 +56,6 @@ export class PaymentsController {
   })
   @ApiResponse({
     status: 201,
-    description: 'Payment processed successfully',
     description: 'Pago procesado exitosamente',
     schema: {
       type: 'object',
@@ -100,14 +100,12 @@ export class PaymentsController {
   @Get()
   @Roles([ERole.ADMIN])
   @ApiOperation({
-    summary: 'Get all payments (admin only)',
     summary: 'Obtener todos los pagos (Solo administradores)',
     description:
       'Recuperar todos los pagos del sistema. Solo accesible por administradores.',
   })
   @ApiResponse({
     status: 200,
-    description: 'Payments retrieved successfully',
     description: 'Pagos recuperados exitosamente',
     schema: {
       type: 'array',

@@ -6,9 +6,9 @@ import { Psychologist } from '../../entities/psychologist.entity';
 import {
   PaginatedResponse,
   PaginationDto,
-} from 'src/common/dto/pagination.dto';
-import { PaginationService } from 'src/common/services/pagination.service';
-import { User } from 'src/modules/users/entities/user.entity';
+} from '../../../../common/dto/pagination.dto';
+import { PaginationService } from '../../../../common/services/pagination.service';
+import { User } from '../../../users/entities/user.entity';
 
 @Injectable()
 export class VerificationPsychologistService {

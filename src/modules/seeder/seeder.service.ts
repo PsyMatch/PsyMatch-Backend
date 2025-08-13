@@ -55,6 +55,10 @@ export class SeederService {
         birthdate: '1990-05-15',
         health_insurance: EInsurance.SWISS_MEDICAL,
         role: ERole.PATIENT,
+        emergency_contact: 'María Pérez - +5411987654321 - Madre',
+        latitude: -34.6037,
+        longitude: -58.3816,
+        profile_picture: 'https://example.com/profile/juan-perez.jpg',
       },
       {
         name: 'María González',
@@ -66,6 +70,7 @@ export class SeederService {
         birthdate: '1985-08-22',
         health_insurance: EInsurance.IOMA,
         role: ERole.PATIENT,
+        emergency_contact: 'Carlos González - +5411122334455 - Padre',
       },
       {
         name: 'Pedro Rodríguez',
@@ -77,6 +82,8 @@ export class SeederService {
         birthdate: '1992-12-10',
         health_insurance: EInsurance.PAMI,
         role: ERole.PATIENT,
+        latitude: -31.4167,
+        longitude: -64.1833,
       },
       {
         name: 'Ana López',
@@ -99,6 +106,7 @@ export class SeederService {
         birthdate: '1995-03-28',
         health_insurance: EInsurance.SANCOR_SALUD,
         role: ERole.PATIENT,
+        emergency_contact: 'Laura Martínez - +541155667788 - Hermana',
       },
       {
         name: 'Laura Fernández',
@@ -110,6 +118,7 @@ export class SeederService {
         birthdate: '1987-11-17',
         health_insurance: EInsurance.UNION_PERSONAL,
         role: ERole.PATIENT,
+        profile_picture: 'https://example.com/profile/laura-fernandez.jpg',
       },
       {
         name: 'Sofía Ramírez',
@@ -132,6 +141,7 @@ export class SeederService {
         birthdate: '1991-09-30',
         health_insurance: EInsurance.LUIS_PASTEUR,
         role: ERole.PATIENT,
+        emergency_contact: 'Valentina Castro - +541166778899 - Esposa',
       },
       {
         name: 'Valentina Torres',
@@ -154,6 +164,8 @@ export class SeederService {
         birthdate: '1989-06-25',
         health_insurance: EInsurance.OSECAC,
         role: ERole.PATIENT,
+        latitude: -31.4167,
+        longitude: -64.1833,
       },
       {
         name: 'Camila Herrera',
@@ -176,6 +188,7 @@ export class SeederService {
         birthdate: '1997-08-14',
         health_insurance: EInsurance.APROSS,
         role: ERole.PATIENT,
+        emergency_contact: 'Sofía Díaz - +5411122334455 - Madre',
       },
     ];
 

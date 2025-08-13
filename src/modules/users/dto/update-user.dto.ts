@@ -9,11 +9,11 @@ import {
   Matches,
   IsDateString,
   IsEnum,
-  IsArray,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { EInsurance } from '../enums/insurances.enum';
+import { Optional } from '@nestjs/common';
 
 const transformToDate = (value: unknown): Date | undefined => {
   if (!value) return undefined;
@@ -77,19 +77,6 @@ export class UpdateUserDto {
   birthdate?: Date;
 
   @ApiPropertyOptional({
-    description:
-      'DNI del usuario (Documento Nacional de Identidad) - debe ser único',
-    example: 12345678,
-    minimum: 1000000,
-    maximum: 99999999,
-  })
-  @IsOptional()
-  @IsNumber({}, { message: 'El DNI debe ser un número' })
-  @Min(1000000, { message: 'El DNI debe tener al menos 7 dígitos' })
-  @Max(99999999, { message: 'El DNI no puede exceder 8 dígitos' })
-  dni?: number;
-
-  @ApiPropertyOptional({
     description: 'Obra social del usuario',
     example: 'osde',
     enum: EInsurance,
@@ -99,20 +86,6 @@ export class UpdateUserDto {
     message: 'La obra social debe ser un proveedor válido',
   })
   health_insurance?: EInsurance;
-
-  @ApiPropertyOptional({
-    description: 'Obras sociales aceptadas (solo para psicólogos)',
-    example: ['osde', 'swiss-medical', 'ioma'],
-    enum: EInsurance,
-    isArray: true,
-  })
-  @IsOptional()
-  @IsArray({ message: 'Las obras sociales aceptadas deben ser un array' })
-  @IsEnum(EInsurance, {
-    each: true,
-    message: 'Cada obra social debe ser un proveedor válido',
-  })
-  insurance_accepted?: EInsurance[];
 
   @ApiPropertyOptional({
     description:
@@ -178,18 +151,21 @@ export class UpdateUserDto {
     description:
       'Contraseña del usuario (debe contener al menos una letra minúscula, una mayúscula, un número y un carácter especial)',
     example: 'NewSecurePass123!',
-    minLength: 8,
+    minLength: 6,
     maxLength: 100,
   })
-  @IsOptional()
   @IsString({ message: 'La contraseña debe ser un string.' })
-  @MinLength(8, { message: 'La contraseña debe tener al menos 8 caracteres.' })
-  @Length(8, 100, {
-    message: 'La contraseña debe tener entre 8 y 100 caracteres.',
+  @MinLength(6, { message: 'La contraseña debe tener al menos 6 caracteres.' })
+  @Length(6, 100, {
+    message: 'La contraseña debe tener entre 6 y 100 caracteres.',
   })
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).+$/, {
-    message:
-      'La contraseña debe contener al menos una letra minúscula, una mayúscula, un número y un carácter especial',
-  })
+  @Optional()
+  @Matches(
+    /^(?=.*[\p{Ll}])(?=.*[\p{Lu}])(?=.*\d)[\p{L}\d!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]{6,}$/u,
+    {
+      message:
+        'La contraseña debe contener al menos una letra minúscula, una mayúscula, un número y un carácter especial',
+    },
+  )
   password?: string;
 }

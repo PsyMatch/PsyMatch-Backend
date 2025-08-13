@@ -19,7 +19,6 @@ import { EPsychologistStatus } from '../psychologist/enums/verified.enum';
 import { Profile } from 'passport';
 import { UsersService } from '../users/users.service';
 import { Repository } from 'typeorm';
-import { EModality } from '../psychologist/enums/modality.enum';
 
 @Injectable()
 export class AuthService {
@@ -67,25 +66,28 @@ export class AuthService {
 
       const hashedPassword = await bcrypt.hash(userData.password, 10);
 
-      const hasAddress = !!userData.address && userData.address.trim() !== '';
-      const hasLatitude =
-        userData.latitude !== undefined && userData.latitude !== null;
-      const hasLongitude =
-        userData.longitude !== undefined && userData.longitude !== null;
+      //===============================
+      // DESCOMENTAR CUANDO USEMOS MAPS
+      //===============================
+      // const hasAddress = !!userData.address && userData.address.trim() !== '';
+      // const hasLatitude =
+      //   userData.latitude !== undefined && userData.latitude !== null;
+      // const hasLongitude =
+      //   userData.longitude !== undefined && userData.longitude !== null;
 
-      if (hasAddress) {
-        if (!hasLatitude || !hasLongitude) {
-          throw new BadRequestException(
-            'Si se proporciona dirección de hogar, también deben proporcionarse latitud y longitud.',
-          );
-        }
-      } else {
-        if (hasLatitude || hasLongitude) {
-          throw new BadRequestException(
-            'No se puede proporcionar latitud o longitud si no hay dirección de hogar.',
-          );
-        }
-      }
+      // if (hasAddress) {
+      //   if (!hasLatitude || !hasLongitude) {
+      //     throw new BadRequestException(
+      //       'Si se proporciona dirección de hogar, también deben proporcionarse latitud y longitud.',
+      //     );
+      //   }
+      // } else {
+      //   if (hasLatitude || hasLongitude) {
+      //     throw new BadRequestException(
+      //       'No se puede proporcionar latitud o longitud si no hay dirección de hogar.',
+      //     );
+      //   }
+      // }
 
       const newUser = patientRepo.create({
         ...userData,
@@ -132,13 +134,13 @@ export class AuthService {
   }
 
   async signUpPsychologistService(
-    userData: SignUpPsychologistDto,
+    psychologistData: SignUpPsychologistDto,
     profilePicture?: Express.Multer.File,
   ): Promise<{ message: string; data: User; token: string }> {
     return this.queryHelper.runInTransaction(async (queryRunner) => {
       const userRepo = queryRunner.manager.getRepository(User);
       const psychologistRepo = queryRunner.manager.getRepository(Psychologist);
-      const { email, phone, dni } = userData;
+      const { email, dni } = psychologistData;
 
       const existingUserByEmail = await userRepo.findOne({
         where: { email, is_active: true },
@@ -155,59 +157,53 @@ export class AuthService {
       }
 
       const existingUserByLicense = await psychologistRepo.findOne({
-        where: { license_number: userData.license_number, is_active: true },
+        where: {
+          license_number: psychologistData.license_number,
+          is_active: true,
+        },
       });
       if (existingUserByLicense) {
         throw new ConflictException('El número de matrícula ya existe');
       }
 
-      if (phone) {
-        const existingUserByPhone = await userRepo.findOne({
-          where: { phone, is_active: true },
-        });
-        if (existingUserByPhone) {
-          throw new ConflictException('El número de teléfono ya existe');
-        }
-      }
-
-      if (userData.password !== userData.confirmPassword)
+      if (psychologistData.password !== psychologistData.confirmPassword)
         throw new BadRequestException(
           'La confirmación de contraseña no coincide',
         );
 
-      const hashedPassword = await bcrypt.hash(userData.password, 10);
+      const hashedPassword = await bcrypt.hash(psychologistData.password, 10);
 
-      const { confirmPassword: _confirmPassword, ...psychologistData } =
-        userData;
+      //===============================
+      // DESCOMENTAR CUANDO USEMOS MAPS
+      //===============================
+      // const hasOfficeAddress =
+      //   !!psychologistData.office_address &&
+      //   psychologistData.office_address.trim() !== '';
+      // const hasLatitude =
+      //   psychologistData.latitude !== undefined &&
+      //   psychologistData.latitude !== null;
+      // const hasLongitude =
+      //   psychologistData.longitude !== undefined &&
+      //   psychologistData.longitude !== null;
 
-      const hasOfficeAddress =
-        !!psychologistData.office_address &&
-        psychologistData.office_address.trim() !== '';
-      const hasLatitude =
-        psychologistData.latitude !== undefined &&
-        psychologistData.latitude !== null;
-      const hasLongitude =
-        psychologistData.longitude !== undefined &&
-        psychologistData.longitude !== null;
-
-      if (hasOfficeAddress) {
-        if (!hasLatitude || !hasLongitude) {
-          throw new BadRequestException(
-            'Si se proporciona dirección de consultorio, también deben proporcionarse latitud y longitud.',
-          );
-        }
-      } else {
-        if (hasLatitude || hasLongitude) {
-          throw new BadRequestException(
-            'No se puede proporcionar latitud o longitud si no hay dirección de consultorio.',
-          );
-        }
-        if (psychologistData.modality !== EModality.ONLINE) {
-          throw new BadRequestException(
-            'Si no se proporciona dirección de consultorio, la modalidad debe ser obligatoriamente online',
-          );
-        }
-      }
+      // if (hasOfficeAddress) {
+      //   if (!hasLatitude || !hasLongitude) {
+      //     throw new BadRequestException(
+      //       'Si se proporciona dirección de consultorio, también deben proporcionarse latitud y longitud.',
+      //     );
+      //   }
+      // } else {
+      //   if (hasLatitude || hasLongitude) {
+      //     throw new BadRequestException(
+      //       'No se puede proporcionar latitud o longitud si no hay dirección de consultorio.',
+      //     );
+      //   }
+      //   if (psychologistData.modality !== EModality.ONLINE) {
+      //     throw new BadRequestException(
+      //       'Si no se proporciona dirección de consultorio, la modalidad debe ser obligatoriamente online',
+      //     );
+      //   }
+      // }
 
       const newPsychologist = psychologistRepo.create({
         ...psychologistData,
