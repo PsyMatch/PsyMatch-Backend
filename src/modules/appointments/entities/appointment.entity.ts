@@ -1,40 +1,34 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  OneToMany,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
-import { Psychologist } from '../../psychologist/entities/psychologist.entity';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
+import { Psychologist } from 'src/modules/psychologist/entities/psychologist.entity';
+import { AppointmentStatus } from '../enums/appointment-status.enum';
 import { EModality } from 'src/modules/psychologist/enums/modality.enum';
-import { Payment } from '../../payments/entities/payment.entity';
-
-export enum AppointmentStatus {
-  PENDING = 'PENDING',
-  CONFIRMED = 'CONFIRMED',
-  CANCELLED = 'CANCELLED',
-  COMPLETED = 'COMPLETED',
-}
 
 @Entity('appointments')
 export class Appointment {
   @PrimaryGeneratedColumn('uuid')
-  appointment_id: string;
+  id: string;
 
-  @ManyToOne(() => User)
+  @Column({ type: 'timestamptz' })
+  date: Date;
+
+  @Column({ type: 'int', nullable: true })
+  duration: number;
+
+  @Column({ type: 'text', nullable: true })
+  notes: string;
+
+  @ManyToOne(() => User, (user) => user.appointments, {
+    onDelete: 'CASCADE',
+    eager: true,
+  })
   user: User;
 
-  @ManyToOne(() => Psychologist)
+  @ManyToOne(() => Psychologist, (psychologist) => psychologist.appointments, {
+    onDelete: 'CASCADE',
+    eager: true,
+  })
   psychologist: Psychologist;
-
-  @OneToMany(() => Payment, (payment) => payment.appointment)
-  payments: Payment[];
-
-  @Column({ type: 'date' })
-  date: string;
 
   @Column({
     type: 'enum',
@@ -43,16 +37,6 @@ export class Appointment {
   })
   status: AppointmentStatus;
 
-  @Column({
-    type: 'enum',
-    enum: EModality,
-    default: EModality.ONLINE,
-  })
+  @Column({ type: 'enum', enum: EModality })
   modality: EModality;
-
-  @CreateDateColumn()
-  created_at: Date;
-
-  @UpdateDateColumn()
-  updated_at: Date;
 }

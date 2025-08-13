@@ -4,42 +4,69 @@ import { Repository } from 'typeorm';
 import { Appointment } from './entities/appointment.entity';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
+import { User } from '../users/entities/user.entity';
+import { Psychologist } from '../psychologist/entities/psychologist.entity';
 
 @Injectable()
 export class AppointmentsService {
   constructor(
     @InjectRepository(Appointment)
-    private readonly appointmentRepo: Repository<Appointment>,
+    private readonly appointmentRepository: Repository<Appointment>,
+
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+
+    @InjectRepository(Psychologist)
+    private readonly psychologistRepository: Repository<Psychologist>,
   ) {}
 
   async create(dto: CreateAppointmentDto) {
-    const appointment = this.appointmentRepo.create(dto);
-    return await this.appointmentRepo.save(appointment);
+    const user = await this.userRepository.findOne({
+      where: { id: dto.user_id },
+    });
+    if (!user)
+      throw new NotFoundException(`User with ID ${dto.user_id} not found`);
+
+    const psychologist = await this.psychologistRepository.findOne({
+      where: { id: dto.psychologist_id },
+    });
+    if (!psychologist)
+      throw new NotFoundException(
+        `Psychologist with ID ${dto.psychologist_id} not found`,
+      );
+
+    const appointment = this.appointmentRepository.create({
+      ...dto,
+      date: new Date(dto.date),
+      user,
+      psychologist,
+    });
+
+    return this.appointmentRepository.save(appointment);
   }
 
-  async findAll() {
-    return await this.appointmentRepo.find({
-      relations: ['user', 'psychologist'],
-    });
+  findAll() {
+    return this.appointmentRepository.find();
   }
 
   async findOne(id: string) {
-    const appointment = await this.appointmentRepo.findOne({
-      where: { appointment_id: id },
-      relations: ['user', 'psychologist'],
+    const appointment = await this.appointmentRepository.findOne({
+      where: { id },
     });
-    if (!appointment) throw new NotFoundException('Appointment not found');
+    if (!appointment)
+      throw new NotFoundException(`Appointment with ID ${id} not found`);
     return appointment;
   }
 
   async update(id: string, dto: UpdateAppointmentDto) {
-    await this.findOne(id);
-    await this.appointmentRepo.update(id, dto);
-    return this.findOne(id);
+    const appointment = await this.findOne(id);
+    Object.assign(appointment, dto);
+    return this.appointmentRepository.save(appointment);
   }
 
   async remove(id: string) {
     const appointment = await this.findOne(id);
-    return await this.appointmentRepo.remove(appointment);
+    await this.appointmentRepository.remove(appointment);
+    return { message: `Appointment with ID ${id} deleted successfully` };
   }
 }
