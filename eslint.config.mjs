@@ -31,7 +31,6 @@ export default tseslint.config(
   {
     rules: {
       'prettier/prettier': ['error', { endOfLine: 'auto' }],
-      '@stylistic/indent': ['error', 2, { SwitchCase: 1 }], // Indentación de 2 espacios, casos de switch indentados
       '@stylistic/quotes': ['error', 'single', { avoidEscape: true }], // Comillas simples, permite comillas dobles si es necesario escapar
       '@stylistic/semi': ['error', 'always'], // Siempre punto y coma al final de las sentencias
       '@stylistic/comma-dangle': ['error', 'always-multiline'], // Comas colgantes en multilínea (ej. en objetos, arrays)

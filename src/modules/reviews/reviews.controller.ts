@@ -25,7 +25,7 @@ import {
 import { reviewResponseDto } from './dto/review-response.dto';
 import { Reviews } from './entities/reviews.entity';
 
-@ApiTags('Reviews')
+@ApiTags('Reseñas')
 @Controller('reviews')
 @UseGuards(AuthGuard)
 @ApiBearerAuth('JWT-auth')
@@ -37,9 +37,9 @@ export class ReviewsController {
   @Roles([ERole.PATIENT, ERole.ADMIN, ERole.PSYCHOLOGIST])
   @ApiConsumes('multipart/form-data')
   @ApiOperation({
-    summary: 'Create a new review',
+    summary: 'Crear una nueva reseña',
     description:
-      'Create a review for a psychologist. Can be done by patients who have had sessions with the psychologist.',
+      'Crear una reseña para un psicólogo. Puede ser realizada por pacientes que han tenido sesiones con el psicólogo.',
   })
   @ApiBody({
     schema: {
@@ -47,20 +47,20 @@ export class ReviewsController {
       properties: {
         psychologist_id: { type: 'string', example: 'psychologist-uuid' },
         rating: { type: 'string', example: '5' },
-        comment: { type: 'string', example: 'Excellent professional service' },
+        comment: { type: 'string', example: 'Excelente servicio profesional' },
         session_date: { type: 'string', example: '2024-03-15T10:00:00Z' },
       },
     },
   })
   @ApiResponse({
     status: 201,
-    description: 'Review created successfully',
+    description: 'Reseña creada exitosamente',
     schema: {
       type: 'object',
       properties: {
         message: {
           type: 'string',
-          example: 'Review created successfully',
+          example: 'Reseña creada exitosamente',
         },
         review: {
           type: 'object',
@@ -68,7 +68,7 @@ export class ReviewsController {
             id: { type: 'string', example: 'review-uuid' },
             comment: {
               type: 'string',
-              example: 'Excellent psychologist, very professional.',
+              example: 'Excelente psicólogo, muy profesional.',
             },
             rating: { type: 'number', example: 5 },
             psychologist_id: {
@@ -88,15 +88,15 @@ export class ReviewsController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad request - Review already exists or invalid data',
+    description: 'Solicitud incorrecta - La reseña ya existe o datos inválidos',
   })
   @ApiResponse({
     status: 401,
-    description: 'Invalid or expired token',
+    description: 'Token inválido o expirado',
   })
   @ApiResponse({
     status: 403,
-    description: 'Access denied - Insufficient permissions',
+    description: 'Acceso denegado - Permisos insuficientes',
   })
   createNewReviewController(
     @Body() createReviewData: CreateReviewDto,
@@ -108,18 +108,18 @@ export class ReviewsController {
   @UseGuards(RolesGuard)
   @Roles([ERole.PATIENT, ERole.ADMIN, ERole.PSYCHOLOGIST])
   @ApiOperation({
-    summary: 'Get reviews by psychologist ID',
+    summary: 'Obtener reseñas por ID de psicólogo',
     description:
-      'Retrieve all reviews for a specific psychologist with average rating and review count.',
+      'Recuperar todas las reseñas de un psicólogo específico con calificación promedio y número de reseñas.',
   })
   @ApiParam({
     name: 'id',
-    description: 'Psychologist UUID',
+    description: 'UUID del psicólogo',
     example: 'psychologist-uuid',
   })
   @ApiResponse({
     status: 200,
-    description: 'Reviews retrieved successfully',
+    description: 'Reseñas recuperadas exitosamente',
     schema: {
       type: 'object',
       properties: {
@@ -134,12 +134,12 @@ export class ReviewsController {
         average_rating: {
           type: 'number',
           example: 4.5,
-          description: 'Average rating from all reviews',
+          description: 'Calificación promedio de todas las reseñas',
         },
         total_reviews: {
           type: 'number',
           example: 12,
-          description: 'Total number of reviews',
+          description: 'Número total de reseñas',
         },
         reviews: {
           type: 'array',
@@ -149,13 +149,13 @@ export class ReviewsController {
               id: { type: 'string', example: 'review-uuid' },
               comment: {
                 type: 'string',
-                example: 'Excellent psychologist, very professional.',
+                example: 'Excelente psicólogo, muy profesional.',
               },
               rating: { type: 'number', example: 5 },
               user_name: {
                 type: 'string',
                 example: 'Juan Pérez',
-                description: 'Name of the user who left the review',
+                description: 'Nombre del usuario que dejó la reseña',
               },
               created_at: {
                 type: 'string',
@@ -170,15 +170,15 @@ export class ReviewsController {
   })
   @ApiResponse({
     status: 401,
-    description: 'Invalid or expired token',
+    description: 'Token inválido o expirado',
   })
   @ApiResponse({
     status: 403,
-    description: 'Access denied - Insufficient permissions',
+    description: 'Acceso denegado - Permisos insuficientes',
   })
   @ApiResponse({
     status: 404,
-    description: 'Psychologist not found or no reviews available',
+    description: 'Psicólogo no encontrado o no hay reseñas disponibles',
   })
   findOneByPsychologistIdController(
     @Param('id') id: string,
@@ -190,39 +190,39 @@ export class ReviewsController {
   @UseGuards(RolesGuard)
   @Roles([ERole.ADMIN])
   @ApiOperation({
-    summary: 'Delete a review by ID (Admin only)',
+    summary: 'Eliminar una reseña por ID (Solo administradores)',
     description:
-      'Permanently delete a review from the system. Only administrators can perform this action.',
+      'Eliminar permanentemente una reseña del sistema. Solo los administradores pueden realizar esta acción.',
   })
   @ApiParam({
     name: 'id',
-    description: 'Review UUID',
+    description: 'UUID de la reseña',
     example: 'review-uuid',
   })
   @ApiResponse({
     status: 200,
-    description: 'Review deleted successfully',
+    description: 'Reseña eliminada exitosamente',
     schema: {
       type: 'object',
       properties: {
         message: {
           type: 'string',
-          example: 'Review deleted successfully',
+          example: 'Reseña eliminada exitosamente',
         },
       },
     },
   })
   @ApiResponse({
     status: 401,
-    description: 'Invalid or expired token',
+    description: 'Token inválido o expirado',
   })
   @ApiResponse({
     status: 403,
-    description: 'Access denied - Admin role required',
+    description: 'Acceso denegado - Se requiere rol de administrador',
   })
   @ApiResponse({
     status: 404,
-    description: 'Review not found',
+    description: 'Reseña no encontrada',
   })
   removeReviewByIdController(
     @Param('id') id: string,

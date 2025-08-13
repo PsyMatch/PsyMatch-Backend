@@ -4,46 +4,46 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateRecordDto {
   @ApiProperty({
-    description: 'ID of the psychologist creating the medical record',
+    description: 'ID del psicólogo que crea el historial médico',
     example: '123e4567-e89b-12d3-a456-426614174000',
     format: 'uuid',
   })
-  @IsNotEmpty({ message: 'Psychologist ID is required' })
-  @IsUUID('4', { message: 'Psychologist ID must be a valid UUID' })
+  @IsNotEmpty({ message: 'El ID del psicólogo es obligatorio' })
+  @IsUUID('4', { message: 'El ID del psicólogo debe ser un UUID válido' })
   psychologist_id: string;
 
   @ApiProperty({
-    description: 'ID of the patient/user for whom the record is being created',
+    description: 'ID del paciente/usuario para quien se crea el historial',
     example: '123e4567-e89b-12d3-a456-426614174001',
     format: 'uuid',
   })
-  @IsNotEmpty({ message: 'User ID is required' })
-  @IsUUID('4', { message: 'User ID must be a valid UUID' })
+  @IsNotEmpty({ message: 'El ID del usuario es obligatorio' })
+  @IsUUID('4', { message: 'El ID del usuario debe ser un UUID válido' })
   user_id: string;
 
   @ApiProperty({
-    description: 'Detailed content of the medical record or session notes',
+    description: 'Contenido detallado del historial médico o notas de sesión',
     example:
-      'Patient showed significant improvement in anxiety management. Discussed coping strategies and assigned homework exercises for the next session.',
+      'El paciente mostró una mejora significativa en el manejo de la ansiedad. Se discutieron estrategias de afrontamiento y se asignaron ejercicios para la próxima sesión.',
     minLength: 10,
     maxLength: 5000,
   })
-  @IsNotEmpty({ message: 'Record content is required' })
-  @IsString({ message: 'Content must be a string' })
+  @IsNotEmpty({ message: 'El contenido del historial es obligatorio' })
+  @IsString({ message: 'El contenido debe ser un string' })
   @Length(10, 5000, {
-    message: 'Content must be between 10 and 5000 characters',
+    message: 'El contenido debe tener entre 10 y 5000 caracteres',
   })
   content: string;
 
   @ApiProperty({
-    description: 'Type/category of the medical record',
+    description: 'Tipo/categoría del historial médico',
     enum: ETypeRecord,
     example: ETypeRecord.PERSONAL_NOTE,
     enumName: 'ETypeRecord',
   })
-  @IsNotEmpty({ message: 'Record type is required' })
+  @IsNotEmpty({ message: 'El tipo de historial es obligatorio' })
   @IsEnum(ETypeRecord, {
-    message: `Type must be one of: ${Object.values(ETypeRecord).join(', ')}`,
+    message: `El tipo debe ser uno de: ${Object.values(ETypeRecord).join(', ')}`,
   })
   type: ETypeRecord;
 }

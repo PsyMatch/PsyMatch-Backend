@@ -34,7 +34,7 @@ export class VerificationPsychologistController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Pending psychologists retrieved successfully',
+    description: 'Psicólogos pendientes recuperados exitosamente',
     schema: {
       type: 'object',
       properties: {
@@ -72,28 +72,28 @@ export class VerificationPsychologistController {
   })
   @ApiResponse({
     status: 403,
-    description: 'Access denied - Admin role required',
+    description: 'Acceso denegado - Se requiere rol de administrador',
   })
   @ApiResponse({
     status: 401,
-    description: 'Invalid or expired token',
+    description: 'Token inválido o expirado',
   })
   @ApiResponse({
     status: 404,
-    description: 'No pending psychologist requests found',
+    description: 'No se encontraron solicitudes de psicólogos pendientes',
   })
   @ApiQuery({
     name: 'page',
     required: false,
     type: Number,
-    description: 'Page number (default: 1)',
+    description: 'Número de página (por defecto: 1)',
     example: 1,
   })
   @ApiQuery({
     name: 'limit',
     required: false,
     type: Number,
-    description: 'Items per page (default: 5)',
+    description: 'Elementos por página (por defecto: 5)',
     example: 10,
   })
   getAllVerifiedRequestController(
@@ -108,19 +108,20 @@ export class VerificationPsychologistController {
   @Roles([ERole.ADMIN])
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
-    summary: 'Verify a psychologist by ID (Admin Only)',
+    summary: 'Verificar un psicólogo por ID (Solo administradores)',
     description:
-      'Approve or reject a psychologist registration request. Changes the verification status from pending to validated or rejected.',
+      'Aprobar o rechazar una solicitud de registro de psicólogo. Cambia el estado de verificación de pendiente a validado o rechazado.',
   })
   @ApiResponse({
     status: 200,
-    description: 'Psychologist verification status updated successfully',
+    description:
+      'Estado de verificación del psicólogo actualizado exitosamente',
     schema: {
       type: 'object',
       properties: {
         message: {
           type: 'string',
-          example: 'Psychologist verified successfully',
+          example: 'Psicólogo verificado exitosamente',
         },
         psychologist: {
           type: 'object',
@@ -135,15 +136,15 @@ export class VerificationPsychologistController {
   })
   @ApiResponse({
     status: 403,
-    description: 'Access denied - Admin role required',
+    description: 'Acceso denegado - Se requiere rol de administrador',
   })
   @ApiResponse({
     status: 401,
-    description: 'Invalid or expired token',
+    description: 'Token inválido o expirado',
   })
   @ApiResponse({
     status: 404,
-    description: 'Psychologist not found',
+    description: 'Psicólogo no encontrado',
   })
   verifyAPsychologistById(@Param('id') id: string) {
     return this.verificationPsychologistService.findOne(id);
