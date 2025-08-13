@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { UpdatePsychologistDto } from './dto/update-psychologist.dto';
+import { UpdatePsychologistDto } from '../../dto/update-psychologist.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Psychologist } from './entities/psychologist.entity';
-import { EPsychologistStatus } from './enums/verified.enum';
-import { PaginatedPendingRequestsDto } from './dto/response-pending-psychologist.dto';
+import { Psychologist } from '../../entities/psychologist.entity';
+import { EPsychologistStatus } from '../../enums/verified.enum';
+import { PaginatedPendingRequestsDto } from '../../dto/response-pending-psychologist.dto';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
@@ -59,23 +59,23 @@ export class PsychologistService {
     return psychologist;
   }
 
-  async update(
-    id: string,
-    updatePsychologistDto: UpdatePsychologistDto,
-  ): Promise<Psychologist> {
-    const psychologist = await this.findOne(id);
+  // async update(
+  //   id: string,
+  //   updatePsychologistDto: UpdatePsychologistDto,
+  // ): Promise<Psychologist> {
+  //   const psychologist = await this.findOne(id);
 
-    Object.assign(psychologist, updatePsychologistDto);
+  //   Object.assign(psychologist, updatePsychologistDto);
 
-    return await this.psychologistRepository.save(psychologist);
-  }
+  //   return await this.psychologistRepository.save(psychologist);
+  // }
 
-  async remove(id: string): Promise<{ message: string }> {
-    const psychologist = await this.findOne(id);
+  // async remove(id: string): Promise<{ message: string }> {
+  //   const psychologist = await this.findOne(id);
 
-    psychologist.is_active = false;
-    await this.psychologistRepository.save(psychologist);
+  //   psychologist.is_active = false;
+  //   await this.psychologistRepository.save(psychologist);
 
-    return { message: 'Psychologist removed successfully' };
-  }
+  //   return { message: 'Psychologist removed successfully' };
+  // }
 }

@@ -1,0 +1,26 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Reviews } from '../../../../modules/reviews/entities/reviews.entity';
+
+@Injectable()
+export class ReviewsProfessionalsService {
+  constructor(
+    @InjectRepository(Reviews)
+    private readonly reviewsRepository: Repository<Reviews>,
+  ) {}
+
+  async findAll(userId: string) {
+    const reviews = await this.reviewsRepository.findOne({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!reviews) {
+      throw new NotFoundException('Reviews not found');
+    }
+
+    return reviews;
+  }
+}

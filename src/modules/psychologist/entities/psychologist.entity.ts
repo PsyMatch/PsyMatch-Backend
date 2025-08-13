@@ -31,6 +31,7 @@ export class Psychologist extends User {
     nullable: true,
   })
   verified: EPsychologistStatus | null;
+
   @Column({ type: 'text', nullable: true })
   office_address: string;
 
@@ -73,4 +74,7 @@ export class Psychologist extends User {
 
   @OneToMany(() => Reviews, (reviews) => reviews.psychologist)
   reviews: Reviews[];
+
+  @Column({ type: 'text', nullable: false })
+  professional_title: string;
 }
