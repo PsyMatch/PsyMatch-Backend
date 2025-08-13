@@ -1,0 +1,54 @@
+import { Module } from '@nestjs/common';
+import { PsychologistService } from './generalCRUD/psychologist.service';
+import { PsychologistController } from './generalCRUD/psychologist.controller';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from '../../users/entities/user.entity';
+import { Psychologist } from '../entities/psychologist.entity';
+import { JwtService } from '@nestjs/jwt';
+import { VerificationPsychologistController } from './verificationOfProfessionals/verificationPsychologist.controller';
+import { VerificationPsychologistService } from './verificationOfProfessionals/verificationPsychologist.service';
+import { ReviewsOfProfessionalsController } from './reviewsOfProfessionals/reviewsOfProfessionals.controller';
+import { ProfileManagementController } from './profileManagement/profileManagement.controller';
+import { PaymentsOfProfessionalsController } from './paymentsOfProfessionals/paymentsOfProfessionals.controller';
+import { PatientsOfProfessionalController } from './patientsOfProfessional/patientsOfProfessional.controller';
+import { AppointmentsOfProfessionalController } from './appointmentsOfProfessional/appointmentsOfProfessional.controller';
+import { ReviewsProfessionalsService } from './reviewsOfProfessionals/reviewsOfProfessionals.service';
+import { ProfileService } from './profileManagement/profileManagement.service';
+import { PaymentsOfProfessionalsService } from './paymentsOfProfessionals/paymentsOfProfessionals.service';
+import { PatientsOfProfessionalService } from './patientsOfProfessional/patientsOfProfessional.service';
+import { AppointmentsOfProfessionalService } from './appointmentsOfProfessional/appointmentsOfProfessional.service';
+import { Appointment } from '../../../modules/appointments/entities/appointment.entity';
+import { Payment } from '../../../modules/payments/entities/payment.entity';
+import { Reviews } from '../../../modules/reviews/entities/reviews.entity';
+
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([
+      User,
+      Psychologist,
+      Appointment,
+      Payment,
+      Reviews,
+    ]),
+  ],
+  controllers: [
+    PsychologistController,
+    VerificationPsychologistController,
+    ReviewsOfProfessionalsController,
+    ProfileManagementController,
+    PaymentsOfProfessionalsController,
+    PatientsOfProfessionalController,
+    AppointmentsOfProfessionalController,
+  ],
+  providers: [
+    PsychologistService,
+    JwtService,
+    VerificationPsychologistService,
+    ReviewsProfessionalsService,
+    ProfileService,
+    PaymentsOfProfessionalsService,
+    PatientsOfProfessionalService,
+    AppointmentsOfProfessionalService,
+  ],
+})
+export class PsychologistModule {}

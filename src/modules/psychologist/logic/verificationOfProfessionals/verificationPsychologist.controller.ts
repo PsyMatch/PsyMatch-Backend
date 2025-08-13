@@ -1,43 +1,36 @@
-import {
-  Controller,
-  Get,
-  Body,
-  Param,
-  Delete,
-  Put,
-  UseGuards,
-  Query,
-} from '@nestjs/common';
-import { PsychologistService } from './psychologist.service';
-import { UpdatePsychologistDto } from './dto/update-psychologist.dto';
+import { Controller, Get, Param, Put, Query, UseGuards } from '@nestjs/common';
+import { VerificationPsychologistService } from './verificationPsychologist.service';
+import { Roles } from '../../../../modules/auth/decorators/role.decorator';
+import { ERole } from '../../../../common/enums/role.enum';
 import {
   ApiBearerAuth,
   ApiOperation,
   ApiQuery,
   ApiResponse,
   ApiTags,
-  ApiConsumes,
-  ApiBody,
 } from '@nestjs/swagger';
-import { AuthGuard } from '../auth/guards/auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/role.decorator';
-import { ERole } from '../../common/enums/role.enum';
-import { PaginatedPendingRequestsDto } from './dto/response-pending-psychologist.dto';
+import { AuthGuard } from '../../../../modules/auth/guards/auth.guard';
+import { RolesGuard } from '../../../../modules/auth/guards/roles.guard';
+import {
+  PaginatedResponse,
+  PaginationDto,
+} from 'src/common/dto/pagination.dto';
+import { User } from 'src/modules/users/entities/user.entity';
 
-@ApiTags('Psicólogos')
-@Controller('psychologist')
-export class PsychologistController {
-  constructor(private readonly psychologistService: PsychologistService) {}
+@Controller('psychologist/verification')
+@ApiTags('Psychologist')
+@ApiBearerAuth('JWT-auth')
+@UseGuards(AuthGuard, RolesGuard)
+export class VerificationPsychologistController {
+  constructor(
+    private readonly verificationPsychologistService: VerificationPsychologistService,
+  ) {}
 
-  @Get('pending')
-  @UseGuards(AuthGuard, RolesGuard)
+  @Get()
   @Roles([ERole.ADMIN])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
-    summary: 'Obtener todos los psicólogos pendientes (Solo administradores)',
-    description:
-      'Recuperar una lista paginada de psicólogos esperando verificación. Solo accesible por administradores.',
+    summary: '[Verification] Get all pending verification requests',
+    description: 'Get a paginated list of psychologists pending verification',
   })
   @ApiResponse({
     status: 200,
@@ -104,19 +97,14 @@ export class PsychologistController {
     example: 10,
   })
   getAllVerifiedRequestController(
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
-  ): Promise<PaginatedPendingRequestsDto> {
-    const pageNumber = page ? parseInt(page, 10) : 1;
-    const limitNumber = limit ? parseInt(limit, 10) : 5;
-    return this.psychologistService.getAllVerifiedRequestService(
-      pageNumber,
-      limitNumber,
+    @Query() paginationDto: PaginationDto,
+  ): Promise<PaginatedResponse<User>> {
+    return this.verificationPsychologistService.getAllVerifiedRequestService(
+      paginationDto,
     );
   }
 
   @Put(':id/verify')
-  @UseGuards(AuthGuard, RolesGuard)
   @Roles([ERole.ADMIN])
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
@@ -159,69 +147,51 @@ export class PsychologistController {
     description: 'Psicólogo no encontrado',
   })
   verifyAPsychologistById(@Param('id') id: string) {
-    return this.psychologistService.findOne(id);
+    return this.verificationPsychologistService.findOne(id);
   }
 
-  @Put(':id')
-  @ApiConsumes('multipart/form-data')
+  @Put(':id/reject')
+  @Roles([ERole.ADMIN])
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
-    summary: 'Actualizar información del psicólogo',
-    description: 'Actualizar información del perfil del psicólogo.',
+    summary: 'Reject a psychologist by ID (Admin Only)',
+    description:
+      'Reject a psychologist registration request. Changes the verification status from pending to rejected.',
   })
-  @ApiBody({
-    description: 'Datos de actualización del psicólogo (form-data)',
+  @ApiResponse({
+    status: 200,
+    description: 'Psychologist verification status updated successfully',
     schema: {
       type: 'object',
       properties: {
-        license_number: {
+        message: {
           type: 'string',
-          description: 'Número de matrícula profesional',
-          example: 'PSY-123456',
+          example: 'Psychologist rejected successfully',
         },
-        specialities: {
-          type: 'string',
-          description: 'Especialidades separadas por comas',
-          example: 'ansiedad,depresión,trauma',
-        },
-        experience_years: {
-          type: 'string',
-          description: 'Años de experiencia',
-          example: '5',
-        },
-        modality: {
-          type: 'string',
-          description: 'Modalidad de terapia',
-          enum: ['PRESENTIAL', 'VIRTUAL', 'MIXED'],
-          example: 'VIRTUAL',
-        },
-        rate_per_session: {
-          type: 'string',
-          description: 'Tarifa por sesión en USD',
-          example: '80.00',
-        },
-        bio: {
-          type: 'string',
-          description: 'Biografía profesional',
-          example:
-            'Psicólogo clínico licenciado con más de 5 años de experiencia...',
-        },
-        availability: {
-          type: 'string',
-          description: 'Horarios disponibles (formato JSON)',
-          example: '{"monday": ["09:00-12:00", "14:00-18:00"]}',
+        psychologist: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', example: 'psychologist-uuid' },
+            name: { type: 'string', example: 'Dr. Ana García' },
+            verified: { type: 'string', example: 'REJECTED' },
+          },
         },
       },
     },
   })
-  update(
-    @Param('id') id: string,
-    @Body() updatePsychologistDto: UpdatePsychologistDto,
-  ) {
-    return this.psychologistService.update(id, updatePsychologistDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.psychologistService.remove(id);
+  @ApiResponse({
+    status: 403,
+    description: 'Access denied - Admin role required',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Invalid or expired token',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Psychologist not found',
+  })
+  rejectAPsychologistById(@Param('id') id: string) {
+    return this.verificationPsychologistService.rejectPsychologistById(id);
   }
 }

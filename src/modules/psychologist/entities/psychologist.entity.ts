@@ -37,6 +37,7 @@ export class Psychologist extends User {
     nullable: true,
   })
   verified: EPsychologistStatus | null;
+
   @Column({ type: 'text', nullable: true })
   office_address: string;
 

@@ -3,7 +3,7 @@ import { UsersModule } from './modules/users/users.module';
 import { RecordsModule } from './modules/records/records.module';
 import { DatabaseModule } from './modules/database/database.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
-import { PsychologistModule } from './modules/psychologist/psychologist.module';
+import { PsychologistModule } from './modules/psychologist/logic/psychologist.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { AppointmentsModule } from './modules/appointments/appointments.module';
