@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { PsychologistService } from './generalCRUD/psychologist.service';
-import { PsychologistController } from './generalCRUD/psychologist.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Psychologist } from '../entities/psychologist.entity';
@@ -20,6 +18,7 @@ import { AppointmentsOfProfessionalService } from './appointmentsOfProfessional/
 import { Appointment } from '../../../modules/appointments/entities/appointment.entity';
 import { Payment } from '../../../modules/payments/entities/payment.entity';
 import { Reviews } from '../../../modules/reviews/entities/reviews.entity';
+import { PaginationService } from '../../../common/services/pagination.service';
 
 @Module({
   imports: [
@@ -29,10 +28,10 @@ import { Reviews } from '../../../modules/reviews/entities/reviews.entity';
       Appointment,
       Payment,
       Reviews,
+      PaginationService,
     ]),
   ],
   controllers: [
-    PsychologistController,
     VerificationPsychologistController,
     ReviewsOfProfessionalsController,
     ProfileManagementController,
@@ -41,7 +40,7 @@ import { Reviews } from '../../../modules/reviews/entities/reviews.entity';
     AppointmentsOfProfessionalController,
   ],
   providers: [
-    PsychologistService,
+    PaginationService,
     JwtService,
     VerificationPsychologistService,
     ReviewsProfessionalsService,

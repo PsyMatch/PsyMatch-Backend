@@ -9,7 +9,7 @@ import {
   MaxLength,
 } from 'class-validator';
 import { AppointmentStatus } from '../enums/appointment-status.enum';
-import { EModality } from 'src/modules/psychologist/enums/modality.enum';
+import { EModality } from '../../psychologist/enums/modality.enum';
 
 export class CreateAppointmentDto {
   @IsDateString()

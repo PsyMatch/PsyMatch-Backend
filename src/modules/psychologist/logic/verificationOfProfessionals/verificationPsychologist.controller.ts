@@ -14,8 +14,8 @@ import { RolesGuard } from '../../../../modules/auth/guards/roles.guard';
 import {
   PaginatedResponse,
   PaginationDto,
-} from 'src/common/dto/pagination.dto';
-import { User } from 'src/modules/users/entities/user.entity';
+} from '../../../../common/dto/pagination.dto';
+import { User } from '../../../users/entities/user.entity';
 
 @Controller('psychologist/verification')
 @ApiTags('Psychologist')

@@ -21,11 +21,11 @@ export class AppointmentsService {
   ) {}
 
   async create(dto: CreateAppointmentDto) {
-    const user = await this.userRepository.findOne({
+    const patient = await this.userRepository.findOne({
       where: { id: dto.user_id },
     });
-    if (!user)
-      throw new NotFoundException(`User with ID ${dto.user_id} not found`);
+    if (!patient)
+      throw new NotFoundException(`Patient with ID ${dto.user_id} not found`);
 
     const psychologist = await this.psychologistRepository.findOne({
       where: { id: dto.psychologist_id },
@@ -38,7 +38,7 @@ export class AppointmentsService {
     const appointment = this.appointmentRepository.create({
       ...dto,
       date: new Date(dto.date),
-      user,
+      patient,
       psychologist,
     });
 

@@ -5,11 +5,11 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { ERole } from 'src/common/enums/role.enum';
-import { Roles } from 'src/modules/auth/decorators/role.decorator';
-import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
-import { RolesGuard } from 'src/modules/auth/guards/roles.guard';
-import { IAuthRequest } from 'src/modules/auth/interfaces/auth-request.interface';
+import { ERole } from '../../../../common/enums/role.enum';
+import { Roles } from '../../../auth/decorators/role.decorator';
+import { AuthGuard } from '../../../auth/guards/auth.guard';
+import { RolesGuard } from '../../../auth/guards/roles.guard';
+import { IAuthRequest } from '../../../auth/interfaces/auth-request.interface';
 import { PaymentsOfProfessionalsService } from './paymentsOfProfessionals.service';
 
 @ApiTags('Psychologist')

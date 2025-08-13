@@ -2,12 +2,9 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
-  JoinColumn,
 } from 'typeorm';
-import { Appointment } from '../../appointments/entities/appointment.entity';
 
 export enum PayMethod {
   CREDIT_CARD = 'CREDIT_CARD',
@@ -30,11 +27,12 @@ export class Payment {
   @Column({ type: 'uuid' })
   appointment_id: string;
 
-  @ManyToOne(() => Appointment, (appointment) => appointment.payments, {
-    onDelete: 'CASCADE',
-  })
-  @JoinColumn({ name: 'appointment_id' })
-  appointment: Appointment;
+  // DESCOMENTAR CUANDO ESTE LA RELACION EN APPOINTMENTS
+  // @ManyToOne(() => Appointment, (appointment) => appointment.payments, {
+  //   onDelete: 'CASCADE',
+  // })
+  // @JoinColumn({ name: 'appointment_id' })
+  // appointment: Appointment;
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   amount: number;

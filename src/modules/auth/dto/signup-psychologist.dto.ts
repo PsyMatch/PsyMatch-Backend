@@ -11,6 +11,8 @@ import {
   IsInt,
   IsPositive,
   IsDateString,
+  Validate,
+  Length,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
@@ -21,6 +23,7 @@ import { ESessionType } from '../../psychologist/enums/session-types.enum';
 import { EModality } from '../../psychologist/enums/modality.enum';
 import { ELanguage } from '../../psychologist/enums/languages.enum';
 import { EAvailability } from '../../psychologist/enums/availability.enum';
+import { MatchPasswordHelper } from '../../utils/helpers/matchPassword.helper';
 
 const transformToNumber = (value: unknown): number | undefined =>
   typeof value === 'number'
@@ -61,18 +64,17 @@ export class SignUpPsychologistDto {
   @IsPositive({ message: 'El DNI debe ser un número positivo.' })
   dni: number;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'Fecha de nacimiento',
     example: '2001-05-01',
     type: 'string',
     format: 'date',
   })
-  @IsOptional()
   @IsDateString(
     {},
     { message: 'La fecha de nacimiento debe ser una fecha válida.' },
   )
-  birthdate?: Date;
+  birthdate: Date;
 
   @ApiProperty({
     description: 'Correo electrónico (debe ser único)',
@@ -86,11 +88,21 @@ export class SignUpPsychologistDto {
   email: string;
 
   @ApiProperty({
-    description: 'Contraseña con requisitos de seguridad',
-    example: 'SecurePass123!',
+    description:
+      'Contraseña del usuario (debe contener al menos una minúscula, una mayúscula y un número; el carácter especial es opcional)',
+    example: 'MiContraseña123!',
+    minLength: 6,
+    maxLength: 100,
   })
   @IsString({ message: 'La contraseña debe ser un string.' })
   @IsNotEmpty({ message: 'La contraseña es obligatoria.' })
+  @Matches(/^(?=.*\p{Lu})(?=.*\p{Ll})(?=.*\d).{6,100}$/u, {
+    message:
+      'La contraseña debe contener al menos una minúscula, una mayúscula y un número. El carácter especial es opcional.',
+  })
+  @Length(6, 100, {
+    message: 'La contraseña debe tener entre 6 y 100 caracteres.',
+  })
   password: string;
 
   @ApiProperty({
@@ -98,8 +110,7 @@ export class SignUpPsychologistDto {
       'Confirmación de contraseña (debe coincidir con la contraseña)',
     example: 'SecurePass123!',
   })
-  @IsString({ message: 'La confirmación de contraseña debe ser un string.' })
-  @IsNotEmpty({ message: 'La confirmación de contraseña es obligatoria.' })
+  @Validate(MatchPasswordHelper, ['password'])
   confirmPassword: string;
 
   @ApiProperty({
@@ -164,22 +175,29 @@ export class SignUpPsychologistDto {
   @IsString({ message: 'La URL de la foto de perfil debe ser un string.' })
   profile_picture?: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'Biografía personal',
     example:
       'Psicólogo especializado en terapia cognitivo conductual con 10 años de experiencia.',
   })
-  @IsOptional()
   @IsString({ message: 'La biografía personal debe ser un string.' })
-  personal_biography?: string;
+  @IsNotEmpty({ message: 'La biografía personal es obligatoria.' })
+  personal_biography: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
+    description: 'Título profesional del psicólogo',
+    example: 'Licenciado en Psicología',
+  })
+  @IsString({ message: 'El título profesional debe ser un string.' })
+  @IsNotEmpty({ message: 'El título profesional es obligatorio.' })
+  professional_title: string;
+
+  @ApiProperty({
     description: 'Años de experiencia profesional',
     example: 5,
     minimum: 0,
     maximum: 50,
   })
-  @IsOptional()
   @Transform(({ value }) => transformToNumber(value))
   @IsNumber(
     {},
@@ -188,52 +206,56 @@ export class SignUpPsychologistDto {
   @IsInt({
     message: 'Los años de experiencia profesional deben ser un número entero.',
   })
-  professional_experience?: number;
+  @IsNotEmpty({
+    message: 'Los años de experiencia profesional son obligatorios.',
+  })
+  professional_experience: number;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'Idiomas hablados',
     example: ['spanish', 'english'],
     enum: ELanguage,
     isArray: true,
   })
-  @IsOptional()
   @Transform(({ value }) => transformToArray(value))
   @IsArray()
+  @ArrayNotEmpty({ message: 'Debe especificar al menos un idioma.' })
   @IsEnum(ELanguage, { each: true })
-  languages?: ELanguage[];
+  languages: ELanguage[];
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'Enfoques terapéuticos utilizados',
     example: ['cognitive_behavioral_therapy', 'psychodynamic_therapy'],
     enum: ETherapyApproach,
     isArray: true,
   })
-  @IsOptional()
   @Transform(({ value }) => transformToArray(value))
   @IsArray()
+  @ArrayNotEmpty({
+    message: 'Debe especificar al menos un enfoque terapéutico.',
+  })
   @IsEnum(ETherapyApproach, { each: true })
-  therapy_approaches?: ETherapyApproach[];
+  therapy_approaches: ETherapyApproach[];
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'Tipos de sesión ofrecidos',
     example: ['individual', 'couple'],
     enum: ESessionType,
     isArray: true,
   })
-  @IsOptional()
   @Transform(({ value }) => transformToArray(value))
   @IsArray()
+  @ArrayNotEmpty({ message: 'Debe especificar al menos un tipo de sesión.' })
   @IsEnum(ESessionType, { each: true })
-  session_types?: ESessionType[];
+  session_types: ESessionType[];
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'Modalidad de consulta',
     example: 'in_person',
     enum: EModality,
   })
-  @IsOptional()
   @IsEnum(EModality)
-  modality?: EModality;
+  modality: EModality;
 
   @ApiProperty({
     description: 'Lista de especialidades profesionales',

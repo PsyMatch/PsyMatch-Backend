@@ -17,7 +17,7 @@ export class PatientsOfProfessionalService {
       );
     }
 
-    const patients = appointments.map((appointment) => appointment.user);
+    const patients = appointments.map((appointment) => appointment.patient);
 
     if (!patients.length) {
       throw new NotFoundException(

@@ -5,9 +5,9 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
-import { RolesGuard } from 'src/modules/auth/guards/roles.guard';
-import { IAuthRequest } from 'src/modules/auth/interfaces/auth-request.interface';
+import { AuthGuard } from '../../../auth/guards/auth.guard';
+import { RolesGuard } from '../../../auth/guards/roles.guard';
+import { IAuthRequest } from '../../../auth/interfaces/auth-request.interface';
 import { ReviewsProfessionalsService } from './reviewsOfProfessionals.service';
 
 @Controller('psychologists/reviews')

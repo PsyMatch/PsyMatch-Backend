@@ -1,8 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { User } from '../../users/entities/user.entity';
-import { Psychologist } from 'src/modules/psychologist/entities/psychologist.entity';
+import { Psychologist } from '../../psychologist/entities/psychologist.entity';
 import { AppointmentStatus } from '../enums/appointment-status.enum';
-import { EModality } from 'src/modules/psychologist/enums/modality.enum';
+import { EModality } from '../../psychologist/enums/modality.enum';
+import { Patient } from '../../users/entities/patient.entity';
 
 @Entity('appointments')
 export class Appointment {
@@ -18,11 +18,11 @@ export class Appointment {
   @Column({ type: 'text', nullable: true })
   notes: string;
 
-  @ManyToOne(() => User, (user) => user.appointments, {
+  @ManyToOne(() => Patient, (patient) => patient.appointments, {
     onDelete: 'CASCADE',
     eager: true,
   })
-  user: User;
+  patient: Patient;
 
   @ManyToOne(() => Psychologist, (psychologist) => psychologist.appointments, {
     onDelete: 'CASCADE',
