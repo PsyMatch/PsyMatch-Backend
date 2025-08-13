@@ -13,11 +13,13 @@ export class AppointmentsOfProfessionalService {
   async getAppointmentsOfProfessional(psychoId: string) {
     const appointments = await this.appointmentsRepository.find({
       where: { psychologist: { id: psychoId } },
-      relations: ['user'],
+      relations: ['patient'],
     });
 
     if (!appointments || appointments.length === 0) {
-      throw new NotFoundException('No se encontraron turnos de este psicologo');
+      throw new NotFoundException(
+        'No se encontraron pacientes o turnos de este psicologo',
+      );
     }
 
     return appointments;

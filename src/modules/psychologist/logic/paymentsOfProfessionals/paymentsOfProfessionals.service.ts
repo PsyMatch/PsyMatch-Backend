@@ -10,12 +10,17 @@ export class PaymentsOfProfessionalsService {
     private readonly paymentsRepository: Repository<Payment>,
   ) {}
 
-  async getPaymentsOfProfessional(psychologistId: string) {
+  async getPaymentsOfProfessional(psychologistId: string): Promise<Payment[]> {
     const payments = await this.paymentsRepository
       .createQueryBuilder('payment')
-      .leftJoinAndSelect('payment.appointment', 'appointment')
-      .leftJoinAndSelect('appointment.psychologist', 'psychologist')
-      .where('psychologist.id = :psychologistId', { psychologistId })
+      .innerJoinAndSelect(
+        'appointments',
+        'appointment',
+        'payment.appointment_id = appointment.id',
+      )
+      .where('appointment."psychologistId" = :psychologistId', {
+        psychologistId,
+      })
       .getMany();
 
     if (!payments || payments.length === 0) {
