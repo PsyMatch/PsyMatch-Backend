@@ -15,7 +15,7 @@ import {
 import { Transform } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { EPsychologistSpecialty } from '../../psychologist/enums/specialities.enum';
-import { EInsurance } from '../../users/enums/insurances .enum';
+import { EInsurance } from '../../users/enums/insurances.enum';
 import { ETherapyApproach } from '../../psychologist/enums/therapy-approaches.enum';
 import { ESessionType } from '../../psychologist/enums/session-types.enum';
 import { EModality } from '../../psychologist/enums/modality.enum';

@@ -14,7 +14,7 @@ import { EPsychologistSpecialty } from '../enums/specialities.enum';
 import { ETherapyApproach } from '../enums/therapy-approaches.enum';
 import { ESessionType } from '../enums/session-types.enum';
 import { EModality } from '../enums/modality.enum';
-import { EInsurance } from '../../users/enums/insurances .enum';
+import { EInsurance } from '../../users/enums/insurances.enum';
 
 export class UpdatePsychologistDto {
   @ApiPropertyOptional({

@@ -58,6 +58,6 @@ import { PaginationService } from '../../common/services/pagination.service';
     UsersService,
     PaginationService,
   ],
-  exports: [AuthService],
+  exports: [AuthService, JwtModule],
 })
 export class AuthModule {}
