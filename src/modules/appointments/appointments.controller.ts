@@ -22,7 +22,7 @@ import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { AuthGuard } from '../auth/guards/auth.guard';
 
-@ApiTags('Appointments')
+@ApiTags('Citas')
 @Controller('appointments')
 @UseGuards(AuthGuard)
 @ApiBearerAuth('JWT-auth')
@@ -31,9 +31,8 @@ export class AppointmentsController {
 
   @Post()
   @ApiOperation({
-    summary: 'Create a new appointment',
-    description:
-      'Schedule a new appointment between a patient and psychologist',
+    summary: 'Crear una nueva cita',
+    description: 'Programa una nueva cita entre un paciente y un psicólogo',
   })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -45,13 +44,13 @@ export class AppointmentsController {
         date: { type: 'string', example: '2024-03-15T10:00:00Z' },
         duration: { type: 'string', example: '60' },
         session_type: { type: 'string', example: 'individual' },
-        notes: { type: 'string', example: 'Initial consultation' },
+        notes: { type: 'string', example: 'Consulta inicial' },
       },
     },
   })
   @ApiResponse({
     status: 201,
-    description: 'Appointment created successfully',
+    description: 'Cita creada exitosamente',
     schema: {
       type: 'object',
       properties: {
@@ -82,20 +81,21 @@ export class AppointmentsController {
       },
     },
   })
-  @ApiResponse({ status: 400, description: 'Invalid appointment data' })
-  @ApiResponse({ status: 401, description: 'Invalid or expired token' })
+  @ApiResponse({ status: 400, description: 'Datos de cita inválidos' })
+  @ApiResponse({ status: 401, description: 'Token inválido o expirado' })
   create(@Body() dto: CreateAppointmentDto) {
     return this.service.create(dto);
   }
 
   @Get()
   @ApiOperation({
-    summary: 'Get all appointments',
-    description: 'Retrieve all appointments with user and psychologist details',
+    summary: 'Obtener todas las citas',
+    description:
+      'Recuperar todas las citas con detalles de usuario y psicólogo',
   })
   @ApiResponse({
     status: 200,
-    description: 'Appointments retrieved successfully',
+    description: 'Citas recuperadas exitosamente',
     schema: {
       type: 'array',
       items: {
@@ -129,24 +129,25 @@ export class AppointmentsController {
       },
     },
   })
-  @ApiResponse({ status: 401, description: 'Invalid or expired token' })
+  @ApiResponse({ status: 401, description: 'Token inválido o expirado' })
   findAll() {
     return this.service.findAll();
   }
 
   @Get(':id')
   @ApiOperation({
-    summary: 'Get appointment by ID',
-    description: 'Retrieve a specific appointment with all related details',
+    summary: 'Obtener cita por ID',
+    description:
+      'Recuperar una cita específica con todos los detalles relacionados',
   })
   @ApiParam({
     name: 'id',
-    description: 'Appointment UUID',
+    description: 'UUID de la cita',
     example: 'appointment-uuid',
   })
   @ApiResponse({
     status: 200,
-    description: 'Appointment found successfully',
+    description: 'Cita encontrada exitosamente',
     schema: {
       type: 'object',
       properties: {
@@ -177,26 +178,26 @@ export class AppointmentsController {
       },
     },
   })
-  @ApiResponse({ status: 404, description: 'Appointment not found' })
-  @ApiResponse({ status: 401, description: 'Invalid or expired token' })
+  @ApiResponse({ status: 404, description: 'Cita no encontrada' })
+  @ApiResponse({ status: 401, description: 'Token inválido o expirado' })
   findOne(@Param('id') id: string) {
     return this.service.findOne(id);
   }
 
   @Put(':id')
   @ApiOperation({
-    summary: 'Update appointment by ID',
-    description: 'Update appointment details such as date, duration, or status',
+    summary: 'Actualizar cita por ID',
+    description: 'Actualizar detalles de la cita como fecha, duración o estado',
   })
   @ApiParam({
     name: 'id',
-    description: 'Appointment UUID',
+    description: 'UUID de la cita',
     example: 'appointment-uuid',
   })
   @ApiBody({ type: UpdateAppointmentDto })
   @ApiResponse({
     status: 200,
-    description: 'Appointment updated successfully',
+    description: 'Cita actualizada exitosamente',
     schema: {
       type: 'object',
       properties: {
@@ -211,39 +212,39 @@ export class AppointmentsController {
       },
     },
   })
-  @ApiResponse({ status: 400, description: 'Invalid update data' })
-  @ApiResponse({ status: 404, description: 'Appointment not found' })
-  @ApiResponse({ status: 401, description: 'Invalid or expired token' })
+  @ApiResponse({ status: 400, description: 'Datos de actualización inválidos' })
+  @ApiResponse({ status: 404, description: 'Cita no encontrada' })
+  @ApiResponse({ status: 401, description: 'Token inválido o expirado' })
   update(@Param('id') id: string, @Body() dto: UpdateAppointmentDto) {
     return this.service.update(id, dto);
   }
 
   @Delete(':id')
   @ApiOperation({
-    summary: 'Delete appointment by ID',
-    description: 'Remove an appointment from the system',
+    summary: 'Eliminar cita por ID',
+    description: 'Remover una cita del sistema',
   })
   @ApiParam({
     name: 'id',
-    description: 'Appointment UUID',
+    description: 'UUID de la cita',
     example: 'appointment-uuid',
   })
   @ApiResponse({
     status: 200,
-    description: 'Appointment deleted successfully',
+    description: 'Cita eliminada exitosamente',
     schema: {
       type: 'object',
       properties: {
         message: {
           type: 'string',
-          example: 'Appointment deleted successfully',
+          example: 'Cita eliminada exitosamente',
         },
         appointment_id: { type: 'string', example: 'appointment-uuid' },
       },
     },
   })
-  @ApiResponse({ status: 404, description: 'Appointment not found' })
-  @ApiResponse({ status: 401, description: 'Invalid or expired token' })
+  @ApiResponse({ status: 404, description: 'Cita no encontrada' })
+  @ApiResponse({ status: 401, description: 'Token inválido o expirado' })
   remove(@Param('id') id: string) {
     return this.service.remove(id);
   }

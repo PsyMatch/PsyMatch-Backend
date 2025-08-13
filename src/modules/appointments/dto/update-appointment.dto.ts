@@ -1,27 +1,34 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateAppointmentDto } from './create-appointment.dto';
 import { IsEnum, IsOptional, IsUUID, IsDateString } from 'class-validator';
-import { EModality } from 'src/modules/psychologist/enums/modality.enum';
+import { EModality } from '../../psychologist/enums/modality.enum';
 import { AppointmentStatus } from '../entities/appointment.entity';
 
 export class UpdateAppointmentDto extends PartialType(CreateAppointmentDto) {
   @IsOptional()
-  @IsUUID()
+  @IsUUID('4', { message: 'user_id debe ser un UUID válido' })
   user_id?: string;
 
   @IsOptional()
-  @IsUUID()
+  @IsUUID('4', { message: 'psychologist_id debe ser un UUID válido' })
   psychologist_id?: string;
 
   @IsOptional()
-  @IsDateString()
+  @IsDateString(
+    {},
+    { message: 'fecha debe ser una cadena de fecha ISO 8601 válida' },
+  )
   date?: string;
 
   @IsOptional()
-  @IsEnum(AppointmentStatus)
+  @IsEnum(AppointmentStatus, {
+    message: 'estado debe ser un estado de cita válido',
+  })
   status?: AppointmentStatus;
 
   @IsOptional()
-  @IsEnum(EModality)
+  @IsEnum(EModality, {
+    message: 'modalidad debe ser un tipo de modalidad válida',
+  })
   modality?: EModality;
 }

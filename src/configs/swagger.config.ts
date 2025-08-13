@@ -3,9 +3,9 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 export const setupSwagger = (app: INestApplication) => {
   const config = new DocumentBuilder()
-    .setTitle('PsyMatch API')
+    .setTitle('API de PsyMatch')
     .setDescription(
-      'Digital platform focused on mental health that connects patients with psychologists according to their specific needs. It addresses the current difficulty of finding an appropriate professional by offering personalized recommendations based on symptoms, detailed filters, and scheduling with online payment. Additionally, it allows psychologists to efficiently manage their consultations and patients.',
+      'Plataforma digital enfocada en salud mental que conecta pacientes con psicólogos según sus necesidades específicas. Resuelve la dificultad actual de encontrar un profesional adecuado ofreciendo recomendaciones personalizadas basadas en síntomas, filtros detallados y agendamiento con pago online. Además, permite a los psicólogos gestionar eficientemente sus consultas y pacientes.',
     )
     .setVersion('1.0')
     .addBearerAuth(
@@ -13,9 +13,9 @@ export const setupSwagger = (app: INestApplication) => {
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT',
-        name: 'Authorization',
+        name: 'Autorización',
         description:
-          'Enter the JWT token obtained from the /auth/signin endpoint',
+          'Ingresa el token JWT obtenido desde el endpoint /auth/signin',
         in: 'header',
       },
       'JWT-auth',

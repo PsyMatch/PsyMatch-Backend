@@ -4,7 +4,7 @@ import { ETypeRecord } from '../enums/typeRecord.enum';
 
 export class RecordResponseDto {
   @ApiProperty({
-    description: 'Unique identifier of the medical record',
+    description: 'Identificador único del historial médico',
     example: '123e4567-e89b-12d3-a456-426614174000',
     format: 'uuid',
   })
@@ -12,7 +12,7 @@ export class RecordResponseDto {
   id: string;
 
   @ApiProperty({
-    description: 'ID of the psychologist who created the record',
+    description: 'ID del psicólogo que creó el historial',
     example: '123e4567-e89b-12d3-a456-426614174001',
     format: 'uuid',
   })
@@ -20,7 +20,7 @@ export class RecordResponseDto {
   psychologist_id: string;
 
   @ApiProperty({
-    description: 'ID of the patient/user this record belongs to',
+    description: 'ID del paciente/usuario al que pertenece este historial',
     example: '123e4567-e89b-12d3-a456-426614174002',
     format: 'uuid',
   })
@@ -28,15 +28,15 @@ export class RecordResponseDto {
   user_id: string;
 
   @ApiProperty({
-    description: 'Content of the medical record or session notes',
+    description: 'Contenido del historial médico o notas de sesión',
     example:
-      'Patient showed significant improvement in anxiety management. Discussed coping strategies and assigned homework exercises for the next session.',
+      'El paciente mostró una mejora significativa en el manejo de la ansiedad. Se discutieron estrategias de afrontamiento y se asignaron ejercicios para la próxima sesión.',
   })
   @Expose()
   content: string;
 
   @ApiProperty({
-    description: 'Type/category of the medical record',
+    description: 'Tipo/categoría del historial médico',
     enum: ETypeRecord,
     example: ETypeRecord.PERSONAL_NOTE,
     enumName: 'ETypeRecord',
@@ -45,7 +45,7 @@ export class RecordResponseDto {
   type: ETypeRecord;
 
   @ApiProperty({
-    description: 'Date and time when the record was created',
+    description: 'Fecha y hora cuando se creó el historial',
     example: '2025-01-15T10:30:00.000Z',
     format: 'date-time',
   })
@@ -54,7 +54,7 @@ export class RecordResponseDto {
   created_at: Date;
 
   @ApiProperty({
-    description: 'Date and time when the record was last updated',
+    description: 'Fecha y hora cuando se actualizó por última vez el historial',
     example: '2025-01-15T11:15:00.000Z',
     format: 'date-time',
   })
@@ -63,7 +63,7 @@ export class RecordResponseDto {
   updated_at: Date;
 
   @ApiProperty({
-    description: 'Indicates if the record is still active/available',
+    description: 'Indica si el historial sigue activo/disponible',
     example: true,
     default: true,
   })

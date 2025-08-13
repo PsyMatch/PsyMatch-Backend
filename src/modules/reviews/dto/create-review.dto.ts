@@ -11,43 +11,43 @@ import {
 
 export class CreateReviewDto {
   @ApiProperty({
-    description: 'Rating given by the user (1 to 5 stars)',
+    description: 'Calificación dada por el usuario (1 a 5 estrellas)',
     example: 5,
     minimum: 1,
     maximum: 5,
     type: 'integer',
   })
-  @IsInt({ message: 'Rating must be an integer.' })
-  @Min(1, { message: 'Rating must be at least 1.' })
-  @Max(5, { message: 'Rating must be at most 5.' })
+  @IsInt({ message: 'La calificación debe ser un número entero.' })
+  @Min(1, { message: 'La calificación debe ser al menos 1.' })
+  @Max(5, { message: 'La calificación debe ser como máximo 5.' })
   rating: number;
 
   @ApiProperty({
     description:
-      'Detailed comment about the psychologist and session experience',
+      'Comentario detallado sobre el psicólogo y la experiencia de la sesión',
     example:
-      'Excellent psychologist! Very professional and understanding. The session was very helpful and I felt comfortable throughout.',
+      '¡Excelente psicólogo! Muy profesional y comprensivo. La sesión fue muy útil y me sentí cómodo durante todo el tiempo.',
     maxLength: 500,
     minLength: 10,
   })
-  @IsString({ message: 'Comment must be a string.' })
-  @IsNotEmpty({ message: 'Comment cannot be empty.' })
-  @MaxLength(500, { message: 'Comment cannot exceed 500 characters.' })
+  @IsString({ message: 'El comentario debe ser un string.' })
+  @IsNotEmpty({ message: 'El comentario no puede estar vacío.' })
+  @MaxLength(500, { message: 'El comentario no puede exceder 500 caracteres.' })
   comment: string;
 
   @ApiProperty({
-    description: 'UUID of the psychologist being reviewed',
+    description: 'UUID del psicólogo siendo reseñado',
     example: '123e4567-e89b-12d3-a456-426614174000',
     format: 'uuid',
   })
-  @IsUUID('4', { message: 'Psychologist ID must be a valid UUID.' })
+  @IsUUID('4', { message: 'El ID del psicólogo debe ser un UUID válido.' })
   psychologistId: string;
 
   @ApiProperty({
-    description: 'UUID of the user leaving the review',
+    description: 'UUID del usuario que deja la reseña',
     example: '987fcdeb-51a2-43d1-b234-567890abcdef',
     format: 'uuid',
   })
-  @IsUUID('4', { message: 'User ID must be a valid UUID.' })
+  @IsUUID('4', { message: 'El ID del usuario debe ser un UUID válido.' })
   userId: string;
 }

@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import { Psychologist } from '../../psychologist/entities/psychologist.entity';
 import { User } from '../../users/entities/user.entity';
-import { EModality } from 'src/modules/psychologist/enums/modality.enum';
+import { EModality } from '../../psychologist/enums/modality.enum';
 
 export enum AppointmentStatus {
   PENDING = 'PENDING',
