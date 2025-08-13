@@ -5,6 +5,7 @@ import {
   UpdateDateColumn,
   CreateDateColumn,
   TableInheritance,
+  OneToMany,
 } from 'typeorm';
 import { ERole } from '../../../common/enums/role.enum';
 
@@ -69,4 +70,7 @@ export class User {
 
   @Column({ type: 'text', nullable: true })
   provider_id: string;
+
+  @OneToMany(() => Appointment, (appointment) => appointment.user)
+  appointments: Appointment[];
 }

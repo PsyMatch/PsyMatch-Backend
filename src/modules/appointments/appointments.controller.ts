@@ -4,30 +4,24 @@ import {
   Post,
   Body,
   Param,
-  Put,
   Delete,
-  UseGuards,
+  Put,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiBearerAuth,
-  ApiOperation,
-  ApiResponse,
-  ApiBody,
-  ApiParam,
-  ApiConsumes,
-} from '@nestjs/swagger';
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
-import { AuthGuard } from '../auth/guards/auth.guard';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBody,
+  ApiParam,
+  ApiResponse,
+} from '@nestjs/swagger';
 
 @ApiTags('Citas')
 @Controller('appointments')
-@UseGuards(AuthGuard)
-@ApiBearerAuth('JWT-auth')
 export class AppointmentsController {
-  constructor(private readonly service: AppointmentsService) {}
+  constructor(private readonly appointmentsService: AppointmentsService) {}
 
   @Post()
   @ApiOperation({
@@ -84,7 +78,7 @@ export class AppointmentsController {
   @ApiResponse({ status: 400, description: 'Datos de cita inválidos' })
   @ApiResponse({ status: 401, description: 'Token inválido o expirado' })
   create(@Body() dto: CreateAppointmentDto) {
-    return this.service.create(dto);
+    return this.appointmentsService.create(dto);
   }
 
   @Get()
@@ -131,7 +125,7 @@ export class AppointmentsController {
   })
   @ApiResponse({ status: 401, description: 'Token inválido o expirado' })
   findAll() {
-    return this.service.findAll();
+    return this.appointmentsService.findAll();
   }
 
   @Get(':id')
@@ -181,7 +175,7 @@ export class AppointmentsController {
   @ApiResponse({ status: 404, description: 'Cita no encontrada' })
   @ApiResponse({ status: 401, description: 'Token inválido o expirado' })
   findOne(@Param('id') id: string) {
-    return this.service.findOne(id);
+    return this.appointmentsService.findOne(id);
   }
 
   @Put(':id')
@@ -216,7 +210,7 @@ export class AppointmentsController {
   @ApiResponse({ status: 404, description: 'Cita no encontrada' })
   @ApiResponse({ status: 401, description: 'Token inválido o expirado' })
   update(@Param('id') id: string, @Body() dto: UpdateAppointmentDto) {
-    return this.service.update(id, dto);
+    return this.appointmentsService.update(id, dto);
   }
 
   @Delete(':id')
@@ -246,6 +240,6 @@ export class AppointmentsController {
   @ApiResponse({ status: 404, description: 'Cita no encontrada' })
   @ApiResponse({ status: 401, description: 'Token inválido o expirado' })
   remove(@Param('id') id: string) {
-    return this.service.remove(id);
+    return this.appointmentsService.remove(id);
   }
 }

@@ -15,7 +15,6 @@ import {
   ApiResponse,
   ApiBody,
   ApiParam,
-  ApiConsumes,
 } from '@nestjs/swagger';
 import { PaymentsService } from './payments.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
@@ -34,7 +33,6 @@ export class PaymentsController {
 
   @Post()
   @Roles([ERole.PATIENT, ERole.ADMIN])
-  @ApiConsumes('multipart/form-data')
   @ApiOperation({
     summary: 'Crear un nuevo pago',
     description:
@@ -157,6 +155,10 @@ export class PaymentsController {
 
   @Get(':id')
   @Roles([ERole.PATIENT, ERole.PSYCHOLOGIST, ERole.ADMIN])
+  @ApiOperation({ summary: 'Get payment by ID' })
+  @ApiParam({ name: 'id', description: 'Payment UUID' })
+  @ApiResponse({ status: 200, description: 'Payment retrieved successfully' })
+  @ApiResponse({ status: 404, description: 'Payment not found' })
   @ApiOperation({
     summary: 'Obtener pago por ID',
     description:
@@ -235,6 +237,9 @@ export class PaymentsController {
 
   @Put(':id')
   @Roles([ERole.ADMIN])
+  @ApiOperation({ summary: 'Update payment (admin only)' })
+  @ApiParam({ name: 'id', description: 'Payment UUID' })
+  @ApiBody({ type: UpdatePaymentDto })
   @ApiConsumes('multipart/form-data')
   @ApiOperation({
     summary: 'Actualizar pago por ID (Solo administradores)',
@@ -314,6 +319,8 @@ export class PaymentsController {
 
   @Delete(':id')
   @Roles([ERole.ADMIN])
+  @ApiOperation({ summary: 'Delete payment (admin only)' })
+  @ApiParam({ name: 'id', description: 'Payment UUID' })
   @ApiOperation({
     summary: 'Eliminar pago por ID (Solo administradores)',
     description:

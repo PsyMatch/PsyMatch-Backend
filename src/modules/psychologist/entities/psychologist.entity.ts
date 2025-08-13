@@ -10,6 +10,7 @@ import { EModality } from '../enums/modality.enum';
 import { EPsychologistStatus } from '../enums/verified.enum';
 import { EInsurance } from '../../users/enums/insurances .enum';
 import { EAvailability } from '../enums/availability.enum';
+import { Appointment } from 'src/modules/appointments/entities/appointment.entity';
 
 @ChildEntity(ERole.PSYCHOLOGIST)
 export class Psychologist extends User {
