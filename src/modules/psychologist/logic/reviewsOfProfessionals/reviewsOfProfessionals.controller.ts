@@ -19,21 +19,21 @@ export class ReviewsOfProfessionalsController {
 
   @Get()
   @ApiOperation({
-    summary: 'Get all reviews for the logged-in psychologist',
+    summary: 'Obtener todas las reseñas del psicólogo autenticado',
     description:
-      'Retrieve a list of all reviews written for the logged-in psychologist',
+      'Obtener una lista de todas las reseñas escritas para el psicólogo autenticado',
   })
   @ApiResponse({
     status: 200,
-    description: 'List of reviews retrieved successfully',
+    description: 'Lista de reseñas recuperadas exitosamente',
   })
   @ApiResponse({
     status: 404,
-    description: 'No reviews found',
+    description: 'No se encontraron reseñas',
   })
   @ApiResponse({
     status: 500,
-    description: 'Internal server error',
+    description: 'Error interno del servidor',
   })
   async findAll(@Req() req: IAuthRequest) {
     const userId = req.user.id;

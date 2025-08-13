@@ -22,22 +22,22 @@ export class ProfileManagementController {
 
   @Get('me')
   @Roles([ERole.PSYCHOLOGIST])
-  @ApiOperation({ summary: 'Get logged in psychologist profile' })
+  @ApiOperation({ summary: 'Obtener perfil del psicólogo logueado' })
   @ApiResponse({
     status: 200,
-    description: 'Returns the logged in psychologist profile information',
+    description: 'Devuelve la información del perfil del psicólogo logueado',
   })
   @ApiResponse({
     status: 401,
-    description: 'Unauthorized - Invalid or missing token',
+    description: 'No autorizado - Token inválido o faltante',
   })
   @ApiResponse({
     status: 403,
-    description: 'Forbidden - Not a psychologist',
+    description: 'Prohibido - No es un psicólogo',
   })
   @ApiResponse({
     status: 404,
-    description: 'Profile not found',
+    description: 'Perfil no encontrado',
   })
   async getMe(@Req() req: IAuthRequest) {
     const userId = req.user.id;
@@ -46,22 +46,22 @@ export class ProfileManagementController {
 
   @Put('me')
   @Roles([ERole.PSYCHOLOGIST])
-  @ApiOperation({ summary: 'Update logged in psychologist profile' })
+  @ApiOperation({ summary: 'Actualizar perfil del psicólogo logueado' })
   @ApiResponse({
     status: 200,
-    description: 'Returns the updated psychologist profile information',
+    description: 'Devuelve la información del perfil del psicólogo actualizado',
   })
   @ApiResponse({
     status: 401,
-    description: 'Unauthorized - Invalid or missing token',
+    description: 'No autorizado - Token inválido o faltante',
   })
   @ApiResponse({
     status: 403,
-    description: 'Forbidden - Not a psychologist',
+    description: 'Prohibido - No es un psicólogo',
   })
   @ApiResponse({
     status: 404,
-    description: 'Profile not found',
+    description: 'Perfil no encontrado',
   })
   async updateMe(
     @Req() req: IAuthRequest,

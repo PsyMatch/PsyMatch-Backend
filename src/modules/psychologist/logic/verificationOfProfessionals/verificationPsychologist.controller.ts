@@ -29,8 +29,10 @@ export class VerificationPsychologistController {
   @Get()
   @Roles([ERole.ADMIN])
   @ApiOperation({
-    summary: '[Verification] Get all pending verification requests',
-    description: 'Get a paginated list of psychologists pending verification',
+    summary:
+      '[Verificacion] Obtener todas las solicitudes de verificación pendientes (SOLO ADMIN)',
+    description:
+      'Obtener una lista paginada de psicólogos pendientes de verificación',
   })
   @ApiResponse({
     status: 200,
@@ -154,19 +156,20 @@ export class VerificationPsychologistController {
   @Roles([ERole.ADMIN])
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
-    summary: 'Reject a psychologist by ID (Admin Only)',
+    summary: 'Rechazar un psicólogo por ID (Solo administradores)',
     description:
-      'Reject a psychologist registration request. Changes the verification status from pending to rejected.',
+      'Rechazar una solicitud de registro de psicólogo. Cambia el estado de verificación de pendiente a rechazado.',
   })
   @ApiResponse({
     status: 200,
-    description: 'Psychologist verification status updated successfully',
+    description:
+      'Estado de verificación del psicólogo actualizado exitosamente',
     schema: {
       type: 'object',
       properties: {
         message: {
           type: 'string',
-          example: 'Psychologist rejected successfully',
+          example: 'Psicólogo rechazado exitosamente',
         },
         psychologist: {
           type: 'object',
@@ -181,15 +184,15 @@ export class VerificationPsychologistController {
   })
   @ApiResponse({
     status: 403,
-    description: 'Access denied - Admin role required',
+    description: 'Acceso denegado - Se requiere rol de administrador',
   })
   @ApiResponse({
     status: 401,
-    description: 'Invalid or expired token',
+    description: 'Token inválido o expirado',
   })
   @ApiResponse({
     status: 404,
-    description: 'Psychologist not found',
+    description: 'Psicólogo no encontrado',
   })
   rejectAPsychologistById(@Param('id') id: string) {
     return this.verificationPsychologistService.rejectPsychologistById(id);

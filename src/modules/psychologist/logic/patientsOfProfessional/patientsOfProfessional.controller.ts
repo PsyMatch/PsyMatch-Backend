@@ -24,19 +24,19 @@ export class PatientsOfProfessionalController {
   @Get()
   @Roles([ERole.PSYCHOLOGIST])
   @ApiOperation({
-    summary: 'Get patients assigned to the logged in psychologist',
+    summary: 'Obtener pacientes asignados al psicólogo logueado',
   })
   @ApiResponse({
     status: 200,
-    description: 'Returns the list of patients assigned to the psychologist',
+    description: 'Devuelve la lista de pacientes asignados al psicólogo',
   })
   @ApiResponse({
     status: 401,
-    description: 'Unauthorized - Invalid or missing token',
+    description: 'No autorizado - Token inválido o faltante',
   })
   @ApiResponse({
     status: 403,
-    description: 'Forbidden - Not a psychologist',
+    description: 'Prohibido - No es un psicólogo',
   })
   async getPatients(@Req() req: IAuthRequest) {
     const userId = req.user.id;

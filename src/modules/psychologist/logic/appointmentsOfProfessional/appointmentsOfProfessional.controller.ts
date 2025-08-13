@@ -21,24 +21,24 @@ export class AppointmentsOfProfessionalController {
 
   @Get()
   @ApiOperation({
-    summary: '[Appointments] Get psychologist appointments',
-    description: 'Get all appointments for the logged-in psychologist',
+    summary: '[Turnos] Obtener turnos del psicólogo',
+    description: 'Obtener todos los turnos del psicólogo logueado',
   })
   @ApiResponse({
     status: 200,
-    description: 'List of appointments retrieved successfully',
+    description: 'Lista de turnos recuperados exitosamente',
   })
   @ApiResponse({
     status: 401,
-    description: 'Unauthorized - Invalid or missing token',
+    description: 'No autorizado - Token inválido o faltante',
   })
   @ApiResponse({
     status: 403,
-    description: 'Forbidden - Not a psychologist',
+    description: 'Prohibido - No es un psicólogo',
   })
   @ApiResponse({
     status: 404,
-    description: 'No appointments found',
+    description: 'No se encontraron turnos',
   })
   async getAppointments(@Req() request: IAuthRequest) {
     const userId = request.user.id;

@@ -23,15 +23,15 @@ export class PaymentsOfProfessionalsController {
 
   @Get()
   @Roles([ERole.PSYCHOLOGIST])
-  @ApiOperation({ summary: 'Get payments of the logged-in psychologist' })
-  @ApiResponse({ status: 200, description: 'Payments retrieved successfully' })
+  @ApiOperation({ summary: 'Obtener los pagos del psicólogo logueado' })
+  @ApiResponse({ status: 200, description: 'Pagos recuperados exitosamente' })
   @ApiResponse({
     status: 401,
-    description: 'Unauthorized - Invalid or missing token',
+    description: 'No autorizado - Token inválido o faltante',
   })
-  @ApiResponse({ status: 403, description: 'Forbidden - Not a psychologist' })
-  @ApiResponse({ status: 404, description: 'No payments found' })
-  @ApiResponse({ status: 500, description: 'Internal Server Error' })
+  @ApiResponse({ status: 403, description: 'Prohibido - No es un psicólogo' })
+  @ApiResponse({ status: 404, description: 'No se encontraron pagos' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   async getPayments(@Req() request: IAuthRequest) {
     const userId = request.user.id;
     return await this.paymentsService.getPaymentsOfProfessional(userId);

@@ -18,7 +18,7 @@ export class ReviewsProfessionalsService {
     });
 
     if (!reviews) {
-      throw new NotFoundException('Reviews not found');
+      throw new NotFoundException('Reseñas no encontradas');
     }
 
     return reviews;

@@ -28,7 +28,6 @@ export class ProfileService {
     userId: string,
     newProfileData: UpdatePsychologistDto,
   ) {
-    console.log('Updating profile for userId:', userId);
     const psychologist = await this.psychologistRepository.findOne({
       where: {
         id: userId,
