@@ -22,7 +22,7 @@ export class PaymentsOfProfessionalsService {
         psychologistId,
       })
       .getMany();
-      
+
     if (!payments || payments.length === 0) {
       throw new NotFoundException(
         'No se encontraron pagos para este psicólogo',
