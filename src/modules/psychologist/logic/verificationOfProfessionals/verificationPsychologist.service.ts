@@ -8,7 +8,6 @@ import {
   PaginationDto,
 } from '../../../../common/dto/pagination.dto';
 import { PaginationService } from '../../../../common/services/pagination.service';
-import { User } from '../../../users/entities/user.entity';
 
 @Injectable()
 export class VerificationPsychologistService {
@@ -20,7 +19,7 @@ export class VerificationPsychologistService {
 
   async getAllVerifiedRequestService(
     paginationDto: PaginationDto,
-  ): Promise<PaginatedResponse<User>> {
+  ): Promise<PaginatedResponse<Psychologist>> {
     const queryBuilder =
       this.psychologistRepository.createQueryBuilder('psychologist');
     queryBuilder.where('psychologist.verified = :status', {
@@ -51,7 +50,7 @@ export class VerificationPsychologistService {
     return psychologist;
   }
 
-  async rejectPsychologistById(id: string) {
+  async rejectPsychologistById(id: string): Promise<Psychologist> {
     const psychologist = await this.psychologistRepository.findOne({
       where: { id, is_active: true },
     });

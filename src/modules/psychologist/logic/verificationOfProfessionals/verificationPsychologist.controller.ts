@@ -15,7 +15,7 @@ import {
   PaginatedResponse,
   PaginationDto,
 } from '../../../../common/dto/pagination.dto';
-import { User } from '../../../users/entities/user.entity';
+import { Psychologist } from '../../entities/psychologist.entity';
 
 @Controller('psychologist/verification')
 @ApiTags('Psychologist')
@@ -100,7 +100,7 @@ export class VerificationPsychologistController {
   })
   getAllVerifiedRequestController(
     @Query() paginationDto: PaginationDto,
-  ): Promise<PaginatedResponse<User>> {
+  ): Promise<PaginatedResponse<Psychologist>> {
     return this.verificationPsychologistService.getAllVerifiedRequestService(
       paginationDto,
     );
@@ -148,7 +148,7 @@ export class VerificationPsychologistController {
     status: 404,
     description: 'Psicólogo no encontrado',
   })
-  verifyAPsychologistById(@Param('id') id: string) {
+  verifyAPsychologistById(@Param('id') id: string): Promise<Psychologist> {
     return this.verificationPsychologistService.findOne(id);
   }
 
@@ -194,7 +194,7 @@ export class VerificationPsychologistController {
     status: 404,
     description: 'Psicólogo no encontrado',
   })
-  rejectAPsychologistById(@Param('id') id: string) {
+  rejectAPsychologistById(@Param('id') id: string): Promise<Psychologist> {
     return this.verificationPsychologistService.rejectPsychologistById(id);
   }
 }
