@@ -34,6 +34,7 @@ import { Roles } from '../auth/decorators/role.decorator';
 import { ResponseType } from '../../common/decorators/response-type.decorator';
 import { ResponseUserDto } from './dto/response-user.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
+import { Payment } from '../payments/entities/payment.entity';
 
 @ApiTags('Usuarios')
 @Controller('users')
@@ -585,5 +586,49 @@ export class UsersController {
       req.user.role,
     );
     return { message: 'Usuario eliminado exitosamente', id: userId };
+  }
+
+  //CODIGO DE PEDRO A PEDIDO DE MAURI
+
+  @Get('patient/professionals')
+  @Roles([ERole.PSYCHOLOGIST])
+  @ApiOperation({
+    summary: 'Obtener pacientes asignados al psicólogo logueado',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Devuelve la lista de pacientes asignados al psicólogo',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'No autorizado - Token inválido o faltante',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Prohibido - No es un psicólogo',
+  })
+  async getPatients(
+    @Req() req: IAuthRequest,
+  ): Promise<{ message: string; data: ResponseUserDto[] }> {
+    const userId = req.user.id;
+    return await this.usersService.getPsychologistsForPatient(userId);
+  }
+
+  @Get()
+  @Roles([ERole.PSYCHOLOGIST])
+  @ApiOperation({ summary: 'Obtener los pagos del usuario logueado' })
+  @ApiResponse({ status: 200, description: 'Pagos recuperados exitosamente' })
+  @ApiResponse({
+    status: 401,
+    description: 'No autorizado - Token inválido o faltante',
+  })
+  @ApiResponse({ status: 403, description: 'Prohibido - No es un psicólogo' })
+  @ApiResponse({ status: 404, description: 'No se encontraron pagos' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  async getPayments(
+    @Req() request: IAuthRequest,
+  ): Promise<{ message: string; data: Payment[] }> {
+    const userId = request.user.id;
+    return await this.usersService.getPaymentsOfPatient(userId);
   }
 }

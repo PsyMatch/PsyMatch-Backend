@@ -15,6 +15,9 @@ import {
   PaginationDto,
   PaginatedResponse,
 } from '../../common/dto/pagination.dto';
+import { ResponseUserDto } from './dto/response-user.dto';
+import { Payment } from '../payments/entities/payment.entity';
+import { Appointment } from '../appointments/entities/appointment.entity';
 
 @Injectable()
 export class UsersService {
@@ -23,6 +26,13 @@ export class UsersService {
     private readonly usersRepository: Repository<User>,
     private readonly queryHelper: QueryHelper,
     private readonly paginationService: PaginationService,
+
+    // CODIGO DE PEDRO//////////////////////////////////////////////
+    @InjectRepository(Appointment)
+    private readonly appointmentRepository: Repository<Appointment>,
+    @InjectRepository(Payment)
+    private readonly paymentsRepository: Repository<Payment>,
+    ////////////////////////////////////////////////////////////////
   ) {}
 
   async findAll(
@@ -155,5 +165,58 @@ export class UsersService {
 
   async save(user: User): Promise<User> {
     return this.usersRepository.save(user);
+  }
+
+  ////////////////////////////////////////////////////////////////////
+
+  // SEGUNDO CODIGO DE PEDRO PEDIDO POR MAURI
+
+  ///////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////
+  async getPsychologistsForPatient(
+    userId: string,
+  ): Promise<{ message: string; data: ResponseUserDto[] }> {
+    const appointments = await this.appointmentRepository.find({
+      where: { patient: { id: userId } },
+      relations: ['psychologist'],
+    });
+
+    if (!appointments || appointments.length === 0) {
+      throw new NotFoundException(
+        'No se encontraron pacientes o turnos de este usuario',
+      );
+    }
+
+    const patients = appointments.map((appointment) => appointment.patient);
+
+    if (!patients.length) {
+      throw new NotFoundException(
+        'No hay pacientes disponibles para este psicólogo',
+      );
+    }
+
+    return { message: 'Pacientes recuperados exitosamente', data: patients };
+  }
+
+  async getPaymentsOfPatient(
+    userId: string,
+  ): Promise<{ message: string; data: Payment[] }> {
+    const payments = await this.paymentsRepository
+      .createQueryBuilder('payment')
+      .innerJoinAndSelect(
+        'appointments',
+        'appointment',
+        'payment.appointment_id = appointment.id',
+      )
+      .where('appointment."userId" = :userId', {
+        userId,
+      })
+      .getMany();
+
+    if (!payments || payments.length === 0) {
+      throw new NotFoundException('No se encontraron pagos para este usuario');
+    }
+
+    return { message: 'Pagos recuperados exitosamente', data: payments };
   }
 }
