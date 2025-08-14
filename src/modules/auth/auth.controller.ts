@@ -54,6 +54,11 @@ export class AuthController {
           example: 'María González',
           description: 'Nombre completo del usuario',
         },
+        alias: {
+          type: 'string',
+          example: 'juanito',
+          description: 'Alias del usuario (opcional)',
+        },
         birthdate: {
           type: 'string',
           format: 'date',
@@ -163,6 +168,7 @@ export class AuthController {
           properties: {
             id: { type: 'string', example: 'usuario-uuid' },
             name: { type: 'string', example: 'Juan Carlos Pérez' },
+            alias: { type: 'string', example: 'juanito', nullable: true },
             birthdate: {
               type: 'string',
               format: 'date',

@@ -134,7 +134,6 @@ export class UsersController {
                 example: 'Juan Perez - +5411111111 - Hermano',
                 nullable: true,
               },
-              // Psychologist-specific fields (only populated when user is a psychologist)
               personal_biography: {
                 type: 'string',
                 example:
