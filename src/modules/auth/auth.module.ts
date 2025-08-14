@@ -14,10 +14,18 @@ import { PassportModule } from '@nestjs/passport';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { UsersService } from '../users/users.service';
 import { PaginationService } from '../../common/services/pagination.service';
+import { Appointment } from '../appointments/entities/appointment.entity';
+import { Payment } from '../payments/entities/payment.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Patient, Psychologist]),
+    TypeOrmModule.forFeature([
+      User,
+      Patient,
+      Psychologist,
+      Appointment,
+      Payment,
+    ]),
     ConfigModule,
     FilesModule,
     ThrottlerModule.forRoot([
