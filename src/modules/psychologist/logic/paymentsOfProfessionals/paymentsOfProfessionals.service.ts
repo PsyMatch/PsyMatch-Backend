@@ -10,7 +10,9 @@ export class PaymentsOfProfessionalsService {
     private readonly paymentsRepository: Repository<Payment>,
   ) {}
 
-  async getPaymentsOfProfessional(psychologistId: string): Promise<Payment[]> {
+  async getPaymentsOfProfessional(
+    psychologistId: string,
+  ): Promise<{ message: string; data: Payment[] }> {
     const payments = await this.paymentsRepository
       .createQueryBuilder('payment')
       .innerJoinAndSelect(
@@ -29,6 +31,6 @@ export class PaymentsOfProfessionalsService {
       );
     }
 
-    return payments;
+    return { message: 'Pagos recuperados exitosamente', data: payments };
   }
 }

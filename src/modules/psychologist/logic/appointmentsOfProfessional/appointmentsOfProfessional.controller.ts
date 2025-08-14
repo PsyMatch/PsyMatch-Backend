@@ -9,9 +9,10 @@ import { AuthGuard } from '../../../../modules/auth/guards/auth.guard';
 import { RolesGuard } from '../../../../modules/auth/guards/roles.guard';
 import { AppointmentsOfProfessionalService } from './appointmentsOfProfessional.service';
 import { IAuthRequest } from '../../../../modules/auth/interfaces/auth-request.interface';
+import { Appointment } from 'src/modules/appointments/entities/appointment.entity';
 
 @Controller('psychologist/appointments')
-@ApiTags('Psychologist')
+@ApiTags('Profesionales')
 @ApiBearerAuth('JWT-auth')
 @UseGuards(AuthGuard, RolesGuard)
 export class AppointmentsOfProfessionalController {
@@ -40,7 +41,9 @@ export class AppointmentsOfProfessionalController {
     status: 404,
     description: 'No se encontraron turnos',
   })
-  async getAppointments(@Req() request: IAuthRequest) {
+  async getAppointments(
+    @Req() request: IAuthRequest,
+  ): Promise<{ message: string; data: Appointment[] }> {
     const userId = request.user.id;
     return this.appointmentsService.getAppointmentsOfProfessional(userId);
   }

@@ -10,7 +10,7 @@ export class ReviewsProfessionalsService {
     private readonly reviewsRepository: Repository<Reviews>,
   ) {}
 
-  async findAll(userId: string) {
+  async findAll(userId: string): Promise<{ message: string; data: Reviews }> {
     const reviews = await this.reviewsRepository.findOne({
       where: {
         id: userId,
@@ -21,6 +21,6 @@ export class ReviewsProfessionalsService {
       throw new NotFoundException('Reseñas no encontradas');
     }
 
-    return reviews;
+    return { message: 'Reseñas encontradas', data: reviews };
   }
 }

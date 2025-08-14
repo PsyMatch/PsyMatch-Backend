@@ -10,7 +10,9 @@ export class AppointmentsOfProfessionalService {
     private readonly appointmentsRepository: Repository<Appointment>,
   ) {}
 
-  async getAppointmentsOfProfessional(psychoId: string) {
+  async getAppointmentsOfProfessional(
+    psychoId: string,
+  ): Promise<{ message: string; data: Appointment[] }> {
     const appointments = await this.appointmentsRepository.find({
       where: { psychologist: { id: psychoId } },
       relations: ['patient'],
@@ -22,6 +24,6 @@ export class AppointmentsOfProfessionalService {
       );
     }
 
-    return appointments;
+    return { message: 'Citas recuperadas exitosamente', data: appointments };
   }
 }

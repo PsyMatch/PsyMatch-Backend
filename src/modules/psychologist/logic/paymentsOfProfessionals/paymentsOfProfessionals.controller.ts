@@ -11,8 +11,9 @@ import { AuthGuard } from '../../../auth/guards/auth.guard';
 import { RolesGuard } from '../../../auth/guards/roles.guard';
 import { IAuthRequest } from '../../../auth/interfaces/auth-request.interface';
 import { PaymentsOfProfessionalsService } from './paymentsOfProfessionals.service';
+import { Payment } from 'src/modules/payments/entities/payment.entity';
 
-@ApiTags('Psychologist')
+@ApiTags('Profesionales')
 @UseGuards(AuthGuard, RolesGuard)
 @ApiBearerAuth('JWT-auth')
 @Controller('psychologist/payments')
@@ -32,7 +33,9 @@ export class PaymentsOfProfessionalsController {
   @ApiResponse({ status: 403, description: 'Prohibido - No es un psicólogo' })
   @ApiResponse({ status: 404, description: 'No se encontraron pagos' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async getPayments(@Req() request: IAuthRequest) {
+  async getPayments(
+    @Req() request: IAuthRequest,
+  ): Promise<{ message: string; data: Payment[] }> {
     const userId = request.user.id;
     return await this.paymentsService.getPaymentsOfProfessional(userId);
   }

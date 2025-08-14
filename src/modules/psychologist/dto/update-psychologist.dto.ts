@@ -50,7 +50,7 @@ export class UpdatePsychologistDto {
   @IsNumber({}, { message: 'Los años de experiencia deben ser un número' })
   @Min(0, { message: 'Los años de experiencia no pueden ser negativos' })
   @Max(50, { message: 'Los años de experiencia no pueden exceder 50' })
-  experience_years?: number;
+  professional_experience?: number;
 
   @ApiPropertyOptional({
     description: 'Especialidades profesionales',
@@ -153,18 +153,6 @@ export class UpdatePsychologistDto {
   insurance_accepted?: EInsurance[];
 
   @ApiPropertyOptional({
-    description: 'Tarifa por sesión en USD',
-    example: 80.0,
-    minimum: 10,
-    maximum: 500,
-  })
-  @IsOptional()
-  @IsNumber({}, { message: 'La tarifa por sesión debe ser un número' })
-  @Min(10, { message: 'La tarifa por sesión debe ser de al menos $10' })
-  @Max(500, { message: 'La tarifa por sesión no puede exceder $500' })
-  rate_per_session?: number;
-
-  @ApiPropertyOptional({
     description: 'Biografía profesional',
     example: 'Psicólogo clínico licenciado con más de 5 años de experiencia...',
   })
@@ -173,7 +161,7 @@ export class UpdatePsychologistDto {
   @Length(50, 1000, {
     message: 'La biografía debe tener entre 50 y 1000 caracteres',
   })
-  bio?: string;
+  personal_biography?: string;
 
   @ApiPropertyOptional({
     description: 'Horarios de disponibilidad (formato JSON)',
@@ -182,4 +170,12 @@ export class UpdatePsychologistDto {
   @IsOptional()
   @IsString({ message: 'La disponibilidad debe ser un string' })
   availability?: string;
+
+  @ApiPropertyOptional({
+    description: 'Título profesional',
+    example: 'Licenciado en Psicología',
+  })
+  @IsOptional()
+  @IsString({ message: 'El título profesional debe ser un string' })
+  professional_title?: string;
 }

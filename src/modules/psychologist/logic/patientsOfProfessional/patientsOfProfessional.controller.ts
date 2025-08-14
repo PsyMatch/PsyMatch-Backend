@@ -11,8 +11,9 @@ import { PatientsOfProfessionalService } from './patientsOfProfessional.service'
 import { IAuthRequest } from '../../../auth/interfaces/auth-request.interface';
 import { Roles } from '../../../auth/decorators/role.decorator';
 import { ERole } from '../../../../common/enums/role.enum';
+import { ResponseUserDto } from 'src/modules/users/dto/response-user.dto';
 
-@ApiTags('Psychologist')
+@ApiTags('Profesionales')
 @Controller('psychologist/patients')
 @UseGuards(AuthGuard, RolesGuard)
 @ApiBearerAuth('JWT-auth')
@@ -38,7 +39,9 @@ export class PatientsOfProfessionalController {
     status: 403,
     description: 'Prohibido - No es un psicólogo',
   })
-  async getPatients(@Req() req: IAuthRequest) {
+  async getPatients(
+    @Req() req: IAuthRequest,
+  ): Promise<{ message: string; data: ResponseUserDto[] }> {
     const userId = req.user.id;
     return await this.patientsOfProfessionalService.getPatientsForPsychologist(
       userId,
