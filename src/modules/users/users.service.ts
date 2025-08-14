@@ -208,7 +208,7 @@ export class UsersService {
         'appointment',
         'payment.appointment_id = appointment.id',
       )
-      .where('appointment."userId" = :userId', {
+      .where('appointment."psychologistId" = :userId', {
         userId,
       })
       .getMany();
