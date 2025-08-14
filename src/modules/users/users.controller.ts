@@ -591,13 +591,15 @@ export class UsersController {
   //CODIGO DE PEDRO A PEDIDO DE MAURI
 
   @Get('patient/professionals')
-  @Roles([ERole.PSYCHOLOGIST])
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles([ERole.PATIENT])
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
-    summary: 'Obtener pacientes asignados al psicólogo logueado',
+    summary: 'Obtener psicólogos del paciente logueado',
   })
   @ApiResponse({
     status: 200,
-    description: 'Devuelve la lista de pacientes asignados al psicólogo',
+    description: 'Devuelve la lista de psicólogos del paciente',
   })
   @ApiResponse({
     status: 401,
@@ -614,8 +616,10 @@ export class UsersController {
     return await this.usersService.getPsychologistsForPatient(userId);
   }
 
-  @Get()
-  @Roles([ERole.PSYCHOLOGIST])
+  @Get('patient/payments')
+  @ApiBearerAuth('JWT-auth')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles([ERole.PATIENT])
   @ApiOperation({ summary: 'Obtener los pagos del usuario logueado' })
   @ApiResponse({ status: 200, description: 'Pagos recuperados exitosamente' })
   @ApiResponse({

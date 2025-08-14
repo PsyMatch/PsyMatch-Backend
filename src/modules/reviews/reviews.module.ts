@@ -5,10 +5,11 @@ import { Psychologist } from '../psychologist/entities/psychologist.entity';
 import { Reviews } from './entities/reviews.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
+import { Appointment } from '../appointments/entities/appointment.entity';
 
 @Module({
   controllers: [ReviewsController],
   providers: [ReviewsService, JwtService],
-  imports: [TypeOrmModule.forFeature([Reviews, Psychologist])],
+  imports: [TypeOrmModule.forFeature([Reviews, Psychologist, Appointment])],
 })
 export class ReviewsModule {}

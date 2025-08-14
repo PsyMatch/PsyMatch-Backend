@@ -6,6 +6,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { ReviewsService } from './reviews.service';
 import { AuthGuard } from '../auth/guards/auth.guard';
@@ -24,6 +25,8 @@ import {
 } from '@nestjs/swagger';
 import { reviewResponseDto } from './dto/review-response.dto';
 import { Reviews } from './entities/reviews.entity';
+import { Request } from 'express';
+import { IAuthRequest } from '../auth/interfaces/auth-request.interface';
 
 @ApiTags('Reseñas')
 @Controller('reviews')
@@ -34,7 +37,7 @@ export class ReviewsController {
 
   @Post()
   @UseGuards(RolesGuard)
-  @Roles([ERole.PATIENT, ERole.ADMIN, ERole.PSYCHOLOGIST])
+  @Roles([ERole.PATIENT, ERole.ADMIN])
   @ApiConsumes('multipart/form-data')
   @ApiOperation({
     summary: 'Crear una nueva reseña',
@@ -99,9 +102,11 @@ export class ReviewsController {
     description: 'Acceso denegado - Permisos insuficientes',
   })
   createNewReviewController(
+    @Req() req: IAuthRequest,
     @Body() createReviewData: CreateReviewDto,
   ): Promise<{ message: string; review: Reviews }> {
-    return this.reviewsService.createNewReviewService(createReviewData);
+    const userId = req.user.id;
+    return this.reviewsService.createNewReviewService(createReviewData, userId);
   }
 
   @Get(':id')
