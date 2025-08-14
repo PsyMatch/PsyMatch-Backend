@@ -9,9 +9,10 @@ import { AuthGuard } from '../../../auth/guards/auth.guard';
 import { RolesGuard } from '../../../auth/guards/roles.guard';
 import { IAuthRequest } from '../../../auth/interfaces/auth-request.interface';
 import { ReviewsProfessionalsService } from './reviewsOfProfessionals.service';
+import { Reviews } from 'src/modules/reviews/entities/reviews.entity';
 
 @Controller('psychologists/reviews')
-@ApiTags('Psychologist')
+@ApiTags('Profesionales')
 @UseGuards(AuthGuard, RolesGuard)
 @ApiBearerAuth('JWT-auth')
 export class ReviewsOfProfessionalsController {
@@ -35,7 +36,9 @@ export class ReviewsOfProfessionalsController {
     status: 500,
     description: 'Error interno del servidor',
   })
-  async findAll(@Req() req: IAuthRequest) {
+  async findAll(
+    @Req() req: IAuthRequest,
+  ): Promise<{ message: string; data: Reviews }> {
     const userId = req.user.id;
     return await this.reviewsService.findAll(userId);
   }

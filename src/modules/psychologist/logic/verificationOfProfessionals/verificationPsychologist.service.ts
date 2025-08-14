@@ -8,6 +8,7 @@ import {
   PaginationDto,
 } from '../../../../common/dto/pagination.dto';
 import { PaginationService } from '../../../../common/services/pagination.service';
+import { ResponseProfessionalDto } from '../../dto/response-professional.dto';
 
 @Injectable()
 export class VerificationPsychologistService {
@@ -19,7 +20,7 @@ export class VerificationPsychologistService {
 
   async getAllVerifiedRequestService(
     paginationDto: PaginationDto,
-  ): Promise<PaginatedResponse<Psychologist>> {
+  ): Promise<PaginatedResponse<ResponseProfessionalDto>> {
     const queryBuilder =
       this.psychologistRepository.createQueryBuilder('psychologist');
     queryBuilder.where('psychologist.verified = :status', {
@@ -29,7 +30,9 @@ export class VerificationPsychologistService {
     return await this.paginationService.paginate(queryBuilder, paginationDto);
   }
 
-  async findOne(id: string): Promise<Psychologist> {
+  async findOne(
+    id: string,
+  ): Promise<{ message: string; data: ResponseProfessionalDto }> {
     const psychologist = await this.psychologistRepository.findOne({
       where: { id, is_active: true },
     });
@@ -47,10 +50,12 @@ export class VerificationPsychologistService {
     psychologist.verified = EPsychologistStatus.VALIDATED;
     await this.psychologistRepository.save(psychologist);
 
-    return psychologist;
+    return { message: 'Psicólogo verificado exitosamente', data: psychologist };
   }
 
-  async rejectPsychologistById(id: string): Promise<Psychologist> {
+  async rejectPsychologistById(
+    id: string,
+  ): Promise<{ message: string; data: ResponseProfessionalDto }> {
     const psychologist = await this.psychologistRepository.findOne({
       where: { id, is_active: true },
     });
@@ -60,6 +65,8 @@ export class VerificationPsychologistService {
     }
 
     psychologist.verified = EPsychologistStatus.REJECTED;
-    return await this.psychologistRepository.save(psychologist);
+    await this.psychologistRepository.save(psychologist);
+
+    return { message: 'Psicólogo rechazado exitosamente', data: psychologist };
   }
 }

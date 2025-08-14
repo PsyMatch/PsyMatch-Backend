@@ -9,16 +9,16 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthGuard } from '../../../../modules/auth/guards/auth.guard';
 import { RolesGuard } from '../../../../modules/auth/guards/roles.guard';
 import {
   PaginatedResponse,
   PaginationDto,
 } from '../../../../common/dto/pagination.dto';
-import { Psychologist } from '../../entities/psychologist.entity';
+import { ResponseProfessionalDto } from '../../dto/response-professional.dto';
+import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
 
 @Controller('psychologist/verification')
-@ApiTags('Psychologist')
+@ApiTags('Profesionales')
 @ApiBearerAuth('JWT-auth')
 @UseGuards(AuthGuard, RolesGuard)
 export class VerificationPsychologistController {
@@ -100,7 +100,7 @@ export class VerificationPsychologistController {
   })
   getAllVerifiedRequestController(
     @Query() paginationDto: PaginationDto,
-  ): Promise<PaginatedResponse<Psychologist>> {
+  ): Promise<PaginatedResponse<ResponseProfessionalDto>> {
     return this.verificationPsychologistService.getAllVerifiedRequestService(
       paginationDto,
     );
@@ -148,7 +148,9 @@ export class VerificationPsychologistController {
     status: 404,
     description: 'Psicólogo no encontrado',
   })
-  verifyAPsychologistById(@Param('id') id: string): Promise<Psychologist> {
+  verifyAPsychologistById(
+    @Param('id') id: string,
+  ): Promise<{ message: string; data: ResponseProfessionalDto }> {
     return this.verificationPsychologistService.findOne(id);
   }
 
@@ -194,7 +196,9 @@ export class VerificationPsychologistController {
     status: 404,
     description: 'Psicólogo no encontrado',
   })
-  rejectAPsychologistById(@Param('id') id: string): Promise<Psychologist> {
+  rejectAPsychologistById(
+    @Param('id') id: string,
+  ): Promise<{ message: string; data: ResponseProfessionalDto }> {
     return this.verificationPsychologistService.rejectPsychologistById(id);
   }
 }
