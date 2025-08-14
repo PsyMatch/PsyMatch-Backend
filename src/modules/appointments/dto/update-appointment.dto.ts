@@ -1,6 +1,14 @@
 import { PartialType } from '@nestjs/swagger';
 import { CreateAppointmentDto } from './create-appointment.dto';
-import { IsEnum, IsOptional, IsUUID, IsDateString } from 'class-validator';
+import {
+  IsEnum,
+  IsOptional,
+  IsUUID,
+  IsDateString,
+  Matches,
+  IsNumber,
+  Min,
+} from 'class-validator';
 import { EModality } from '../../psychologist/enums/modality.enum';
 import { AppointmentStatus } from '../enums/appointment-status.enum';
 
@@ -14,21 +22,23 @@ export class UpdateAppointmentDto extends PartialType(CreateAppointmentDto) {
   psychologist_id?: string;
 
   @IsOptional()
-  @IsDateString(
-    {},
-    { message: 'fecha debe ser una cadena de fecha ISO 8601 válida' },
-  )
+  @IsDateString({}, { message: 'date debe ser ISO 8601' })
   date?: string;
 
   @IsOptional()
-  @IsEnum(AppointmentStatus, {
-    message: 'estado debe ser un estado de cita válido',
-  })
+  @Matches(/^([01]\d|2[0-3]):([0-5]\d)$/, { message: 'hour debe ser HH:mm' })
+  hour?: string;
+
+  @IsOptional()
+  @IsEnum(AppointmentStatus)
   status?: AppointmentStatus;
 
   @IsOptional()
-  @IsEnum(EModality, {
-    message: 'modalidad debe ser un tipo de modalidad válida',
-  })
+  @IsEnum(EModality)
   modality?: EModality;
+
+  @IsOptional()
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0)
+  price?: number;
 }

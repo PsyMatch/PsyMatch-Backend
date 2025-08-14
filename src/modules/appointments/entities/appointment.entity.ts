@@ -9,8 +9,13 @@ export class Appointment {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  // Fecha completa exacta del turno (date + hour)
   @Column({ type: 'timestamptz' })
   date: Date;
+
+  // Guardamos hour aparte para filtros/human-readable
+  @Column({ type: 'varchar', length: 5 })
+  hour: string; // "HH:mm"
 
   @Column({ type: 'int', nullable: true })
   duration: number;
@@ -39,4 +44,17 @@ export class Appointment {
 
   @Column({ type: 'enum', enum: EModality })
   modality: EModality;
+
+  // Campos solicitados en notas
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  session_type: string;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  therapy_approach: string;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  insurance: string;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  price: number;
 }

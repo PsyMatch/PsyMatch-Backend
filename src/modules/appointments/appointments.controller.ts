@@ -6,6 +6,9 @@ import {
   Param,
   Delete,
   Put,
+  UseGuards,
+  Req,
+  Query,
 } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
@@ -15,179 +18,91 @@ import {
   ApiOperation,
   ApiBody,
   ApiParam,
-  ApiResponse,
+  ApiQuery,
 } from '@nestjs/swagger';
+import { AuthGuard } from '../auth/guards/auth.guard';
+import { AuthenticatedRequest } from '../auth/interfaces/authenticated-request.interface';
 
 @ApiTags('Citas')
+@UseGuards(AuthGuard)
 @Controller('appointments')
 export class AppointmentsController {
   constructor(private readonly appointmentsService: AppointmentsService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a new appointment' })
-  create(@Body() dto: CreateAppointmentDto) {
-    return this.appointmentsService.create(dto);
+  @ApiOperation({ summary: 'Crear nueva cita (usuario autenticado)' })
+  create(@Req() req: AuthenticatedRequest, @Body() dto: CreateAppointmentDto) {
+    return this.appointmentsService.create(req, dto);
   }
 
   @Get()
   @ApiOperation({
-    summary: 'Obtener todas las citas',
+    summary: 'Listar citas (admin ve todas; otros solo las propias)',
+  })
+  findAll(@Req() req: AuthenticatedRequest) {
+    return this.appointmentsService.findAll(req);
+  }
+
+  @Get('me')
+  @ApiOperation({ summary: 'Mis citas (por usuario autenticado)' })
+  findMine(@Req() req: AuthenticatedRequest) {
+    return this.appointmentsService.findMine(req);
+  }
+
+  @Get('available')
+  @ApiOperation({
+    summary: 'Disponibilidad dinámica (sin seeder)',
     description:
-      'Recuperar todas las citas con detalles de usuario y psicólogo',
+      'Devuelve slots disponibles generados al vuelo para un psicólogo y una fecha',
   })
-  @ApiResponse({
-    status: 200,
-    description: 'Citas recuperadas exitosamente',
-    schema: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          appointment_id: { type: 'string', example: 'appointment-uuid' },
-          date: {
-            type: 'string',
-            format: 'date-time',
-            example: '2024-03-15T10:00:00Z',
-          },
-          duration: { type: 'number', example: 60 },
-          status: { type: 'string', example: 'SCHEDULED' },
-          user: {
-            type: 'object',
-            properties: {
-              id: { type: 'string', example: 'user-uuid' },
-              name: { type: 'string', example: 'Juan Pérez' },
-              email: { type: 'string', example: 'juan.perez@email.com' },
-            },
-          },
-          psychologist: {
-            type: 'object',
-            properties: {
-              id: { type: 'string', example: 'psychologist-uuid' },
-              name: { type: 'string', example: 'Dr. Ana García' },
-              email: { type: 'string', example: 'ana.garcia@psychologist.com' },
-            },
-          },
-        },
-      },
-    },
+  @ApiQuery({ name: 'psychologistId', required: true })
+  @ApiQuery({ name: 'date', required: true, description: 'YYYY-MM-DD' })
+  @ApiQuery({
+    name: 'slotMinutes',
+    required: false,
+    description: 'Tamaño de turno (min). Default 30',
   })
-  @ApiResponse({ status: 401, description: 'Token inválido o expirado' })
-  findAll() {
-    return this.appointmentsService.findAll();
+  getAvailable(
+    @Query('psychologistId') psychologistId: string,
+    @Query('date') date: string,
+    @Query('slotMinutes') slotMinutes?: string,
+  ) {
+    return this.appointmentsService.getAvailableSlots(
+      psychologistId,
+      date,
+      slotMinutes ? parseInt(slotMinutes, 10) : 30,
+    );
   }
 
   @Get(':id')
   @ApiOperation({
-    summary: 'Obtener cita por ID',
-    description:
-      'Recuperar una cita específica con todos los detalles relacionados',
+    summary: 'Obtener cita por ID (dueño, psicólogo asignado o admin)',
   })
-  @ApiParam({
-    name: 'id',
-    description: 'UUID de la cita',
-    example: 'appointment-uuid',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Cita encontrada exitosamente',
-    schema: {
-      type: 'object',
-      properties: {
-        appointment_id: { type: 'string', example: 'appointment-uuid' },
-        date: {
-          type: 'string',
-          format: 'date-time',
-          example: '2024-03-15T10:00:00Z',
-        },
-        duration: { type: 'number', example: 60 },
-        status: { type: 'string', example: 'SCHEDULED' },
-        user: {
-          type: 'object',
-          properties: {
-            id: { type: 'string', example: 'user-uuid' },
-            name: { type: 'string', example: 'Juan Pérez' },
-            email: { type: 'string', example: 'juan.perez@email.com' },
-          },
-        },
-        psychologist: {
-          type: 'object',
-          properties: {
-            id: { type: 'string', example: 'psychologist-uuid' },
-            name: { type: 'string', example: 'Dr. Ana García' },
-            email: { type: 'string', example: 'ana.garcia@psychologist.com' },
-          },
-        },
-      },
-    },
-  })
-  @ApiResponse({ status: 404, description: 'Cita no encontrada' })
-  @ApiResponse({ status: 401, description: 'Token inválido o expirado' })
-  findOne(@Param('id') id: string) {
-    return this.appointmentsService.findOne(id);
+  @ApiParam({ name: 'id', description: 'UUID de la cita' })
+  findOne(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
+    return this.appointmentsService.findOneAuthorized(req, id);
   }
 
   @Put(':id')
   @ApiOperation({
-    summary: 'Actualizar cita por ID',
-    description: 'Actualizar detalles de la cita como fecha, duración o estado',
+    summary: 'Actualizar cita (dueño, psicólogo asignado o admin)',
   })
-  @ApiParam({
-    name: 'id',
-    description: 'UUID de la cita',
-    example: 'appointment-uuid',
-  })
+  @ApiParam({ name: 'id', description: 'UUID de la cita' })
   @ApiBody({ type: UpdateAppointmentDto })
-  @ApiResponse({
-    status: 200,
-    description: 'Cita actualizada exitosamente',
-    schema: {
-      type: 'object',
-      properties: {
-        appointment_id: { type: 'string', example: 'appointment-uuid' },
-        date: {
-          type: 'string',
-          format: 'date-time',
-          example: '2024-03-15T14:00:00Z',
-        },
-        duration: { type: 'number', example: 90 },
-        status: { type: 'string', example: 'CONFIRMED' },
-      },
-    },
-  })
-  @ApiResponse({ status: 400, description: 'Datos de actualización inválidos' })
-  @ApiResponse({ status: 404, description: 'Cita no encontrada' })
-  @ApiResponse({ status: 401, description: 'Token inválido o expirado' })
-  update(@Param('id') id: string, @Body() dto: UpdateAppointmentDto) {
-    return this.appointmentsService.update(id, dto);
+  update(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Body() dto: UpdateAppointmentDto,
+  ) {
+    return this.appointmentsService.update(req, id, dto);
   }
 
   @Delete(':id')
   @ApiOperation({
-    summary: 'Eliminar cita por ID',
-    description: 'Remover una cita del sistema',
+    summary: 'Eliminar/Cancelar cita (dueño o admin)',
   })
-  @ApiParam({
-    name: 'id',
-    description: 'UUID de la cita',
-    example: 'appointment-uuid',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Cita eliminada exitosamente',
-    schema: {
-      type: 'object',
-      properties: {
-        message: {
-          type: 'string',
-          example: 'Cita eliminada exitosamente',
-        },
-        appointment_id: { type: 'string', example: 'appointment-uuid' },
-      },
-    },
-  })
-  @ApiResponse({ status: 404, description: 'Cita no encontrada' })
-  @ApiResponse({ status: 401, description: 'Token inválido o expirado' })
-  remove(@Param('id') id: string) {
-    return this.appointmentsService.remove(id);
+  @ApiParam({ name: 'id', description: 'UUID de la cita' })
+  remove(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
+    return this.appointmentsService.remove(req, id);
   }
 }
