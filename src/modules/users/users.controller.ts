@@ -469,7 +469,7 @@ export class UsersController {
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<{ data: ResponseUserDto }> {
     const user = await this.usersService.findById(id);
-    return { data: user as ResponseUserDto };
+    return { data: user as unknown as ResponseUserDto };
   }
 
   @Put(':id')

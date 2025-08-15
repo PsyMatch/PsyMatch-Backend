@@ -187,15 +187,34 @@ export class UsersService {
       );
     }
 
-    const patients = appointments.map((appointment) => appointment.patient);
+    const psychologist = appointments.map(
+      (appointment) => appointment.psychologist,
+    );
 
-    if (!patients.length) {
+    if (!psychologist.length) {
       throw new NotFoundException(
-        'No hay pacientes disponibles para este psicólogo',
+        'No hay psicólogos disponibles para este paciente',
       );
     }
 
-    return { message: 'Pacientes recuperados exitosamente', data: patients };
+    const uniquePsychologists = psychologist.filter(
+      (psychologist, index, self) =>
+        index === self.findIndex((p) => p.id === psychologist.id),
+    );
+
+    const responseData: ResponseUserDto[] = uniquePsychologists.map(
+      (psychologist) => ({
+        ...psychologist,
+        created_at: psychologist.created_at.toISOString(),
+        updated_at: psychologist.updated_at?.toISOString(),
+        languages: psychologist.languages || undefined,
+      }),
+    );
+
+    return {
+      message: 'Psicólogos recuperados exitosamente',
+      data: responseData,
+    };
   }
 
   async getPaymentsOfPatient(

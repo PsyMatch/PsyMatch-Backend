@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Expose, Type } from 'class-transformer';
+import { Expose, Transform, Type } from 'class-transformer';
 import { EPsychologistSpecialty } from '../../psychologist/enums/specialities.enum';
 import { EPsychologistStatus } from '../../psychologist/enums/verified.enum';
 import { EInsurance } from '../enums/insurances.enum';
@@ -240,8 +240,19 @@ export class ResponseUserDto {
 
   @ApiProperty({
     description: 'Fecha de creación del usuario',
-    example: '2023-01-01T00:00:00.000Z',
+    example: '01/01/2023',
+    type: 'string',
+  })
+  @Transform(({ value }): string => {
+    if (value instanceof Date) {
+      return value.toLocaleDateString('es-AR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      });
+    }
+    return value;
   })
   @Expose()
-  created_at: Date;
+  created_at: string;
 }
