@@ -5,17 +5,18 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthGuard } from '../../../auth/guards/auth.guard';
+import { JWTAuthGuard } from '../../../auth/guards/auth.guard';
 import { RolesGuard } from '../../../auth/guards/roles.guard';
 import { PatientsOfProfessionalService } from './patientsOfProfessional.service';
 import { IAuthRequest } from '../../../auth/interfaces/auth-request.interface';
 import { Roles } from '../../../auth/decorators/role.decorator';
 import { ERole } from '../../../../common/enums/role.enum';
 import { ResponseUserDto } from 'src/modules/users/dto/response-user.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Profesionales')
 @Controller('psychologist/patients')
-@UseGuards(AuthGuard, RolesGuard)
+@UseGuards(JWTAuthGuard, RolesGuard, AuthGuard('google'))
 @ApiBearerAuth('JWT-auth')
 export class PatientsOfProfessionalController {
   constructor(

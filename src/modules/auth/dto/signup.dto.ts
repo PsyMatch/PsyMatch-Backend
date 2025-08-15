@@ -41,11 +41,22 @@ export class SignUpDto {
   name: string;
 
   @ApiProperty({
+    description: 'Alias del usuario',
+    example: 'juanperez',
+  })
+  @IsNotEmpty()
+  @IsString()
+  alias: string;
+
+  @ApiProperty({
     description: 'URL de la foto de perfil del usuario',
     example: 'https://example.com/profile/juan-perez.jpg',
+    required: false,
   })
-  @IsString()
-  profile_picture: string;
+  @Transform(({ value }) => cleanEmpty(value))
+  @IsOptional()
+  @IsString({ message: 'La foto de perfil debe ser un string válido.' })
+  profile_picture?: string;
 
   @ApiProperty({
     description:
@@ -165,9 +176,10 @@ export class SignUpDto {
     minLength: 6,
     maxLength: 100,
   })
+  @Transform(({ value }) => cleanEmpty(value))
   @IsString({ message: 'La contraseña debe ser un string.' })
   @IsNotEmpty({ message: 'La contraseña es obligatoria.' })
-  @Matches(/^(?=.*\p{Lu})(?=.*\p{Ll})(?=.*\d).{6,100}$/u, {
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,100}$/, {
     message:
       'La contraseña debe contener al menos una minúscula, una mayúscula y un número. El carácter especial es opcional.',
   })
@@ -179,8 +191,11 @@ export class SignUpDto {
   @ApiProperty({
     description:
       'Confirmación de contraseña (debe coincidir con la contraseña)',
-    example: 'SecurePass123!',
+    example: 'MiContraseña123!',
   })
+  @Transform(({ value }) => cleanEmpty(value))
+  @IsNotEmpty({ message: 'La confirmación de contraseña es obligatoria.' })
+  @IsString({ message: 'La confirmación de contraseña debe ser un string.' })
   @Validate(MatchPasswordHelper, ['password'])
   confirmPassword: string;
 }

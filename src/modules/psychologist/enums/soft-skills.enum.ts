@@ -1,0 +1,16 @@
+export enum ESoftSkills {
+  CLEAR_COMMUNICATION = 'Comunicación',
+  EMPATHY = 'Empatía',
+  ACTIVE_LISTENING = 'Escucha activa',
+  PATIENCE = 'Paciencia',
+  RESPECT_FOR_DIVERSITY = 'Respeto por la diversidad',
+  ADAPTABILITY = 'Adaptabilidad',
+  EMOTIONAL_INTELLIGENCE = 'Inteligencia emocional',
+  CONFIDENTIALITY = 'Confidencialidad',
+  ANALITICAL_SKILLS = 'Habilidades analíticas',
+  ASSERTIVENESS = 'Asertividad',
+  ORGANIZATION = 'Organización',
+  TOLERANCE_FOR_FRUSTRATION = 'Tolerancia a la frustración',
+  CONFLICT_RESOLUTION = 'Resolución de conflictos',
+  CRITICAL_THINKING = 'Pensamiento crítico',
+}
