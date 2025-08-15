@@ -23,7 +23,7 @@ import {
   ApiConsumes,
 } from '@nestjs/swagger';
 import { UsersService } from './users.service';
-import { AuthGuard } from '../auth/guards/auth.guard';
+import { JWTAuthGuard } from '../auth/guards/auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { SameUserOrAdminGuard } from '../auth/guards/same-user.guard';
 import { IAuthRequest } from '../auth/interfaces/auth-request.interface';
@@ -35,6 +35,8 @@ import { ResponseType } from '../../common/decorators/response-type.decorator';
 import { ResponseUserDto } from './dto/response-user.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { Payment } from '../payments/entities/payment.entity';
+import { plainToInstance } from 'class-transformer';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Usuarios')
 @Controller('users')
@@ -42,7 +44,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(JWTAuthGuard, RolesGuard, AuthGuard('google'))
   @Roles([ERole.ADMIN])
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
@@ -325,7 +327,7 @@ export class UsersController {
   }
 
   @Get('patients')
-  @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(JWTAuthGuard, RolesGuard, AuthGuard('google'))
   @Roles([ERole.ADMIN])
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
@@ -452,9 +454,21 @@ export class UsersController {
     return await this.usersService.findAllPatients(paginationDto);
   }
 
+  @Get('me')
+  @UseGuards(JWTAuthGuard, AuthGuard('google'))
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Obtener el usuario autenticado' })
+  async getMe(@Req() req: IAuthRequest) {
+    const user = await this.usersService.findById(req.user.id);
+    const userDto = plainToInstance(ResponseUserDto, user, {
+      excludeExtraneousValues: true,
+    });
+    return { data: userDto };
+  }
+
   @Get(':id')
   @ResponseType(ResponseUserDto)
-  @UseGuards(AuthGuard /*, SameUserOrAdminGuard*/)
+  @UseGuards(JWTAuthGuard, AuthGuard('google') /*, SameUserOrAdminGuard*/)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Get user by ID' })
   @ApiResponse({
@@ -473,7 +487,7 @@ export class UsersController {
   }
 
   @Put(':id')
-  @UseGuards(AuthGuard, SameUserOrAdminGuard)
+  @UseGuards(JWTAuthGuard, SameUserOrAdminGuard, AuthGuard('google'))
   @UseInterceptors(FileInterceptor('profile_picture'))
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Update user by ID' })
@@ -559,7 +573,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard, SameUserOrAdminGuard)
+  @UseGuards(JWTAuthGuard, SameUserOrAdminGuard, AuthGuard('google'))
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Delete user by ID' })
   @ApiResponse({
@@ -591,7 +605,7 @@ export class UsersController {
   //CODIGO DE PEDRO A PEDIDO DE MAURI
 
   @Get('patient/professionals')
-  @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(JWTAuthGuard, RolesGuard, AuthGuard('google'))
   @Roles([ERole.PATIENT])
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
@@ -618,7 +632,7 @@ export class UsersController {
 
   @Get('patient/payments')
   @ApiBearerAuth('JWT-auth')
-  @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(JWTAuthGuard, RolesGuard, AuthGuard('google'))
   @Roles([ERole.PATIENT])
   @ApiOperation({ summary: 'Obtener los pagos del usuario logueado' })
   @ApiResponse({ status: 200, description: 'Pagos recuperados exitosamente' })
