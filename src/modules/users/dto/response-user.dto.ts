@@ -237,4 +237,11 @@ export class ResponseUserDto {
   })
   @Expose()
   profile_picture?: string;
+
+  @ApiProperty({
+    description: 'Fecha de creación del usuario',
+    example: '2023-01-01T00:00:00.000Z',
+  })
+  @Expose()
+  created_at: Date;
 }
