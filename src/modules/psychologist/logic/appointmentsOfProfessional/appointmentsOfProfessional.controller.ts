@@ -10,12 +10,11 @@ import { RolesGuard } from '../../../../modules/auth/guards/roles.guard';
 import { AppointmentsOfProfessionalService } from './appointmentsOfProfessional.service';
 import { IAuthRequest } from '../../../../modules/auth/interfaces/auth-request.interface';
 import { Appointment } from 'src/modules/appointments/entities/appointment.entity';
-import { AuthGuard } from '@nestjs/passport';
 
 @Controller('psychologist/appointments')
 @ApiTags('Profesionales')
 @ApiBearerAuth('JWT-auth')
-@UseGuards(JWTAuthGuard, RolesGuard, AuthGuard('google'))
+@UseGuards(JWTAuthGuard, RolesGuard)
 export class AppointmentsOfProfessionalController {
   constructor(
     private readonly appointmentsService: AppointmentsOfProfessionalService,

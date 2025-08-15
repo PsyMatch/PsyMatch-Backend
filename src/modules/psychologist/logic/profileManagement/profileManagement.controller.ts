@@ -31,11 +31,10 @@ import { UpdatePsychologistDto } from '../../dto/update-psychologist.dto';
 import { ResponseProfessionalDto } from '../../dto/response-professional.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileValidationPipe } from 'src/modules/files/pipes/file-validation.pipe';
-import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Profesionales')
 @Controller('psychologist')
-@UseGuards(JWTAuthGuard, RolesGuard, AuthGuard('google'))
+@UseGuards(JWTAuthGuard, RolesGuard)
 @ApiBearerAuth('JWT-auth')
 export class ProfileManagementController {
   constructor(private profileService: ProfileService) {}

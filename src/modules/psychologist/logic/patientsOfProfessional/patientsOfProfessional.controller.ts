@@ -12,11 +12,10 @@ import { IAuthRequest } from '../../../auth/interfaces/auth-request.interface';
 import { Roles } from '../../../auth/decorators/role.decorator';
 import { ERole } from '../../../../common/enums/role.enum';
 import { ResponseUserDto } from 'src/modules/users/dto/response-user.dto';
-import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Profesionales')
 @Controller('psychologist/patients')
-@UseGuards(JWTAuthGuard, RolesGuard, AuthGuard('google'))
+@UseGuards(JWTAuthGuard, RolesGuard)
 @ApiBearerAuth('JWT-auth')
 export class PatientsOfProfessionalController {
   constructor(

@@ -10,11 +10,10 @@ import { RolesGuard } from '../../../auth/guards/roles.guard';
 import { IAuthRequest } from '../../../auth/interfaces/auth-request.interface';
 import { ReviewsProfessionalsService } from './reviewsOfProfessionals.service';
 import { Reviews } from 'src/modules/reviews/entities/reviews.entity';
-import { AuthGuard } from '@nestjs/passport';
 
 @Controller('psychologists/reviews')
 @ApiTags('Profesionales')
-@UseGuards(JWTAuthGuard, RolesGuard, AuthGuard('google'))
+@UseGuards(JWTAuthGuard, RolesGuard)
 @ApiBearerAuth('JWT-auth')
 export class ReviewsOfProfessionalsController {
   constructor(private readonly reviewsService: ReviewsProfessionalsService) {}

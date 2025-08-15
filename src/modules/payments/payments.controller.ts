@@ -24,11 +24,10 @@ import { JWTAuthGuard } from '../auth/guards/auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/role.decorator';
 import { ERole } from '../../common/enums/role.enum';
-import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Pagos')
 @Controller('payments')
-@UseGuards(JWTAuthGuard, RolesGuard, AuthGuard('google'))
+@UseGuards(JWTAuthGuard, RolesGuard)
 @ApiBearerAuth('JWT-auth')
 export class PaymentsController {
   constructor(private readonly service: PaymentsService) {}
