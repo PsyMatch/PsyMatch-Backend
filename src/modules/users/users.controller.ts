@@ -454,7 +454,7 @@ export class UsersController {
 
   @Get(':id')
   @ResponseType(ResponseUserDto)
-  @UseGuards(AuthGuard, SameUserOrAdminGuard)
+  @UseGuards(AuthGuard /*, SameUserOrAdminGuard*/)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Get user by ID' })
   @ApiResponse({
