@@ -47,6 +47,34 @@ export class VerificationPsychologistService {
     };
   }
 
+  async getAllVerifiedService(
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResponse<ResponseProfessionalDto>> {
+    const queryBuilder =
+      this.psychologistRepository.createQueryBuilder('psychologist');
+    queryBuilder.where('psychologist.verified = :status', {
+      status: EPsychologistStatus.VALIDATED,
+    });
+
+    const paginatedResult = await this.paginationService.paginate(
+      queryBuilder,
+      paginationDto,
+    );
+
+    const transformedItems = plainToInstance(
+      ResponseProfessionalDto,
+      paginatedResult.data,
+      {
+        excludeExtraneousValues: true,
+      },
+    );
+
+    return {
+      ...paginatedResult,
+      data: transformedItems,
+    };
+  }
+
   async findOne(
     id: string,
   ): Promise<{ message: string; data: ResponseProfessionalDto }> {
