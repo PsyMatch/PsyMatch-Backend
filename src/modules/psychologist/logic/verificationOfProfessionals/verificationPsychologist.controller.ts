@@ -16,12 +16,11 @@ import {
 } from '../../../../common/dto/pagination.dto';
 import { ResponseProfessionalDto } from '../../dto/response-professional.dto';
 import { JWTAuthGuard } from 'src/modules/auth/guards/auth.guard';
-import { AuthGuard } from '@nestjs/passport';
 
 @Controller('psychologist/verification')
 @ApiTags('Profesionales')
 @ApiBearerAuth('JWT-auth')
-@UseGuards(JWTAuthGuard, RolesGuard, AuthGuard('google'))
+@UseGuards(JWTAuthGuard, RolesGuard)
 export class VerificationPsychologistController {
   constructor(
     private readonly verificationPsychologistService: VerificationPsychologistService,

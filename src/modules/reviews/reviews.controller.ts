@@ -27,11 +27,10 @@ import { reviewResponseDto } from './dto/review-response.dto';
 import { Reviews } from './entities/reviews.entity';
 import { Request } from 'express';
 import { IAuthRequest } from '../auth/interfaces/auth-request.interface';
-import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Reseñas')
 @Controller('reviews')
-@UseGuards(JWTAuthGuard, AuthGuard('google'))
+@UseGuards(JWTAuthGuard)
 @ApiBearerAuth('JWT-auth')
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}

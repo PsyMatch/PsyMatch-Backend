@@ -23,10 +23,9 @@ import {
 } from '@nestjs/swagger';
 import { JWTAuthGuard } from '../auth/guards/auth.guard';
 import { AuthenticatedRequest } from '../auth/interfaces/authenticated-request.interface';
-import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Citas')
-@UseGuards(JWTAuthGuard, AuthGuard('google'))
+@UseGuards(JWTAuthGuard)
 @ApiBearerAuth('JWT-auth')
 @Controller('appointments')
 export class AppointmentsController {

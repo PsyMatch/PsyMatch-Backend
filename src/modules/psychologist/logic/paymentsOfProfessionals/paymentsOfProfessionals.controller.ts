@@ -12,10 +12,9 @@ import { RolesGuard } from '../../../auth/guards/roles.guard';
 import { IAuthRequest } from '../../../auth/interfaces/auth-request.interface';
 import { PaymentsOfProfessionalsService } from './paymentsOfProfessionals.service';
 import { Payment } from 'src/modules/payments/entities/payment.entity';
-import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Profesionales')
-@UseGuards(JWTAuthGuard, RolesGuard, AuthGuard('google'))
+@UseGuards(JWTAuthGuard, RolesGuard)
 @ApiBearerAuth('JWT-auth')
 @Controller('psychologist/payments')
 export class PaymentsOfProfessionalsController {

@@ -28,7 +28,6 @@ import {
   ApiConsumes,
   ApiBody,
 } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
 
 @Controller('records')
 @ApiTags('Historiales Médicos')
@@ -42,7 +41,7 @@ import { AuthGuard } from '@nestjs/passport';
 @ApiInternalServerErrorResponse({
   description: 'Error interno del servidor',
 })
-@UseGuards(JWTAuthGuard, RolesGuard, AuthGuard('google'))
+@UseGuards(JWTAuthGuard, RolesGuard)
 export class RecordsController {
   constructor(private readonly recordsService: RecordsService) {}
 
