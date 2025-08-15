@@ -1,4 +1,13 @@
-import { Controller, Get, UseGuards, Req, Put, Body } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  UseGuards,
+  Req,
+  Put,
+  Body,
+  UseInterceptors,
+  UploadedFile,
+} from '@nestjs/common';
 import { AuthGuard } from '../../../auth/guards/auth.guard';
 import { RolesGuard } from '../../../auth/guards/roles.guard';
 import { Roles } from '../../../auth/decorators/role.decorator';
@@ -20,6 +29,8 @@ import { ProfileService } from './profileManagement.service';
 import { IAuthRequest } from '../../../auth/interfaces/auth-request.interface';
 import { UpdatePsychologistDto } from '../../dto/update-psychologist.dto';
 import { ResponseProfessionalDto } from '../../dto/response-professional.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { FileValidationPipe } from 'src/modules/files/pipes/file-validation.pipe';
 
 @ApiTags('Profesionales')
 @Controller('psychologist')
@@ -55,6 +66,7 @@ export class ProfileManagementController {
   }
 
   @Put('me')
+  @UseInterceptors(FileInterceptor('profile_picture'))
   @Roles([ERole.PSYCHOLOGIST])
   @ApiOperation({ summary: 'Actualizar perfil del psicólogo logueado' })
   @ApiConsumes('multipart/form-data')
@@ -112,10 +124,12 @@ export class ProfileManagementController {
   async updateMe(
     @Req() req: IAuthRequest,
     @Body() updateDto: UpdatePsychologistDto,
+    @UploadedFile(new FileValidationPipe({ isOptional: true }))
+    _profilePicture?: Express.Multer.File,
   ): Promise<{ message: string; data: ResponseProfessionalDto }> {
-    const userId = req.user.id;
     return await this.profileService.updatePsychologistProfile(
-      userId,
+      req.user.id,
+      req.user.role,
       updateDto,
     );
   }
