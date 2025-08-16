@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { AppointmentsOfProfessionalService } from '../appointmentsOfProfessional/appointmentsOfProfessional.service';
-import { ResponseUserDto } from 'src/modules/users/dto/response-user.dto';
+import { ResponseUserDto } from '../../../users/dto/response-user.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class PatientsOfProfessionalService {
@@ -30,6 +31,11 @@ export class PatientsOfProfessionalService {
       );
     }
 
-    return { message: 'Pacientes recuperados exitosamente', data: patients };
+    const transformedData = plainToInstance(ResponseUserDto, patients);
+
+    return {
+      message: 'Pacientes recuperados exitosamente',
+      data: transformedData,
+    };
   }
 }

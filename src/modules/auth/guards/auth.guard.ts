@@ -11,7 +11,7 @@ import { IAuthRequest } from '../interfaces/auth-request.interface';
 import { IJwtPayload } from '../interfaces/jwt-payload.interface';
 
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class JWTAuthGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,

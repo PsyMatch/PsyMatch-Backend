@@ -9,6 +9,7 @@ import {
 } from '../../../../common/dto/pagination.dto';
 import { PaginationService } from '../../../../common/services/pagination.service';
 import { ResponseProfessionalDto } from '../../dto/response-professional.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class VerificationPsychologistService {
@@ -27,7 +28,51 @@ export class VerificationPsychologistService {
       status: EPsychologistStatus.PENDING,
     });
 
-    return await this.paginationService.paginate(queryBuilder, paginationDto);
+    const paginatedResult = await this.paginationService.paginate(
+      queryBuilder,
+      paginationDto,
+    );
+
+    const transformedItems = plainToInstance(
+      ResponseProfessionalDto,
+      paginatedResult.data,
+      {
+        excludeExtraneousValues: true,
+      },
+    );
+
+    return {
+      ...paginatedResult,
+      data: transformedItems,
+    };
+  }
+
+  async getAllVerifiedService(
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResponse<ResponseProfessionalDto>> {
+    const queryBuilder =
+      this.psychologistRepository.createQueryBuilder('psychologist');
+    queryBuilder.where('psychologist.verified = :status', {
+      status: EPsychologistStatus.VALIDATED,
+    });
+
+    const paginatedResult = await this.paginationService.paginate(
+      queryBuilder,
+      paginationDto,
+    );
+
+    const transformedItems = plainToInstance(
+      ResponseProfessionalDto,
+      paginatedResult.data,
+      {
+        excludeExtraneousValues: true,
+      },
+    );
+
+    return {
+      ...paginatedResult,
+      data: transformedItems,
+    };
   }
 
   async findOne(
@@ -48,9 +93,21 @@ export class VerificationPsychologistService {
     }
 
     psychologist.verified = EPsychologistStatus.VALIDATED;
-    await this.psychologistRepository.save(psychologist);
+    const savedPsychologist =
+      await this.psychologistRepository.save(psychologist);
 
-    return { message: 'Psicólogo verificado exitosamente', data: psychologist };
+    const transformedPsychologist = plainToInstance(
+      ResponseProfessionalDto,
+      savedPsychologist,
+      {
+        excludeExtraneousValues: true,
+      },
+    );
+
+    return {
+      message: 'Psicólogo verificado exitosamente',
+      data: transformedPsychologist,
+    };
   }
 
   async rejectPsychologistById(
@@ -65,8 +122,20 @@ export class VerificationPsychologistService {
     }
 
     psychologist.verified = EPsychologistStatus.REJECTED;
-    await this.psychologistRepository.save(psychologist);
+    const savedPsychologist =
+      await this.psychologistRepository.save(psychologist);
 
-    return { message: 'Psicólogo rechazado exitosamente', data: psychologist };
+    const transformedPsychologist = plainToInstance(
+      ResponseProfessionalDto,
+      savedPsychologist,
+      {
+        excludeExtraneousValues: true,
+      },
+    );
+
+    return {
+      message: 'Psicólogo rechazado exitosamente',
+      data: transformedPsychologist,
+    };
   }
 }

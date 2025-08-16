@@ -8,8 +8,8 @@ import { EModality } from '../../psychologist/enums/modality.enum';
 import { ESessionType } from '../../psychologist/enums/session-types.enum';
 import { ETherapyApproach } from '../../psychologist/enums/therapy-approaches.enum';
 import { ERole } from '../../../common/enums/role.enum';
-import { EInsurance } from 'src/modules/users/enums/insurances.enum';
-import { ResponseUserDto } from 'src/modules/users/dto/response-user.dto';
+import { EInsurance } from '../../users/enums/insurances.enum';
+import { ResponseUserDto } from '../../users/dto/response-user.dto';
 
 export class ResponseProfessionalDto {
   @ApiProperty({

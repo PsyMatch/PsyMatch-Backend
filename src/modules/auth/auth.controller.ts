@@ -56,8 +56,8 @@ export class AuthController {
         },
         alias: {
           type: 'string',
-          example: 'juanito',
-          description: 'Alias del usuario (opcional)',
+          example: 'Mary',
+          description: 'Alias del usuario',
         },
         birthdate: {
           type: 'string',
