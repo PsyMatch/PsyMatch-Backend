@@ -11,7 +11,7 @@ import { JWTAuthGuard } from '../../../auth/guards/auth.guard';
 import { RolesGuard } from '../../../auth/guards/roles.guard';
 import { IAuthRequest } from '../../../auth/interfaces/auth-request.interface';
 import { PaymentsOfProfessionalsService } from './paymentsOfProfessionals.service';
-import { Payment } from 'src/modules/payments/entities/payment.entity';
+import { Payment } from '../../../payments/entities/payment.entity';
 
 @ApiTags('Profesionales')
 @UseGuards(JWTAuthGuard, RolesGuard)

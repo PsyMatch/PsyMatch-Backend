@@ -11,7 +11,7 @@ import { PatientsOfProfessionalService } from './patientsOfProfessional.service'
 import { IAuthRequest } from '../../../auth/interfaces/auth-request.interface';
 import { Roles } from '../../../auth/decorators/role.decorator';
 import { ERole } from '../../../../common/enums/role.enum';
-import { ResponseUserDto } from 'src/modules/users/dto/response-user.dto';
+import { ResponseUserDto } from '../../../users/dto/response-user.dto';
 
 @ApiTags('Profesionales')
 @Controller('psychologist/patients')

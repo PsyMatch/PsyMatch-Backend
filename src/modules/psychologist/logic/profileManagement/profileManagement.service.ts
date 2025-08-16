@@ -8,10 +8,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Psychologist } from '../../entities/psychologist.entity';
 import { UpdatePsychologistDto } from '../../dto/update-psychologist.dto';
-import { ERole } from 'src/common/enums/role.enum';
+import { ERole } from '../../../../common/enums/role.enum';
 import { ResponseProfessionalDto } from '../../dto/response-professional.dto';
 import { plainToInstance } from 'class-transformer';
-import { QueryHelper } from 'src/modules/utils/helpers/query.helper';
+import { QueryHelper } from '../../../utils/helpers/query.helper';
 
 @Injectable()
 export class ProfileService {

@@ -14,9 +14,10 @@ import {
   IsDateString,
   IsEnum,
   MaxLength,
+  IsAlpha,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { MatchPasswordHelper } from '../../utils/helpers/matchPassword.helper';
 import { EInsurance } from '../../users/enums/insurances.enum';
 
@@ -39,6 +40,14 @@ export class SignUpDto {
   @IsNotEmpty()
   @IsString()
   name: string;
+
+  @ApiPropertyOptional({
+    description: 'Alias del usuario',
+    example: 'juanito',
+  })
+  @IsOptional()
+  @IsAlpha()
+  alias?: string;
 
   @ApiProperty({
     description: 'Alias del usuario',

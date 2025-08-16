@@ -23,7 +23,7 @@ export class JWTAuthGuard implements CanActivate {
     const authHeader = request.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw new UnauthorizedException('Missing or invalid token');
+      throw new UnauthorizedException('Token faltante o inválido');
     }
 
     const token = authHeader.split(' ')[1];
@@ -31,7 +31,7 @@ export class JWTAuthGuard implements CanActivate {
     try {
       const secret = this.configService.get<string>('JWT_SECRET');
       const payload = this.jwtService.verify<IJwtPayload>(token, { secret });
-      payload.iat = new Date().toLocaleString('en-AR', {
+      payload.iat = new Date().toLocaleString('es-AR', {
         timeZone: 'America/Argentina/Buenos_Aires',
         weekday: 'long',
         day: '2-digit',
@@ -41,7 +41,7 @@ export class JWTAuthGuard implements CanActivate {
         minute: '2-digit',
         hour12: false,
       });
-      payload.exp = new Date().toLocaleString('en-AR', {
+      payload.exp = new Date().toLocaleString('es-AR', {
         timeZone: 'America/Argentina/Buenos_Aires',
         weekday: 'long',
         day: '2-digit',
@@ -58,7 +58,7 @@ export class JWTAuthGuard implements CanActivate {
     } catch (error) {
       if (error instanceof TokenExpiredError) {
         throw new UnauthorizedException(
-          `The token expired on: ${error.expiredAt.toLocaleString('en-AR', {
+          `El token expiró el ${error.expiredAt.toLocaleString('es-AR', {
             timeZone: 'America/Argentina/Buenos_Aires',
             weekday: 'long',
             day: '2-digit',
@@ -70,7 +70,7 @@ export class JWTAuthGuard implements CanActivate {
           })}`,
         );
       }
-      throw new UnauthorizedException('Invalid Token');
+      throw new UnauthorizedException('Token inválido');
     }
   }
 }

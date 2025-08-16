@@ -32,7 +32,7 @@ export class RolesGuard implements CanActivate {
 
     if (!valid) {
       throw new ForbiddenException(
-        "You don't have permission to access this route",
+        'No tienes permiso para acceder a esta ruta',
       );
     }
 

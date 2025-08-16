@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Expose, Transform, Type } from 'class-transformer';
+import { Expose, Exclude, Transform, Type } from 'class-transformer';
 import { EPsychologistSpecialty } from '../../psychologist/enums/specialities.enum';
 import { EPsychologistStatus } from '../../psychologist/enums/verified.enum';
 import { EInsurance } from '../enums/insurances.enum';
@@ -24,6 +24,13 @@ export class ResponseUserDto {
   })
   @Expose()
   name: string;
+
+  @ApiPropertyOptional({
+    description: 'Alias del usuario',
+    example: 'juanito',
+  })
+  @Expose()
+  alias?: string;
 
   @ApiPropertyOptional({
     description: 'Fecha de nacimiento del usuario',
@@ -62,22 +69,19 @@ export class ResponseUserDto {
   @Expose()
   office_address?: string;
 
-  //===============================
-  // DESCOMENTAR CUANDO USEMOS MAPS
-  //===============================
-  // @ApiPropertyOptional({
-  //   description: 'Latitud de ubicación del usuario',
-  //   example: -34.6037,
-  // })
-  // @Expose()
-  // latitude?: number;
+  @ApiPropertyOptional({
+    description: 'Latitud de ubicación del usuario',
+    example: -34.6037,
+  })
+  @Exclude()
+  latitude?: number;
 
-  // @ApiPropertyOptional({
-  //   description: 'Longitud de ubicación del usuario',
-  //   example: -58.3816,
-  // })
-  // @Expose()
-  // longitude?: number;
+  @ApiPropertyOptional({
+    description: 'Longitud de ubicación del usuario',
+    example: -58.3816,
+  })
+  @Exclude()
+  longitude?: number;
 
   @ApiProperty({
     description: 'Dirección de correo electrónico del usuario',

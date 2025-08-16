@@ -15,7 +15,7 @@ import {
   PaginationDto,
 } from '../../../../common/dto/pagination.dto';
 import { ResponseProfessionalDto } from '../../dto/response-professional.dto';
-import { JWTAuthGuard } from 'src/modules/auth/guards/auth.guard';
+import { JWTAuthGuard } from '../../../auth/guards/auth.guard';
 
 @Controller('psychologist/verification')
 @ApiTags('Profesionales')

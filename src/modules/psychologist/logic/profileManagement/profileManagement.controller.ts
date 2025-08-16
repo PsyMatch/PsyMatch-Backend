@@ -30,7 +30,7 @@ import { IAuthRequest } from '../../../auth/interfaces/auth-request.interface';
 import { UpdatePsychologistDto } from '../../dto/update-psychologist.dto';
 import { ResponseProfessionalDto } from '../../dto/response-professional.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { FileValidationPipe } from 'src/modules/files/pipes/file-validation.pipe';
+import { FileValidationPipe } from '../../../files/pipes/file-validation.pipe';
 
 @ApiTags('Profesionales')
 @Controller('psychologist')
