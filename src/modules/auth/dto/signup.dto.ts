@@ -50,14 +50,6 @@ export class SignUpDto {
   alias?: string;
 
   @ApiProperty({
-    description: 'Alias del usuario',
-    example: 'juanperez',
-  })
-  @IsNotEmpty()
-  @IsString()
-  alias: string;
-
-  @ApiProperty({
     description: 'URL de la foto de perfil del usuario',
     example: 'https://example.com/profile/juan-perez.jpg',
     required: false,
