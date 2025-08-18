@@ -233,7 +233,6 @@ export class SeederService {
     const psychologists = [
       {
         name: 'Ana García',
-        alias: 'Dra. Ana García',
         email: 'ana.garcia@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654321,
@@ -243,6 +242,7 @@ export class SeederService {
         role: ERole.PSYCHOLOGIST,
         personal_biography:
           'Experienced psychologist specializing in cognitive behavioral therapy and grief counseling with over 15 years of practice.',
+        professional_title: 'Licenciada en Psicología',
         professional_experience: 15,
         languages: [ELanguage.SPANISH, ELanguage.ENGLISH],
         office_address: 'Consultorio en Av. Callao 1000, Piso 5',
@@ -274,7 +274,6 @@ export class SeederService {
       },
       {
         name: 'Roberto Silva',
-        alias: 'Dr. Roberto Silva',
         email: 'roberto.silva@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654322,
@@ -284,6 +283,7 @@ export class SeederService {
         role: ERole.PSYCHOLOGIST,
         personal_biography:
           'Family therapist and sleep disorders specialist with extensive experience in group therapy sessions.',
+        professional_title: 'Doctor en Psicología Clínica',
         professional_experience: 20,
         languages: [ELanguage.SPANISH],
         office_address: 'Consultorio en Santa Fe 2000, Oficina 203',
@@ -314,7 +314,6 @@ export class SeederService {
       },
       {
         name: 'Carmen Ruiz',
-        alias: 'Dra. Carmen Ruiz',
         email: 'carmen.ruiz@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654323,
@@ -324,6 +323,7 @@ export class SeederService {
         role: ERole.PSYCHOLOGIST,
         personal_biography:
           'Child and adolescent therapist with expertise in play therapy and family counseling.',
+        professional_title: 'Especialista en Psicología Infantil',
         professional_experience: 8,
         languages: [ELanguage.SPANISH, ELanguage.PORTUGUESE],
         office_address: 'Consultorio virtual - Modalidad Online',
@@ -353,7 +353,6 @@ export class SeederService {
       },
       {
         name: 'Pablo Méndez',
-        alias: 'Dr. Pablo Méndez',
         email: 'pablo.mendez@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654324,
@@ -363,6 +362,7 @@ export class SeederService {
         role: ERole.PSYCHOLOGIST,
         personal_biography:
           'Especialista en ansiedad y orientación vocacional.',
+        professional_title: 'Magíster en Psicología Educacional',
         professional_experience: 12,
         languages: [ELanguage.SPANISH],
         office_address: 'Consultorio en Av. Rivadavia 200',
@@ -381,7 +381,6 @@ export class SeederService {
       },
       {
         name: 'Lucía Benítez',
-        alias: 'Dra. Lucía Benítez',
         email: 'lucia.benitez@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654325,
@@ -390,6 +389,7 @@ export class SeederService {
         birthdate: '1990-05-10',
         role: ERole.PSYCHOLOGIST,
         personal_biography: 'Experta en depresión y trauma/PTSD.',
+        professional_title: 'Especialista en Psicotrauma',
         professional_experience: 10,
         languages: [ELanguage.SPANISH, ELanguage.ENGLISH],
         office_address: 'Consultorio virtual',
@@ -411,7 +411,6 @@ export class SeederService {
       },
       {
         name: 'Esteban Morales',
-        alias: 'Dr. Esteban Morales',
         email: 'esteban.morales@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654326,
@@ -420,6 +419,7 @@ export class SeederService {
         birthdate: '1978-12-05',
         role: ERole.PSYCHOLOGIST,
         personal_biography: 'Especialista en adicciones y dolor crónico.',
+        professional_title: 'Licenciado en Psicología y Adicciones',
         professional_experience: 18,
         languages: [ELanguage.SPANISH],
         office_address: 'Consultorio en Av. Belgrano 400',
@@ -438,7 +438,6 @@ export class SeederService {
       },
       {
         name: 'Paula Suárez',
-        alias: 'Dra. Paula Suárez',
         email: 'paula.suarez@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654327,
@@ -447,6 +446,7 @@ export class SeederService {
         birthdate: '1983-03-22',
         role: ERole.PSYCHOLOGIST,
         personal_biography: 'Experta en terapia de pareja y apoyo LGBTQIA.',
+        professional_title: 'Especialista en Terapia de Pareja',
         professional_experience: 14,
         languages: [ELanguage.SPANISH, ELanguage.PORTUGUESE],
         office_address: 'Consultorio virtual',
@@ -468,7 +468,6 @@ export class SeederService {
       },
       {
         name: 'Nicolás Herrera',
-        alias: 'Dr. Nicolás Herrera',
         email: 'nicolas.herrera@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654328,
@@ -478,6 +477,7 @@ export class SeederService {
         role: ERole.PSYCHOLOGIST,
         personal_biography:
           'Especialista en bipolaridad y psicología geriátrica.',
+        professional_title: 'Doctor en Psicología Geriátrica',
         professional_experience: 16,
         languages: [ELanguage.SPANISH, ELanguage.ENGLISH],
         office_address: 'Consultorio en Av. Libertador 600',
@@ -496,7 +496,6 @@ export class SeederService {
       },
       {
         name: 'Mariana López',
-        alias: 'Dra. Mariana López',
         email: 'mariana.lopez@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654329,
@@ -506,6 +505,7 @@ export class SeederService {
         role: ERole.PSYCHOLOGIST,
         personal_biography:
           'Experta en trastornos alimentarios y espectro autista.',
+        professional_title: 'Licenciada en Psicología Clínica',
         professional_experience: 7,
         languages: [ELanguage.SPANISH],
         office_address: 'Consultorio virtual',

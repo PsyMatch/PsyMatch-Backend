@@ -21,9 +21,6 @@ export class User {
   name: string;
 
   @Column({ type: 'text', nullable: true })
-  alias: string;
-
-  @Column({ type: 'text', nullable: true })
   phone: string;
 
   @Column({ type: 'date', nullable: true })

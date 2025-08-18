@@ -42,6 +42,8 @@ import { GetMyPsychologistsSwaggerDoc } from './documentation/get-my-psichologis
 import { UpdateSwaggerDoc } from './documentation/update.doc';
 import { GetMyDataSwaggerDoc } from './documentation/get-my-data.doc';
 import { UpdateUserResponseDto } from './dto/update-user-response.dto';
+import { ResponsePublicUserDto } from './dto/response-public-user.dto';
+import { FindPublicByIdSwaggerDoc } from './documentation/find-public-id.doc';
 
 @ApiTags('Usuarios')
 @Controller('users')
@@ -83,8 +85,8 @@ export class UsersController {
   async getMyData(
     @Req() req: IAuthRequest,
   ): Promise<{ message: string; data: User }> {
-    const userId = req.user.id;
-    const user = await this.usersService.findById(userId);
+    const requester = req.user.id;
+    const user = await this.usersService.findById(requester, requester);
     return {
       message: 'Información del usuario recuperada exitosamente',
       data: user,
@@ -101,12 +103,12 @@ export class UsersController {
     @UploadedFile(new FileValidationPipe({ isOptional: true }))
     profilePicture?: Express.Multer.File,
   ): Promise<{ message: string; data: UpdateUserResponseDto }> {
-    const userId = req.user.id;
+    const requester = req.user.id;
     const userRole = req.user.role;
     const updatedFields = await this.usersService.update(
-      userId,
+      requester,
       userData,
-      userId,
+      requester,
       userRole,
       profilePicture,
     );
@@ -124,9 +126,9 @@ export class UsersController {
     @Req() req: IAuthRequest,
     @Query() paginationDto: PaginationDto,
   ): Promise<{ message: string; data: PaginatedResponse<Psychologist> }> {
-    const userId = req.user.id;
+    const requester = req.user.id;
     const psychologists = await this.usersService.getMyPsychologists(
-      userId,
+      requester,
       paginationDto,
     );
     return {
@@ -142,9 +144,9 @@ export class UsersController {
     @Req() req: IAuthRequest,
     @Query() paginationDto: PaginationDto,
   ): Promise<{ message: string; data: PaginatedResponse<Appointment> }> {
-    const userId = req.user.id;
+    const requester = req.user.id;
     const appointments = await this.usersService.getMyAppointments(
-      userId,
+      requester,
       paginationDto,
     );
     return {
@@ -163,9 +165,9 @@ export class UsersController {
     message: string;
     data: PaginatedResponse<Payment>;
   }> {
-    const userId = request.user.id;
+    const requester = request.user.id;
     const payments = await this.usersService.getMyPayments(
-      userId,
+      requester,
       paginationDto,
     );
     return {
@@ -179,12 +181,30 @@ export class UsersController {
   @Roles([ERole.ADMIN])
   @FindByIdSwaggerDoc()
   async findById(
+    @Req() req: IAuthRequest,
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<{ message: string; data: ResponseUserDto }> {
-    const user = await this.usersService.findById(id);
+    const requester = req.user.id;
+    const user = await this.usersService.findById(id, requester);
     return {
       message: 'Usuario encontrado exitosamente',
       data: user as unknown as ResponseUserDto,
+    };
+  }
+
+  @Get('public/:id')
+  @UseGuards(JWTAuthGuard)
+  @FindPublicByIdSwaggerDoc()
+  @ResponseType(ResponsePublicUserDto)
+  async findPublicById(
+    @Req() req: IAuthRequest,
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<{ message: string; data: ResponsePublicUserDto }> {
+    const requester = req.user.id;
+    const user = await this.usersService.findById(id, requester);
+    return {
+      message: 'Usuario encontrado exitosamente',
+      data: user as unknown as ResponsePublicUserDto,
     };
   }
 
@@ -192,21 +212,20 @@ export class UsersController {
   @UseGuards(JWTAuthGuard, RolesGuard)
   @Roles([ERole.ADMIN])
   @UseInterceptors(FileInterceptor('profile_picture'))
-  @ResponseType(UpdateUserResponseDto)
   @UpdateSwaggerDoc()
   async update(
     @Req() req: IAuthRequest,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() userData: UpdateUserDto,
     @UploadedFile(new FileValidationPipe({ isOptional: true }))
-    _profilePicture?: Express.Multer.File,
+    profilePicture?: Express.Multer.File,
   ): Promise<{ message: string; data: UpdateUserResponseDto }> {
     const updatedUser = await this.usersService.update(
       id,
       userData,
       req.user.id,
       req.user.role,
-      _profilePicture,
+      profilePicture,
     );
     return { message: 'Usuario actualizado exitosamente', data: updatedUser };
   }
@@ -219,11 +238,11 @@ export class UsersController {
     @Req() req: IAuthRequest,
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<{ message: string; id: string }> {
-    const userId = await this.usersService.delete(
+    const requester = await this.usersService.delete(
       id,
       req.user.id,
       req.user.role,
     );
-    return { message: 'Usuario eliminado exitosamente', id: userId };
+    return { message: 'Usuario eliminado exitosamente', id: requester };
   }
 }
