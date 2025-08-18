@@ -13,19 +13,10 @@ import {
   UploadedFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import {
-  ApiTags,
-  ApiBearerAuth,
-  ApiOperation,
-  ApiResponse,
-  ApiQuery,
-  ApiBody,
-  ApiConsumes,
-} from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { JWTAuthGuard } from '../auth/guards/auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { SameUserOrAdminGuard } from '../auth/guards/same-user.guard';
 import { IAuthRequest } from '../auth/interfaces/auth-request.interface';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FileValidationPipe } from '../files/pipes/file-validation.pipe';
@@ -33,9 +24,24 @@ import { ERole } from '../../common/enums/role.enum';
 import { Roles } from '../auth/decorators/role.decorator';
 import { ResponseType } from '../../common/decorators/response-type.decorator';
 import { ResponseUserDto } from './dto/response-user.dto';
-import { PaginationDto } from '../../common/dto/pagination.dto';
+import {
+  PaginatedResponse,
+  PaginationDto,
+} from '../../common/dto/pagination.dto';
 import { Payment } from '../payments/entities/payment.entity';
-import { plainToInstance } from 'class-transformer';
+import { User } from './entities/user.entity';
+import { Appointment } from '../appointments/entities/appointment.entity';
+import { Psychologist } from '../psychologist/entities/psychologist.entity';
+import { DeleteSwaggerDoc } from './documentation/delete.doc';
+import { FindAllPatientsSwaggerDoc } from './documentation/find-all-patients.doc';
+import { FindAllSwaggerDoc } from './documentation/find-all.doc';
+import { FindByIdSwaggerDoc } from './documentation/find-by-id.doc';
+import { GetMyAppointmentsSwaggerDoc } from './documentation/get-my-appointments.doc';
+import { GetMyPaymentsSwaggerDoc } from './documentation/get-my-payments.doc';
+import { GetMyPsychologistsSwaggerDoc } from './documentation/get-my-psichologists.doc';
+import { UpdateSwaggerDoc } from './documentation/update.doc';
+import { GetMyDataSwaggerDoc } from './documentation/get-my-data.doc';
+import { UpdateUserResponseDto } from './dto/update-user-response.dto';
 
 @ApiTags('Usuarios')
 @Controller('users')
@@ -45,549 +51,170 @@ export class UsersController {
   @Get()
   @UseGuards(JWTAuthGuard, RolesGuard)
   @Roles([ERole.ADMIN])
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({
-    summary: 'Obtener todos los usuarios (Solo administradores)',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Lista de usuarios recuperada exitosamente',
-    schema: {
-      type: 'object',
-      properties: {
-        data: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              id: { type: 'string', example: 'uuid-string' },
-              name: { type: 'string', example: 'Juan Carlos Pérez' },
-              profile_picture: {
-                type: 'string',
-                example: 'https://cloudinary.com/profile.jpg',
-                nullable: true,
-              },
-              phone: {
-                type: 'string',
-                example: '+5411123456789',
-                nullable: true,
-              },
-              birthdate: {
-                type: 'string',
-                format: 'date',
-                example: '2025-07-31',
-                nullable: true,
-              },
-              dni: { type: 'number', example: 12345678 },
-              health_insurance: {
-                type: 'string',
-                example: 'OSDE',
-                description: 'Health insurance provider',
-                enum: [
-                  'OSDE',
-                  'Swiss Medical',
-                  'IOMA',
-                  'PAMI',
-                  'Unión Personal',
-                  'OSDEPYM',
-                  'Luis Pasteur',
-                  'Jerárquicos Salud',
-                  'Sancor Salud',
-                  'OSECAC',
-                  'OSMECON Salud',
-                  'Apross',
-                  'OSPRERA',
-                  'OSPAT',
-                  'ASE Nacional',
-                  'OSPIP',
-                ],
-                nullable: true,
-              },
-              address: {
-                type: 'string',
-                example: 'Av. Corrientes 1234, Buenos Aires',
-                nullable: true,
-              },
-              email: {
-                type: 'string',
-                example: 'juan.perez@email.com',
-                description: 'User email address',
-              },
-              latitude: {
-                type: 'number',
-                example: -34.5975,
-                description: 'User latitude coordinate',
-                nullable: true,
-              },
-              longitude: {
-                type: 'number',
-                example: -58.3816,
-                description: 'User longitude coordinate',
-                nullable: true,
-              },
-              role: {
-                type: 'string',
-                example: 'Paciente',
-                description: 'User role',
-                enum: ['Paciente', 'Psicólogo', 'Administrador'],
-              },
-              emergency_contact: {
-                type: 'string',
-                example: 'Juan Perez - +5411111111 - Hermano',
-                nullable: true,
-              },
-              personal_biography: {
-                type: 'string',
-                example:
-                  'Psicólogo especializado en terapia cognitivo-conductual...',
-                nullable: true,
-              },
-              languages: {
-                type: 'array',
-                items: {
-                  type: 'string',
-                  enum: ['Inglés', 'Español', 'Portugués'],
-                },
-                example: ['Español', 'Inglés'],
-                nullable: true,
-              },
-              professional_title: {
-                type: 'string',
-                example: 'Licenciado en Psicología',
-                nullable: true,
-              },
-              professional_experience: {
-                type: 'number',
-                example: 5,
-                description: 'Years of professional experience',
-                nullable: true,
-              },
-              license_number: {
-                type: 'number',
-                example: 12345678,
-                description: 'Professional license number',
-                nullable: true,
-              },
-              verified: {
-                type: 'string',
-                example: 'Validado',
-                enum: ['Pendiente', 'Validado', 'Rechazado'],
-                nullable: true,
-              },
-              office_address: {
-                type: 'string',
-                example: 'Av. Corrientes 1500, Buenos Aires',
-                nullable: true,
-              },
-              specialities: {
-                type: 'array',
-                items: {
-                  type: 'string',
-                  enum: [
-                    'Trastorno de ansiedad',
-                    'Terapia de pareja',
-                    'Trastorno de la alimentación',
-                    'Trastorno bipolar',
-                    'Transiciones de vida',
-                    'Terapia infantil y adolescente',
-                    'Trastornos del sueño',
-                    'Depresión',
-                    'Terapia familiar',
-                    'TDAH',
-                    'TOC',
-                    'Orientación profesional',
-                    'Psicología geriátrica',
-                    'Manejo de la ira',
-                    'Trauma y TEPT',
-                    'Adicción y abuso de sustancias',
-                    'Trastorno del espectro autista',
-                    'Duelo y pérdida',
-                    'LGBTQIA',
-                    'Manejo del dolor crónico',
-                  ],
-                },
-                example: ['Trastorno de ansiedad', 'Depresión'],
-                nullable: true,
-              },
-              therapy_approaches: {
-                type: 'array',
-                items: {
-                  type: 'string',
-                  enum: [
-                    'Terapia cognitivo-conductual',
-                    'Terapia de aceptación y compromiso',
-                    'Terapia psicodinámica',
-                    'Terapia de sistemas familiares',
-                    'Terapia breve centrada en soluciones',
-                    'Terapia de juego',
-                    'Terapia dialéctico-conductual',
-                    'Desensibilización y reprocesamiento por movimientos oculares',
-                    'Terapia centrada en la persona',
-                    'Terapia basada en la atención plena',
-                    'Terapia Gestalt',
-                    'Terapia de arte',
-                    'Terapia de grupo',
-                  ],
-                },
-                example: ['Terapia cognitivo-conductual'],
-                nullable: true,
-              },
-              session_types: {
-                type: 'array',
-                items: {
-                  type: 'string',
-                  enum: ['Individual', 'Pareja', 'Familiar', 'Grupo'],
-                },
-                example: ['Individual', 'Pareja'],
-                nullable: true,
-              },
-              modality: {
-                type: 'string',
-                example: 'Híbrido',
-                enum: ['Presencial', 'En línea', 'Híbrido'],
-                nullable: true,
-              },
-              insurance_accepted: {
-                type: 'array',
-                items: {
-                  type: 'string',
-                  enum: [
-                    'OSDE',
-                    'Swiss Medical',
-                    'IOMA',
-                    'PAMI',
-                    'Unión Personal',
-                    'OSDEPYM',
-                    'Luis Pasteur',
-                    'Jerárquicos Salud',
-                    'Sancor Salud',
-                    'OSECAC',
-                    'OSMECON Salud',
-                    'Apross',
-                    'OSPRERA',
-                    'OSPAT',
-                    'ASE Nacional',
-                    'OSPIP',
-                  ],
-                },
-                example: ['OSDE', 'Swiss Medical'],
-                nullable: true,
-              },
-              availability: {
-                type: 'array',
-                items: {
-                  type: 'string',
-                  enum: [
-                    'Lunes',
-                    'Martes',
-                    'Miércoles',
-                    'Jueves',
-                    'Viernes',
-                    'Sábado',
-                    'Domingo',
-                  ],
-                },
-                example: ['Lunes', 'Martes', 'Miércoles'],
-                nullable: true,
-              },
-              psychologists: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    name: { type: 'string', example: 'Dr. Ana García' },
-                    email: {
-                      type: 'string',
-                      example: 'ana.garcia@psychologist.com',
-                    },
-                    role: { type: 'string', example: 'Psicólogo' },
-                  },
-                },
-                nullable: true,
-                description:
-                  'Assigned psychologists (only populated when user role is PATIENT)',
-              },
-            },
-          },
-        },
-      },
-    },
-  })
-  @ApiResponse({ status: 401, description: 'Invalid or expired token' })
-  @ApiResponse({
-    status: 403,
-    description: 'Access denied - Admin role required',
-  })
-  @ApiQuery({ name: 'page', required: false, type: Number })
-  @ApiQuery({ name: 'limit', required: false, type: Number })
-  async findAll(@Query() paginationDto: PaginationDto) {
-    return await this.usersService.findAll(paginationDto);
+  @FindAllSwaggerDoc()
+  async findAll(
+    @Query() paginationDto: PaginationDto,
+  ): Promise<{ message: string; data: PaginatedResponse<User> }> {
+    const users = await this.usersService.findAll(paginationDto);
+    return {
+      message: 'Lista de usuarios recuperada exitosamente',
+      data: users,
+    };
   }
 
   @Get('patients')
   @UseGuards(JWTAuthGuard, RolesGuard)
   @Roles([ERole.ADMIN])
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({
-    summary: 'Get all patients (Admin Only)',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Lista de usuarios obtenida exitosamente',
-    schema: {
-      type: 'object',
-      properties: {
-        data: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              id: { type: 'string', example: 'uuid-string' },
-              name: { type: 'string', example: 'Juan Carlos Pérez' },
-              profile_picture: {
-                type: 'string',
-                example: 'https://cloudinary.com/profile.jpg',
-                nullable: true,
-              },
-              phone: {
-                type: 'string',
-                example: '+5411123456789',
-                nullable: true,
-              },
-              birthdate: {
-                type: 'string',
-                format: 'date',
-                example: '2025-07-31',
-                nullable: true,
-              },
-              dni: { type: 'number', example: 12345678 },
-              health_insurance: {
-                type: 'string',
-                example: 'OSDE',
-                description: 'Health insurance provider',
-                enum: [
-                  'OSDE',
-                  'Swiss Medical',
-                  'IOMA',
-                  'PAMI',
-                  'Unión Personal',
-                  'OSDEPYM',
-                  'Luis Pasteur',
-                  'Jerárquicos Salud',
-                  'Sancor Salud',
-                  'OSECAC',
-                  'OSMECON Salud',
-                  'Apross',
-                  'OSPRERA',
-                  'OSPAT',
-                  'ASE Nacional',
-                  'OSPIP',
-                ],
-                nullable: true,
-              },
-              address: {
-                type: 'string',
-                example: 'Av. Corrientes 1234, Buenos Aires',
-                nullable: true,
-              },
-              email: {
-                type: 'string',
-                example: 'juan.perez@email.com',
-                description: 'User email address',
-              },
-              latitude: {
-                type: 'number',
-                example: -34.5975,
-                description: 'User latitude coordinate',
-                nullable: true,
-              },
-              longitude: {
-                type: 'number',
-                example: -58.3816,
-                description: 'User longitude coordinate',
-                nullable: true,
-              },
-              role: {
-                type: 'string',
-                example: 'Paciente',
-                description: 'User role',
-                enum: ['Paciente', 'Psicólogo', 'Administrador'],
-              },
-              emergency_contact: {
-                type: 'string',
-                example: 'Juan Perez - +5411111111 - Hermano',
-                nullable: true,
-              },
-              psychologists: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    name: { type: 'string', example: 'Dr. Ana García' },
-                    email: {
-                      type: 'string',
-                      example: 'ana.garcia@psychologist.com',
-                    },
-                    role: { type: 'string', example: 'Psicólogo' },
-                  },
-                },
-                nullable: true,
-                description:
-                  'Assigned psychologists (only populated when user role is PATIENT)',
-              },
-            },
-          },
-        },
-      },
-    },
-  })
-  @ApiResponse({ status: 401, description: 'Invalid or expired token' })
-  @ApiResponse({
-    status: 403,
-    description: 'Access denied - Admin role required',
-  })
-  @ApiQuery({ name: 'page', required: false, type: Number })
-  @ApiQuery({ name: 'limit', required: false, type: Number })
-  async findAllPatients(@Query() paginationDto: PaginationDto) {
-    return await this.usersService.findAllPatients(paginationDto);
+  @FindAllPatientsSwaggerDoc()
+  async findAllPatients(
+    @Query() paginationDto: PaginationDto,
+  ): Promise<{ message: string; data: PaginatedResponse<User> }> {
+    const patients = await this.usersService.findAllPatients(paginationDto);
+    return {
+      message: 'Todos los pacientes recuperados exitosamente',
+      data: patients,
+    };
   }
 
   @Get('me')
   @UseGuards(JWTAuthGuard)
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Obtener el usuario autenticado' })
-  async getMe(@Req() req: IAuthRequest) {
-    const user = await this.usersService.findById(req.user.id);
-    const userDto = plainToInstance(ResponseUserDto, user, {
-      excludeExtraneousValues: true,
-    });
-    return { data: userDto };
+  @ResponseType(ResponseUserDto)
+  @GetMyDataSwaggerDoc()
+  async getMyData(
+    @Req() req: IAuthRequest,
+  ): Promise<{ message: string; data: User }> {
+    const userId = req.user.id;
+    const user = await this.usersService.findById(userId);
+    return {
+      message: 'Información del usuario recuperada exitosamente',
+      data: user,
+    };
+  }
+
+  @Put('me')
+  @UseGuards(JWTAuthGuard)
+  @UseInterceptors(FileInterceptor('profile_picture'))
+  @UpdateSwaggerDoc()
+  async updateMe(
+    @Req() req: IAuthRequest,
+    @Body() userData: UpdateUserDto,
+    @UploadedFile(new FileValidationPipe({ isOptional: true }))
+    profilePicture?: Express.Multer.File,
+  ): Promise<{ message: string; data: UpdateUserResponseDto }> {
+    const userId = req.user.id;
+    const userRole = req.user.role;
+    const updatedFields = await this.usersService.update(
+      userId,
+      userData,
+      userId,
+      userRole,
+      profilePicture,
+    );
+
+    return {
+      message: 'Paciente actualizado exitosamente',
+      data: updatedFields,
+    };
+  }
+
+  @Get('me/psychologists')
+  @UseGuards(JWTAuthGuard)
+  @GetMyPsychologistsSwaggerDoc()
+  async getMyPsychologists(
+    @Req() req: IAuthRequest,
+    @Query() paginationDto: PaginationDto,
+  ): Promise<{ message: string; data: PaginatedResponse<Psychologist> }> {
+    const userId = req.user.id;
+    const psychologists = await this.usersService.getMyPsychologists(
+      userId,
+      paginationDto,
+    );
+    return {
+      message: 'Lista de los psicólogos del paciente recuperados exitosamente',
+      data: psychologists,
+    };
+  }
+
+  @Get('me/appointments')
+  @UseGuards(JWTAuthGuard)
+  @GetMyAppointmentsSwaggerDoc()
+  async getMyAppointments(
+    @Req() req: IAuthRequest,
+    @Query() paginationDto: PaginationDto,
+  ): Promise<{ message: string; data: PaginatedResponse<Appointment> }> {
+    const userId = req.user.id;
+    const appointments = await this.usersService.getMyAppointments(
+      userId,
+      paginationDto,
+    );
+    return {
+      message: 'Lista de las citas del paciente recuperadas exitosamente',
+      data: appointments,
+    };
+  }
+
+  @Get('me/payments')
+  @UseGuards(JWTAuthGuard)
+  @GetMyPaymentsSwaggerDoc()
+  async getMyPayments(
+    @Req() request: IAuthRequest,
+    @Query() paginationDto: PaginationDto,
+  ): Promise<{
+    message: string;
+    data: PaginatedResponse<Payment>;
+  }> {
+    const userId = request.user.id;
+    const payments = await this.usersService.getMyPayments(
+      userId,
+      paginationDto,
+    );
+    return {
+      message: 'Lista de pagos del paciente recuperada exitosamente',
+      data: payments,
+    };
   }
 
   @Get(':id')
-  @ResponseType(ResponseUserDto)
-  @UseGuards(JWTAuthGuard /*, SameUserOrAdminGuard*/)
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Get user by ID' })
-  @ApiResponse({
-    status: 200,
-    description: 'Usuario encontrado exitosamente',
-    type: ResponseUserDto,
-  })
-  @ApiResponse({ status: 401, description: 'Invalid or expired token' })
-  @ApiResponse({ status: 403, description: 'Access denied' })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @UseGuards(JWTAuthGuard, RolesGuard)
+  @Roles([ERole.ADMIN])
+  @FindByIdSwaggerDoc()
   async findById(
     @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<{ data: ResponseUserDto }> {
+  ): Promise<{ message: string; data: ResponseUserDto }> {
     const user = await this.usersService.findById(id);
-    return { data: user as unknown as ResponseUserDto };
+    return {
+      message: 'Usuario encontrado exitosamente',
+      data: user as unknown as ResponseUserDto,
+    };
   }
 
   @Put(':id')
-  @UseGuards(JWTAuthGuard, SameUserOrAdminGuard)
+  @UseGuards(JWTAuthGuard, RolesGuard)
+  @Roles([ERole.ADMIN])
   @UseInterceptors(FileInterceptor('profile_picture'))
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Update user by ID' })
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        name: { type: 'string', example: 'Juan Carlos Pérez Actualizado' },
-        phone: { type: 'string', example: '+5411987654321' },
-        birthdate: { type: 'string', example: '1990-05-15' },
-        address: { type: 'string', example: 'Av. Santa Fe 2000, Buenos Aires' },
-        latitude: { type: 'string', example: '-34.5975' },
-        longitude: { type: 'string', example: '-58.3816' },
-        password: { type: 'string', example: 'NewPassword123!' },
-        health_insurance: {
-          type: 'string',
-          example: 'OSDE',
-          description: 'Health insurance provider',
-          enum: [
-            'OSDE',
-            'Swiss Medical',
-            'IOMA',
-            'PAMI',
-            'Unión Personal',
-            'OSDEPYM',
-            'Luis Pasteur',
-            'Jerárquicos Salud',
-            'Sancor Salud',
-            'OSECAC',
-            'OSMECON Salud',
-            'Apross',
-            'OSPRERA',
-            'OSPAT',
-            'ASE Nacional',
-            'OSPIP',
-          ],
-        },
-        emergency_contact: {
-          type: 'string',
-          example: 'Juan Perez - +5411111111 - Hermano',
-        },
-        profile_picture: {
-          type: 'string',
-          format: 'binary',
-          description:
-            'Archivo opcional de foto de perfil (JPG, JPEG, PNG, WEBP - máx 2MB)',
-        },
-      },
-    },
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Usuario actualizado exitosamente',
-    schema: {
-      type: 'object',
-      properties: {
-        message: {
-          type: 'string',
-          example: 'Usuario actualizado exitosamente',
-        },
-        id: { type: 'string', example: 'uuid-string' },
-      },
-    },
-  })
-  @ApiResponse({ status: 401, description: 'Invalid or expired token' })
-  @ApiResponse({ status: 403, description: 'Access denied' })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @ResponseType(UpdateUserResponseDto)
+  @UpdateSwaggerDoc()
   async update(
     @Req() req: IAuthRequest,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() userData: UpdateUserDto,
     @UploadedFile(new FileValidationPipe({ isOptional: true }))
     _profilePicture?: Express.Multer.File,
-  ): Promise<{ message: string; id: string }> {
+  ): Promise<{ message: string; data: UpdateUserResponseDto }> {
     const updatedUser = await this.usersService.update(
       id,
       userData,
       req.user.id,
       req.user.role,
+      _profilePicture,
     );
-    return { message: 'Usuario actualizado exitosamente', id: updatedUser };
+    return { message: 'Usuario actualizado exitosamente', data: updatedUser };
   }
 
   @Delete(':id')
-  @UseGuards(JWTAuthGuard, SameUserOrAdminGuard)
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Delete user by ID' })
-  @ApiResponse({
-    status: 200,
-    description: 'Usuario eliminado exitosamente',
-    schema: {
-      type: 'object',
-      properties: {
-        message: { type: 'string', example: 'Usuario eliminado exitosamente' },
-        id: { type: 'string', example: 'uuid-string' },
-      },
-    },
-  })
-  @ApiResponse({ status: 401, description: 'Invalid or expired token' })
-  @ApiResponse({ status: 403, description: 'Access denied' })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @UseGuards(JWTAuthGuard, RolesGuard)
+  @Roles([ERole.ADMIN])
+  @DeleteSwaggerDoc()
   async delete(
     @Req() req: IAuthRequest,
     @Param('id', ParseUUIDPipe) id: string,
@@ -598,53 +225,5 @@ export class UsersController {
       req.user.role,
     );
     return { message: 'Usuario eliminado exitosamente', id: userId };
-  }
-
-  //CODIGO DE PEDRO A PEDIDO DE MAURI
-
-  @Get('patient/professionals')
-  @UseGuards(JWTAuthGuard, RolesGuard)
-  @Roles([ERole.PATIENT])
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({
-    summary: 'Obtener psicólogos del paciente logueado',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Devuelve la lista de psicólogos del paciente',
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'No autorizado - Token inválido o faltante',
-  })
-  @ApiResponse({
-    status: 403,
-    description: 'Prohibido - No es un psicólogo',
-  })
-  async getPatients(
-    @Req() req: IAuthRequest,
-  ): Promise<{ message: string; data: ResponseUserDto[] }> {
-    const userId = req.user.id;
-    return await this.usersService.getPsychologistsForPatient(userId);
-  }
-
-  @Get('patient/payments')
-  @ApiBearerAuth('JWT-auth')
-  @UseGuards(JWTAuthGuard, RolesGuard)
-  @Roles([ERole.PATIENT])
-  @ApiOperation({ summary: 'Obtener los pagos del usuario logueado' })
-  @ApiResponse({ status: 200, description: 'Pagos recuperados exitosamente' })
-  @ApiResponse({
-    status: 401,
-    description: 'No autorizado - Token inválido o faltante',
-  })
-  @ApiResponse({ status: 403, description: 'Prohibido - No es un psicólogo' })
-  @ApiResponse({ status: 404, description: 'No se encontraron pagos' })
-  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
-  async getPayments(
-    @Req() request: IAuthRequest,
-  ): Promise<{ message: string; data: Payment[] }> {
-    const userId = request.user.id;
-    return await this.usersService.getPaymentsOfPatient(userId);
   }
 }

@@ -34,7 +34,7 @@ export class AuthService {
   async signUpService(
     userData: SignUpDto,
     profilePicture?: Express.Multer.File,
-  ): Promise<{ message: string; data: User; token: string }> {
+  ): Promise<{ message: string; data: Patient; token: string }> {
     return this.queryHelper.runInTransaction(async (queryRunner) => {
       const userRepo = queryRunner.manager.getRepository(User);
       const patientRepo = queryRunner.manager.getRepository(Patient);
@@ -71,9 +71,9 @@ export class AuthService {
       //===============================
       // const hasAddress = !!userData.address && userData.address.trim() !== '';
       // const hasLatitude =
-      //   userData.latitude !== undefined && userData.latitude !== null;
+      //   userData.latitude !== undefined;
       // const hasLongitude =
-      //   userData.longitude !== undefined && userData.longitude !== null;
+      //   userData.longitude !== undefined;
 
       // if (hasAddress) {
       //   if (!hasLatitude || !hasLongitude) {
@@ -88,6 +88,11 @@ export class AuthService {
       //     );
       //   }
       // }
+
+      if (!userData.address) {
+        userData.latitude = undefined;
+        userData.longitude = undefined;
+      }
 
       const newUser = patientRepo.create({
         ...userData,
@@ -126,7 +131,7 @@ export class AuthService {
       const token = this.jwtService.sign(payload);
 
       return {
-        message: 'Usuario registrado exitosamente',
+        message: 'Paciente registrado exitosamente',
         data: savedUser,
         token,
       };
@@ -136,7 +141,7 @@ export class AuthService {
   async signUpPsychologistService(
     psychologistData: SignUpPsychologistDto,
     profilePicture?: Express.Multer.File,
-  ): Promise<{ message: string; data: User; token: string }> {
+  ): Promise<{ message: string; data: Psychologist; token: string }> {
     return this.queryHelper.runInTransaction(async (queryRunner) => {
       const userRepo = queryRunner.manager.getRepository(User);
       const psychologistRepo = queryRunner.manager.getRepository(Psychologist);
@@ -180,11 +185,9 @@ export class AuthService {
       //   !!psychologistData.office_address &&
       //   psychologistData.office_address.trim() !== '';
       // const hasLatitude =
-      //   psychologistData.latitude !== undefined &&
-      //   psychologistData.latitude !== null;
+      //   psychologistData.latitude !== undefined
       // const hasLongitude =
-      //   psychologistData.longitude !== undefined &&
-      //   psychologistData.longitude !== null;
+      //   psychologistData.longitude !== undefined
 
       // if (hasOfficeAddress) {
       //   if (!hasLatitude || !hasLongitude) {
@@ -204,6 +207,11 @@ export class AuthService {
       //     );
       //   }
       // }
+
+      if (!psychologistData.office_address) {
+        psychologistData.latitude = undefined;
+        psychologistData.longitude = undefined;
+      }
 
       const newPsychologist = psychologistRepo.create({
         ...psychologistData,
@@ -263,8 +271,7 @@ export class AuthService {
       throw new BadRequestException('Email o contraseña inválidos');
     }
 
-    user.last_login = new Date();
-    await this.userRepository.save(user);
+    await this.userRepository.update(user.id, { last_login: new Date() });
 
     const payload = {
       id: user.id,

@@ -13,16 +13,16 @@ import { User } from '../users/entities/user.entity';
 import { Psychologist } from '../psychologist/entities/psychologist.entity';
 import { AppointmentStatus } from './enums/appointment-status.enum';
 import { ERole } from '../../common/enums/role.enum';
-import { AuthenticatedRequest } from '../auth/interfaces/authenticated-request.interface';
 import { ESessionType } from '../psychologist/enums/session-types.enum';
 import { ETherapyApproach } from '../psychologist/enums/therapy-approaches.enum';
 import { EInsurance } from '../users/enums/insurances.enum';
+import { IAuthRequest } from '../auth/interfaces/auth-request.interface';
 
-function getAuthUserId(req: AuthenticatedRequest): string | undefined {
-  return req.user?.sub ?? req.user?.id;
+function getAuthUserId(req: IAuthRequest): string | undefined {
+  return req.user?.id;
 }
 
-function isAdmin(req: AuthenticatedRequest): boolean {
+function isAdmin(req: IAuthRequest): boolean {
   return req.user?.role === ERole.ADMIN;
 }
 
@@ -54,7 +54,7 @@ export class AppointmentsService {
     private readonly psychologistRepository: Repository<Psychologist>,
   ) {}
 
-  async create(req: AuthenticatedRequest, dto: CreateAppointmentDto) {
+  async create(req: IAuthRequest, dto: CreateAppointmentDto) {
     const authUserId = getAuthUserId(req);
     if (!authUserId) throw new ForbiddenException('Unauthorized');
 
@@ -183,7 +183,7 @@ export class AppointmentsService {
     };
   }
 
-  async findAll(req: AuthenticatedRequest) {
+  async findAll(req: IAuthRequest) {
     if (isAdmin(req)) {
       const all = await this.appointmentRepository.find();
       return all.map((a) => ({
@@ -195,7 +195,7 @@ export class AppointmentsService {
     return this.findMine(req);
   }
 
-  async findMine(req: AuthenticatedRequest) {
+  async findMine(req: IAuthRequest) {
     const authUserId = getAuthUserId(req);
     if (!authUserId) throw new ForbiddenException('Unauthorized');
 
@@ -214,7 +214,7 @@ export class AppointmentsService {
     }));
   }
 
-  async findOneAuthorized(req: AuthenticatedRequest, id: string) {
+  async findOneAuthorized(req: IAuthRequest, id: string) {
     const a = await this.appointmentRepository.findOne({ where: { id } });
     if (!a) throw new NotFoundException(`Appointment with ID ${id} not found`);
 
@@ -234,11 +234,7 @@ export class AppointmentsService {
     };
   }
 
-  async update(
-    req: AuthenticatedRequest,
-    id: string,
-    dto: UpdateAppointmentDto,
-  ) {
+  async update(req: IAuthRequest, id: string, dto: UpdateAppointmentDto) {
     const a = await this.appointmentRepository.findOne({ where: { id } });
     if (!a) throw new NotFoundException(`Appointment with ID ${id} not found`);
 
@@ -296,7 +292,7 @@ export class AppointmentsService {
     };
   }
 
-  async remove(req: AuthenticatedRequest, id: string) {
+  async remove(req: IAuthRequest, id: string) {
     const a = await this.appointmentRepository.findOne({ where: { id } });
     if (!a) throw new NotFoundException(`Appointment with ID ${id} not found`);
 

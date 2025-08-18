@@ -15,45 +15,53 @@ import {
   PaginationDto,
   PaginatedResponse,
 } from '../../common/dto/pagination.dto';
-import { ResponseUserDto } from './dto/response-user.dto';
 import { Payment } from '../payments/entities/payment.entity';
 import { Appointment } from '../appointments/entities/appointment.entity';
+import { Psychologist } from '../psychologist/entities/psychologist.entity';
+import { FilesService } from '../files/files.service';
+import lodash from 'lodash';
+import crypto from 'crypto';
+import { Logger } from '@nestjs/common';
+import { UpdateUserResponseDto } from './dto/update-user-response.dto';
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
-    private readonly queryHelper: QueryHelper,
-    private readonly paginationService: PaginationService,
-
-    // CODIGO DE PEDRO//////////////////////////////////////////////
     @InjectRepository(Appointment)
     private readonly appointmentRepository: Repository<Appointment>,
     @InjectRepository(Payment)
     private readonly paymentsRepository: Repository<Payment>,
-    ////////////////////////////////////////////////////////////////
+    private readonly queryHelper: QueryHelper,
+    private readonly paginationService: PaginationService,
+    private readonly filesService: FilesService,
   ) {}
 
   async findAll(
     paginationDto: PaginationDto,
   ): Promise<PaginatedResponse<User>> {
-    const queryBuilder = this.usersRepository
+    const users = this.usersRepository
       .createQueryBuilder('user')
       .where('user.is_active = :isActive', { isActive: true });
 
-    return await this.paginationService.paginate(queryBuilder, paginationDto);
+    if (!users) {
+      throw new NotFoundException('No se encontraron usuarios activos');
+    }
+
+    return await this.paginationService.paginate(users, paginationDto);
   }
 
   async findAllPatients(
     paginationDto: PaginationDto,
   ): Promise<PaginatedResponse<User>> {
-    const queryBuilder = this.usersRepository
+    const patients = this.usersRepository
       .createQueryBuilder('user')
       .where('user.role = :role', { role: ERole.PATIENT })
       .andWhere('user.is_active = :isActive', { isActive: true });
 
-    return await this.paginationService.paginate(queryBuilder, paginationDto);
+    return await this.paginationService.paginate(patients, paginationDto);
   }
 
   async findById(id: string): Promise<User> {
@@ -62,10 +70,75 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new NotFoundException(`User with UUID ${id} not found`);
+      throw new NotFoundException('No se encontró el usuario con ese ID');
     }
 
     return user;
+  }
+
+  async getMyPsychologists(
+    userId: string,
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResponse<Psychologist>> {
+    const appointments = this.appointmentRepository.manager
+      .getRepository(Psychologist)
+      .createQueryBuilder('psychologist')
+      .innerJoin('psychologist.appointments', 'appointment')
+      .where('appointment.patientId = :userId', { userId })
+      .groupBy('psychologist.id');
+
+    const result = await this.paginationService.paginate(
+      appointments,
+      paginationDto,
+    );
+
+    if (!result.data.length) {
+      throw new NotFoundException(
+        'Este paciente aún no tiene psicólogos asignados',
+      );
+    }
+
+    return result;
+  }
+
+  async getMyAppointments(
+    userId: string,
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResponse<Appointment>> {
+    const appointments = this.appointmentRepository
+      .createQueryBuilder('appointment')
+      .where('appointment.patientId = :userId', { userId });
+
+    return await this.paginationService.paginate(appointments, paginationDto);
+  }
+
+  async getMyPayments(
+    userId: string,
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResponse<Payment>> {
+    const payments = this.paymentsRepository
+      .createQueryBuilder('payment')
+      .innerJoinAndSelect(
+        'appointments',
+        'appointment',
+        'payment.appointment_id = appointment.id',
+      )
+      .where('appointment."psychologistId" = :userId', {
+        userId,
+      });
+
+    const result = await this.paginationService.paginate(
+      payments,
+      paginationDto,
+    );
+
+    if (!result.data.length) {
+      throw new NotFoundException(
+        'Este paciente aún no tiene pagos registrados',
+      );
+    }
+
+    return result;
   }
 
   async update(
@@ -73,41 +146,122 @@ export class UsersService {
     userData: UpdateUserDto,
     userIdFromToken: string,
     userRole: ERole,
-  ): Promise<string> {
+    profilePicture?: Express.Multer.File,
+  ): Promise<UpdateUserResponseDto> {
+    const DEFAULT_PROFILE_URL =
+      'https://res.cloudinary.com/dibnkd72j/image/upload/v1755031810/default-profile-picture_lzshvt.webp';
     return this.queryHelper.runInTransaction(async (queryRunner) => {
       const userRepo = queryRunner.manager.getRepository(User);
-
       const user = await userRepo.findOneBy({ id, is_active: true });
-      if (!user) {
-        throw new NotFoundException(`User with UUID ${id} not found`);
-      }
+      if (!user) throw new NotFoundException(`User with UUID ${id} not found`);
 
-      if (userRole !== ERole.ADMIN && userIdFromToken !== id) {
-        throw new UnauthorizedException('You cannot update another user');
-      }
-
-      if (userRole !== ERole.ADMIN && 'role' in userData) {
-        throw new UnauthorizedException('You cannot change your admin status');
-      }
+      if (userRole !== ERole.ADMIN && userIdFromToken !== id)
+        throw new UnauthorizedException('No puedes actualizar otro usuario');
+      if (userRole !== ERole.ADMIN && 'role' in userData)
+        throw new UnauthorizedException(
+          'No puedes cambiar tu rol de administrador',
+        );
 
       if (userData.phone && userData.phone !== user.phone) {
         const existingUser = await userRepo.findOne({
           where: { phone: userData.phone, is_active: true },
         });
-
-        if (existingUser && existingUser.id !== id) {
+        if (existingUser && existingUser.id !== id)
           throw new ConflictException('El número de teléfono ya existe');
+      }
+      if (userData.email && userData.email !== user.email) {
+        const existingUser = await userRepo.findOne({
+          where: { email: userData.email, is_active: true },
+        });
+        if (existingUser && existingUser.id !== id)
+          throw new ConflictException('El correo electrónico ya existe');
+      }
+
+      if (!userData.address) {
+        userData.latitude = undefined;
+        userData.longitude = undefined;
+      }
+
+      const filtered = lodash.pickBy(
+        userData,
+        (v, k) => v !== undefined && k !== 'profile_picture',
+      );
+
+      const normalized = Object.fromEntries(
+        Object.entries(filtered).map(([k, v]) => [k, v ?? null]),
+      );
+
+      const userNormalized = Object.fromEntries(
+        Object.entries(normalized).map(([k]) => [k, user[k] ?? null]),
+      );
+
+      const hasDataChanges = !lodash.isEqual(userNormalized, normalized);
+
+      let profilePictureChanged = false;
+      let newProfilePictureUrl: string | undefined;
+
+      if (profilePicture) {
+        const newFileHash = crypto
+          .createHash('md5')
+          .update(profilePicture.buffer)
+          .digest('hex');
+
+        let currentFileHash: string | null = null;
+
+        if (
+          user.profile_picture &&
+          user.profile_picture !== DEFAULT_PROFILE_URL
+        ) {
+          const response = await fetch(user.profile_picture);
+          if (response.ok) {
+            const currentBuffer = Buffer.from(await response.arrayBuffer());
+            currentFileHash = crypto
+              .createHash('md5')
+              .update(currentBuffer)
+              .digest('hex');
+          } else {
+            currentFileHash = null;
+          }
         }
+        if (newFileHash !== currentFileHash) {
+          newProfilePictureUrl =
+            await this.filesService.uploadImageToCloudinary(profilePicture, id);
+          profilePictureChanged = true;
+        }
+      } else if (
+        'profile_picture' in userData &&
+        (userData.profile_picture === '' ||
+          userData.profile_picture === null ||
+          userData.profile_picture === undefined)
+      ) {
+        if (user.profile_picture !== DEFAULT_PROFILE_URL) {
+          newProfilePictureUrl = DEFAULT_PROFILE_URL;
+          profilePictureChanged = true;
+        }
+      }
+
+      if (!hasDataChanges && !profilePictureChanged) {
+        throw new ConflictException('No se actualizaron campos');
       }
 
       const updatedUser = userRepo.create({
         ...user,
         ...userData,
+        profile_picture: newProfilePictureUrl ?? user.profile_picture,
       });
-
       await userRepo.save(updatedUser);
 
-      return updatedUser.id;
+      const updatedFields: Record<string, unknown> = { id };
+      Object.entries(userData).forEach(([key, value]) => {
+        if (value !== undefined && user[key] !== value) {
+          updatedFields[key] = value;
+        }
+      });
+
+      if (profilePictureChanged) {
+        updatedFields.profile_picture = newProfilePictureUrl;
+      }
+      return updatedFields as UpdateUserResponseDto;
     });
   }
 
@@ -134,8 +288,6 @@ export class UsersService {
       return user.id;
     });
   }
-
-  //CODIGO ESCRITO POR PEDRO, NECESARIO PARA LA AUTENTICACION DE TERCEROS
 
   async findByProviderId(
     provider: string,
@@ -165,77 +317,5 @@ export class UsersService {
 
   async save(user: User): Promise<User> {
     return this.usersRepository.save(user);
-  }
-
-  ////////////////////////////////////////////////////////////////////
-
-  // SEGUNDO CODIGO DE PEDRO PEDIDO POR MAURI
-
-  ///////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////
-  async getPsychologistsForPatient(
-    userId: string,
-  ): Promise<{ message: string; data: ResponseUserDto[] }> {
-    const appointments = await this.appointmentRepository.find({
-      where: { patient: { id: userId } },
-      relations: ['psychologist'],
-    });
-
-    if (!appointments || appointments.length === 0) {
-      throw new NotFoundException(
-        'No se encontraron pacientes o turnos de este usuario',
-      );
-    }
-
-    const psychologist = appointments.map(
-      (appointment) => appointment.psychologist,
-    );
-
-    if (!psychologist.length) {
-      throw new NotFoundException(
-        'No hay psicólogos disponibles para este paciente',
-      );
-    }
-
-    const uniquePsychologists = psychologist.filter(
-      (psychologist, index, self) =>
-        index === self.findIndex((p) => p.id === psychologist.id),
-    );
-
-    const responseData: ResponseUserDto[] = uniquePsychologists.map(
-      (psychologist) => ({
-        ...psychologist,
-        created_at: psychologist.created_at.toISOString(),
-        updated_at: psychologist.updated_at?.toISOString(),
-        languages: psychologist.languages || undefined,
-      }),
-    );
-
-    return {
-      message: 'Psicólogos recuperados exitosamente',
-      data: responseData,
-    };
-  }
-
-  async getPaymentsOfPatient(
-    userId: string,
-  ): Promise<{ message: string; data: Payment[] }> {
-    const payments = await this.paymentsRepository
-      .createQueryBuilder('payment')
-      .innerJoinAndSelect(
-        'appointments',
-        'appointment',
-        'payment.appointment_id = appointment.id',
-      )
-      .where('appointment."psychologistId" = :userId', {
-        userId,
-      })
-      .getMany();
-
-    if (!payments || payments.length === 0) {
-      throw new NotFoundException('No se encontraron pagos para este usuario');
-    }
-
-    return { message: 'Pagos recuperados exitosamente', data: payments };
   }
 }

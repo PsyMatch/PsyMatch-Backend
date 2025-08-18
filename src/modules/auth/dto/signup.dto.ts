@@ -14,7 +14,7 @@ import {
   IsDateString,
   IsEnum,
   MaxLength,
-  IsAlpha,
+  IsPhoneNumber,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
@@ -34,7 +34,7 @@ const cleanEmpty = (value: unknown): string | undefined =>
 export class SignUpDto {
   @ApiProperty({
     description: 'Nombre completo del usuario',
-    example: 'Juan Carlos Pérez',
+    example: 'Esteban Ramírez',
     minLength: 1,
   })
   @IsNotEmpty()
@@ -43,16 +43,19 @@ export class SignUpDto {
 
   @ApiPropertyOptional({
     description: 'Alias del usuario',
-    example: 'juanito',
+    example: 'estebitox',
   })
+  @Transform(({ value }) => cleanEmpty(value))
   @IsOptional()
-  @IsAlpha()
+  @IsString()
   alias?: string;
 
-  @ApiProperty({
-    description: 'URL de la foto de perfil del usuario',
-    example: 'https://example.com/profile/juan-perez.jpg',
+  @ApiPropertyOptional({
+    type: 'string',
+    format: 'binary',
     required: false,
+    description: 'Imagen de perfil',
+    example: 'https://example.com/profile/esteban-ramirez.jpg',
   })
   @Transform(({ value }) => cleanEmpty(value))
   @IsOptional()
@@ -62,19 +65,17 @@ export class SignUpDto {
   @ApiProperty({
     description:
       'Número de teléfono del usuario (formato internacional soportado)',
-    example: '+5411123456789',
+    example: '+5491122334455',
   })
-  @IsString({ message: 'El teléfono debe ser un string.' })
-  @Matches(/^(\+?[1-9]\d{1,14})$/, {
-    message:
-      'El teléfono debe ser un número válido en formato internacional (ej: +5411123456789 o 1123456789)',
+  @IsPhoneNumber(undefined, {
+    message: 'El teléfono debe ser un número válido.',
   })
   @Length(8, 15, { message: 'El teléfono debe tener entre 8 y 15 dígitos.' })
   phone: string;
 
   @ApiProperty({
     description: 'Fecha de nacimiento del usuario',
-    example: '2001-05-01',
+    example: '1998-03-22',
     type: 'string',
     format: 'date',
   })
@@ -87,7 +88,7 @@ export class SignUpDto {
   @ApiProperty({
     description:
       'DNI del usuario (Documento Nacional de Identidad) - debe ser único',
-    example: 12345678,
+    example: 23456789,
     minimum: 1000000,
     maximum: 99999999,
   })
@@ -99,9 +100,9 @@ export class SignUpDto {
   @Max(99999999, { message: 'El DNI no debe exceder los 8 dígitos.' })
   dni: number;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Obra social del usuario',
-    example: 'osde',
+    example: 'GALENO',
     enum: EInsurance,
   })
   @Transform(({ value }) => cleanEmpty(value))
@@ -113,14 +114,14 @@ export class SignUpDto {
 
   @ApiProperty({
     description: 'Dirección del usuario',
-    example: 'Av. Corrientes 1234, Buenos Aires, Argentina',
+    example: 'Calle 25 de Mayo 456, Rosario, Argentina',
   })
   @IsString()
   address: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Contacto de emergencia',
-    example: 'María Pérez - +5411987654321 - Madre',
+    example: 'Pedro Ramírez - +5491133445566 - Padre',
   })
   @Transform(({ value }) => cleanEmpty(value))
   @IsOptional()
@@ -130,10 +131,10 @@ export class SignUpDto {
   })
   emergency_contact?: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description:
       'Latitud de la ubicación del usuario (debe estar entre -90 y 90)',
-    example: -34.6037,
+    example: -32.9468,
     minimum: -90,
     maximum: 90,
   })
@@ -144,10 +145,10 @@ export class SignUpDto {
   @Max(90, { message: 'La latitud debe estar entre -90 y 90.' })
   latitude?: number;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description:
       'Longitud de la ubicación del usuario (debe estar entre -180 y 180)',
-    example: -58.3816,
+    example: -60.6393,
     minimum: -180,
     maximum: 180,
     required: false,
@@ -161,7 +162,7 @@ export class SignUpDto {
 
   @ApiProperty({
     description: 'Correo electrónico del usuario (debe ser único)',
-    example: 'juan.perez@email.com',
+    example: 'esteban.ramirez@email.com',
   })
   @IsNotEmpty()
   @IsEmail(
@@ -173,14 +174,14 @@ export class SignUpDto {
   @ApiProperty({
     description:
       'Contraseña del usuario (debe contener al menos una minúscula, una mayúscula y un número; el carácter especial es opcional)',
-    example: 'MiContraseña123!',
+    example: 'EstebanPass456!',
     minLength: 6,
     maxLength: 100,
   })
   @Transform(({ value }) => cleanEmpty(value))
   @IsString({ message: 'La contraseña debe ser un string.' })
   @IsNotEmpty({ message: 'La contraseña es obligatoria.' })
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,100}$/, {
+  @Matches(/^(?=.*\p{Lu})(?=.*\p{Ll})(?=.*\d).{6,100}$/u, {
     message:
       'La contraseña debe contener al menos una minúscula, una mayúscula y un número. El carácter especial es opcional.',
   })
@@ -192,7 +193,7 @@ export class SignUpDto {
   @ApiProperty({
     description:
       'Confirmación de contraseña (debe coincidir con la contraseña)',
-    example: 'MiContraseña123!',
+    example: 'EstebanPass456!',
   })
   @Transform(({ value }) => cleanEmpty(value))
   @IsNotEmpty({ message: 'La confirmación de contraseña es obligatoria.' })

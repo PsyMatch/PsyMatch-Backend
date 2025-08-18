@@ -10,6 +10,22 @@ import { ESessionType } from '../../psychologist/enums/session-types.enum';
 import { ETherapyApproach } from '../../psychologist/enums/therapy-approaches.enum';
 import { ERole } from '../../../common/enums/role.enum';
 
+const formatDateTime = (value: unknown): string => {
+  if (value instanceof Date) {
+    return value.toLocaleString('es-AR', {
+      timeZone: 'America/Argentina/Buenos_Aires',
+      weekday: 'long',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+  }
+  return String(value);
+};
+
 export class ResponseUserDto {
   @ApiProperty({
     description: 'Identificador único del usuario',
@@ -244,19 +260,28 @@ export class ResponseUserDto {
 
   @ApiProperty({
     description: 'Fecha de creación del usuario',
-    example: '01/01/2023',
+    example: 'domingo, 17/08/2025, 21:59',
     type: 'string',
   })
-  @Transform(({ value }): string => {
-    if (value instanceof Date) {
-      return value.toLocaleDateString('es-AR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-      });
-    }
-    return value;
-  })
+  @Transform(({ value }) => formatDateTime(value))
   @Expose()
   created_at: string;
+
+  @ApiProperty({
+    description: 'Fecha de último inicio de sesión del usuario',
+    example: 'domingo, 17/08/2025, 21:59',
+    type: 'string',
+  })
+  @Transform(({ value }) => formatDateTime(value))
+  @Expose()
+  last_login: string;
+
+  @ApiProperty({
+    description: 'Fecha de actualización del usuario',
+    example: 'domingo, 17/08/2025, 21:59',
+    type: 'string',
+  })
+  @Transform(({ value }) => formatDateTime(value))
+  @Expose()
+  updated_at: string;
 }

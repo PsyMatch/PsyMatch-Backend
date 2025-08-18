@@ -58,11 +58,11 @@ export class User {
   @Column({ type: 'boolean', default: true })
   is_active: boolean;
 
-  @Column({ type: 'timestamp', nullable: true })
-  last_login: Date;
-
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  last_login: Date;
 
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updated_at: Date;

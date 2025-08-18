@@ -8,19 +8,14 @@ import { Observable } from 'rxjs';
 import { Request } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 import { ParsedQs } from 'qs';
-
-interface UserData {
-  id: string;
-  email: string;
-  role: string;
-}
+import { IJwtPayload } from '../interfaces/jwt-payload.interface';
 
 interface ExtendedRequest
   extends Request<ParamsDictionary, unknown, unknown, ParsedQs> {
   route: {
     path: string;
   };
-  user?: UserData;
+  user?: IJwtPayload;
 }
 
 @Injectable()
@@ -52,10 +47,10 @@ export class CombinedAuthGuard extends AuthGuard(['jwt', 'google']) {
     throw new UnauthorizedException('Metodo de autenticacion no valido');
   }
 
-  handleRequest<T extends UserData>(
+  handleRequest<T extends IJwtPayload>(
     err: Error | null,
     user: T | false,
-    info: unknown,
+    _info: unknown,
     context: ExecutionContext,
   ): T {
     if (err || !user) {

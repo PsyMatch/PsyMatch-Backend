@@ -9,6 +9,5 @@ export interface TempOAuthData {
 
 export interface CompleteOAuthProfileInput {
   dni: string;
-  socialSecurityNumber: string;
   tempOAuthData: TempOAuthData;
 }
