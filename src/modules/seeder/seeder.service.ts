@@ -32,7 +32,8 @@ export class SeederService {
 
     const adminUser = [
       {
-        name: 'Admin User',
+        name: 'PsyMatch',
+        alias: 'admin',
         email: 'psymatch.contact@gmail.com',
         password: await hashPassword('Elmejorteam4!'),
         role: ERole.ADMIN,
@@ -47,6 +48,7 @@ export class SeederService {
     const patients = [
       {
         name: 'Juan Carlos Pérez',
+        alias: 'Juanito',
         email: 'juan.perez@email.com',
         password: await hashPassword('SecurePass123!'),
         dni: 12345679,
@@ -62,6 +64,7 @@ export class SeederService {
       },
       {
         name: 'María González',
+        alias: 'Mary',
         email: 'maria.gonzalez@email.com',
         password: await hashPassword('SecurePass123!'),
         dni: 12345680,
@@ -71,9 +74,12 @@ export class SeederService {
         health_insurance: EInsurance.IOMA,
         role: ERole.PATIENT,
         emergency_contact: 'Carlos González - +5411122334455 - Padre',
+        profile_picture:
+          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755031810/default-profile-picture_lzshvt.webp',
       },
       {
         name: 'Pedro Rodríguez',
+        alias: 'Pedro',
         email: 'pedro.rodriguez@email.com',
         password: await hashPassword('SecurePass123!'),
         dni: 12345681,
@@ -84,9 +90,12 @@ export class SeederService {
         role: ERole.PATIENT,
         latitude: -31.4167,
         longitude: -64.1833,
+        profile_picture:
+          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755031810/default-profile-picture_lzshvt.webp',
       },
       {
         name: 'Ana López',
+        alias: 'Anita',
         email: 'ana.lopez@email.com',
         password: await hashPassword('SecurePass123!'),
         dni: 12345682,
@@ -95,9 +104,12 @@ export class SeederService {
         birthdate: '1988-07-03',
         health_insurance: EInsurance.OSDE,
         role: ERole.PATIENT,
+        profile_picture:
+          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755031810/default-profile-picture_lzshvt.webp',
       },
       {
         name: 'Carlos Martínez',
+        alias: 'Carlinhos',
         email: 'carlos.martinez@email.com',
         password: await hashPassword('SecurePass123!'),
         dni: 12345683,
@@ -107,9 +119,12 @@ export class SeederService {
         health_insurance: EInsurance.SANCOR_SALUD,
         role: ERole.PATIENT,
         emergency_contact: 'Laura Martínez - +541155667788 - Hermana',
+        profile_picture:
+          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755031810/default-profile-picture_lzshvt.webp',
       },
       {
         name: 'Laura Fernández',
+        alias: 'LauraF',
         email: 'laura.fernandez@email.com',
         password: await hashPassword('SecurePass123!'),
         dni: 12345684,
@@ -122,6 +137,7 @@ export class SeederService {
       },
       {
         name: 'Sofía Ramírez',
+        alias: 'Sofi',
         email: 'sofia.ramirez@email.com',
         password: await hashPassword('SecurePass123!'),
         dni: 12345685,
@@ -130,9 +146,12 @@ export class SeederService {
         birthdate: '1993-04-12',
         health_insurance: EInsurance.OSDEPYM,
         role: ERole.PATIENT,
+        profile_picture:
+          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755031810/default-profile-picture_lzshvt.webp',
       },
       {
         name: 'Martín Castro',
+        alias: 'Tincho',
         email: 'martin.castro@email.com',
         password: await hashPassword('SecurePass123!'),
         dni: 12345686,
@@ -142,9 +161,12 @@ export class SeederService {
         health_insurance: EInsurance.LUIS_PASTEUR,
         role: ERole.PATIENT,
         emergency_contact: 'Valentina Castro - +541166778899 - Esposa',
+        profile_picture:
+          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755031810/default-profile-picture_lzshvt.webp',
       },
       {
         name: 'Valentina Torres',
+        alias: 'Valen',
         email: 'valentina.torres@email.com',
         password: await hashPassword('SecurePass123!'),
         dni: 12345687,
@@ -153,9 +175,12 @@ export class SeederService {
         birthdate: '1996-02-18',
         health_insurance: EInsurance.JERARQUICOS_SALUD,
         role: ERole.PATIENT,
+        profile_picture:
+          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755031810/default-profile-picture_lzshvt.webp',
       },
       {
         name: 'Federico Gómez',
+        alias: 'Fede',
         email: 'federico.gomez@email.com',
         password: await hashPassword('SecurePass123!'),
         dni: 12345688,
@@ -166,9 +191,12 @@ export class SeederService {
         role: ERole.PATIENT,
         latitude: -31.4167,
         longitude: -64.1833,
+        profile_picture:
+          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755031810/default-profile-picture_lzshvt.webp',
       },
       {
         name: 'Camila Herrera',
+        alias: 'Cami',
         email: 'camila.herrera@email.com',
         password: await hashPassword('SecurePass123!'),
         dni: 12345689,
@@ -177,9 +205,12 @@ export class SeederService {
         birthdate: '1994-11-05',
         health_insurance: EInsurance.OSMECON_SALUD,
         role: ERole.PATIENT,
+        profile_picture:
+          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755031810/default-profile-picture_lzshvt.webp',
       },
       {
         name: 'Luciano Díaz',
+        alias: 'Lucho',
         email: 'luciano.diaz@email.com',
         password: await hashPassword('SecurePass123!'),
         dni: 12345690,
@@ -189,6 +220,8 @@ export class SeederService {
         health_insurance: EInsurance.APROSS,
         role: ERole.PATIENT,
         emergency_contact: 'Sofía Díaz - +5411122334455 - Madre',
+        profile_picture:
+          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755031810/default-profile-picture_lzshvt.webp',
       },
     ];
 
@@ -199,7 +232,8 @@ export class SeederService {
 
     const psychologists = [
       {
-        name: 'Dr. Ana García',
+        name: 'Ana García',
+        alias: 'Dra. Ana García',
         email: 'ana.garcia@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654321,
@@ -236,9 +270,11 @@ export class SeederService {
           EAvailability.FRIDAY,
         ],
         verified: EPsychologistStatus.VALIDATED,
+        profile_picture: 'https://example.com/profile/ana-garcia.jpg',
       },
       {
-        name: 'Dr. Roberto Silva',
+        name: 'Roberto Silva',
+        alias: 'Dr. Roberto Silva',
         email: 'roberto.silva@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654322,
@@ -274,9 +310,11 @@ export class SeederService {
           EAvailability.SATURDAY,
         ],
         verified: EPsychologistStatus.VALIDATED,
+        profile_picture: 'https://example.com/profile/roberto-silva.jpg',
       },
       {
-        name: 'Dra. Carmen Ruiz',
+        name: 'Carmen Ruiz',
+        alias: 'Dra. Carmen Ruiz',
         email: 'carmen.ruiz@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654323,
@@ -311,9 +349,11 @@ export class SeederService {
           EAvailability.SUNDAY,
         ],
         verified: EPsychologistStatus.PENDING,
+        profile_picture: 'https://example.com/profile/carmen-ruiz.jpg',
       },
       {
-        name: 'Dr. Pablo Méndez',
+        name: 'Pablo Méndez',
+        alias: 'Dr. Pablo Méndez',
         email: 'pablo.mendez@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654324,
@@ -337,9 +377,11 @@ export class SeederService {
         therapy_approaches: [ETherapyApproach.ACCEPTANCE_COMMITMENT_THERAPY],
         availability: [EAvailability.MONDAY, EAvailability.THURSDAY],
         verified: EPsychologistStatus.VALIDATED,
+        profile_picture: 'https://example.com/profile/pablo-mendez.jpg',
       },
       {
-        name: 'Dra. Lucía Benítez',
+        name: 'Lucía Benítez',
+        alias: 'Dra. Lucía Benítez',
         email: 'lucia.benitez@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654325,
@@ -365,9 +407,11 @@ export class SeederService {
         ],
         availability: [EAvailability.WEDNESDAY, EAvailability.FRIDAY],
         verified: EPsychologistStatus.PENDING,
+        profile_picture: 'https://example.com/profile/lucia-benitez.jpg',
       },
       {
-        name: 'Dr. Esteban Morales',
+        name: 'Esteban Morales',
+        alias: 'Dr. Esteban Morales',
         email: 'esteban.morales@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654326,
@@ -390,9 +434,11 @@ export class SeederService {
         therapy_approaches: [ETherapyApproach.HUMANISTIC_CENTRED_THERAPY],
         availability: [EAvailability.TUESDAY, EAvailability.SATURDAY],
         verified: EPsychologistStatus.VALIDATED,
+        profile_picture: 'https://example.com/profile/esteban-morales.jpg',
       },
       {
-        name: 'Dra. Paula Suárez',
+        name: 'Paula Suárez',
+        alias: 'Dra. Paula Suárez',
         email: 'paula.suarez@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654327,
@@ -418,9 +464,11 @@ export class SeederService {
         ],
         availability: [EAvailability.THURSDAY, EAvailability.SUNDAY],
         verified: EPsychologistStatus.PENDING,
+        profile_picture: 'https://example.com/profile/paula-suarez.jpg',
       },
       {
-        name: 'Dr. Nicolás Herrera',
+        name: 'Nicolás Herrera',
+        alias: 'Dr. Nicolás Herrera',
         email: 'nicolas.herrera@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654328,
@@ -444,9 +492,11 @@ export class SeederService {
         therapy_approaches: [ETherapyApproach.GESTALT_THERAPY],
         availability: [EAvailability.WEDNESDAY, EAvailability.FRIDAY],
         verified: EPsychologistStatus.VALIDATED,
+        profile_picture: 'https://example.com/profile/nicolas-herrera.jpg',
       },
       {
-        name: 'Dra. Mariana López',
+        name: 'Mariana López',
+        alias: 'Dra. Mariana López',
         email: 'mariana.lopez@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654329,
@@ -472,6 +522,7 @@ export class SeederService {
         ],
         availability: [EAvailability.TUESDAY, EAvailability.SATURDAY],
         verified: EPsychologistStatus.PENDING,
+        profile_picture: 'https://example.com/profile/mariana-lopez.jpg',
       },
     ];
 

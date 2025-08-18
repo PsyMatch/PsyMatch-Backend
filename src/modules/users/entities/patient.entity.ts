@@ -7,9 +7,6 @@ import { Appointment } from '../../appointments/entities/appointment.entity';
 @ChildEntity(ERole.PATIENT)
 export class Patient extends User {
   @Column({ type: 'text', nullable: true })
-  alias: string;
-
-  @Column({ type: 'text', nullable: true })
   address: string;
 
   @Column({ type: 'enum', enum: EInsurance, nullable: true })

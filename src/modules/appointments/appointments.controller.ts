@@ -22,7 +22,7 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { JWTAuthGuard } from '../auth/guards/auth.guard';
-import { AuthenticatedRequest } from '../auth/interfaces/authenticated-request.interface';
+import { IAuthRequest } from '../auth/interfaces/auth-request.interface';
 
 @ApiTags('Citas')
 @UseGuards(JWTAuthGuard)
@@ -33,7 +33,7 @@ export class AppointmentsController {
 
   @Post()
   @ApiOperation({ summary: 'Crear nueva cita (usuario autenticado)' })
-  create(@Req() req: AuthenticatedRequest, @Body() dto: CreateAppointmentDto) {
+  create(@Req() req: IAuthRequest, @Body() dto: CreateAppointmentDto) {
     return this.appointmentsService.create(req, dto);
   }
 
@@ -41,13 +41,13 @@ export class AppointmentsController {
   @ApiOperation({
     summary: 'Listar citas (admin ve todas; otros solo las propias)',
   })
-  findAll(@Req() req: AuthenticatedRequest) {
+  findAll(@Req() req: IAuthRequest) {
     return this.appointmentsService.findAll(req);
   }
 
   @Get('me')
   @ApiOperation({ summary: 'Mis citas (por usuario autenticado)' })
-  findMine(@Req() req: AuthenticatedRequest) {
+  findMine(@Req() req: IAuthRequest) {
     return this.appointmentsService.findMine(req);
   }
 
@@ -81,7 +81,7 @@ export class AppointmentsController {
     summary: 'Obtener cita por ID (dueño, psicólogo asignado o admin)',
   })
   @ApiParam({ name: 'id', description: 'UUID de la cita' })
-  findOne(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
+  findOne(@Req() req: IAuthRequest, @Param('id') id: string) {
     return this.appointmentsService.findOneAuthorized(req, id);
   }
 
@@ -92,7 +92,7 @@ export class AppointmentsController {
   @ApiParam({ name: 'id', description: 'UUID de la cita' })
   @ApiBody({ type: UpdateAppointmentDto })
   update(
-    @Req() req: AuthenticatedRequest,
+    @Req() req: IAuthRequest,
     @Param('id') id: string,
     @Body() dto: UpdateAppointmentDto,
   ) {
@@ -104,7 +104,7 @@ export class AppointmentsController {
     summary: 'Eliminar/Cancelar cita (dueño o admin)',
   })
   @ApiParam({ name: 'id', description: 'UUID de la cita' })
-  remove(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
+  remove(@Req() req: IAuthRequest, @Param('id') id: string) {
     return this.appointmentsService.remove(req, id);
   }
 }

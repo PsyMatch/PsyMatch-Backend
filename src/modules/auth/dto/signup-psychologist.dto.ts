@@ -45,7 +45,7 @@ const transformToArray = (value: unknown): string[] =>
 export class SignUpPsychologistDto {
   @ApiProperty({
     description: 'Nombre completo del psicólogo',
-    example: 'Dr. Ana García',
+    example: 'Dr. Pablo Suárez',
   })
   @IsString()
   @IsNotEmpty()
@@ -53,7 +53,7 @@ export class SignUpPsychologistDto {
 
   @ApiProperty({
     description: 'DNI (Documento Nacional de Identidad)',
-    example: 87654321,
+    example: 34567890,
     minimum: 1000000,
     maximum: 99999999,
   })
@@ -66,7 +66,7 @@ export class SignUpPsychologistDto {
 
   @ApiProperty({
     description: 'Fecha de nacimiento',
-    example: '2001-05-01',
+    example: '1982-09-15',
     type: 'string',
     format: 'date',
   })
@@ -78,7 +78,7 @@ export class SignUpPsychologistDto {
 
   @ApiProperty({
     description: 'Correo electrónico (debe ser único)',
-    example: 'ana.garcia@psychologist.com',
+    example: 'pablo.suarez@psychologist.com',
   })
   @IsEmail(
     {},
@@ -90,7 +90,7 @@ export class SignUpPsychologistDto {
   @ApiProperty({
     description:
       'Contraseña del usuario (debe contener al menos una minúscula, una mayúscula y un número; el carácter especial es opcional)',
-    example: 'MiContraseña123!',
+    example: 'PabloPass789!',
     minLength: 6,
     maxLength: 100,
   })
@@ -108,14 +108,14 @@ export class SignUpPsychologistDto {
   @ApiProperty({
     description:
       'Confirmación de contraseña (debe coincidir con la contraseña)',
-    example: 'SecurePass123!',
+    example: 'PabloPass789!',
   })
   @Validate(MatchPasswordHelper, ['password'])
   confirmPassword: string;
 
   @ApiProperty({
     description: 'Número de teléfono',
-    example: '+5411777888999',
+    example: '+5491166554433',
     required: false,
   })
   @IsOptional()
@@ -128,7 +128,7 @@ export class SignUpPsychologistDto {
 
   @ApiProperty({
     description: 'Coordenada de latitud',
-    example: -34.6037,
+    example: -33.1234,
     required: false,
   })
   @Transform(({ value }) => transformToNumber(value))
@@ -137,7 +137,7 @@ export class SignUpPsychologistDto {
 
   @ApiProperty({
     description: 'Coordenada de longitud',
-    example: -58.3816,
+    example: -61.4321,
     required: false,
   })
   @IsOptional()
@@ -146,7 +146,7 @@ export class SignUpPsychologistDto {
 
   @ApiPropertyOptional({
     description: 'Dirección del consultorio para consultas',
-    example: 'Consultorio en Av. Callao 1000, Piso 5',
+    example: 'Consultorio en Calle Sarmiento 200, Piso 2',
   })
   @IsOptional()
   @IsString()
@@ -167,9 +167,12 @@ export class SignUpPsychologistDto {
   })
   license_number: number;
 
-  @ApiPropertyOptional({
-    description: 'URL opcional de la foto de perfil',
-    example: 'https://example.com/profile.jpg',
+  @ApiProperty({
+    type: 'string',
+    format: 'binary',
+    required: false,
+    description: 'Imagen de perfil',
+    example: 'https://example.com/profile/pablo-suarez.jpg',
   })
   @IsOptional()
   @IsString({ message: 'La URL de la foto de perfil debe ser un string.' })

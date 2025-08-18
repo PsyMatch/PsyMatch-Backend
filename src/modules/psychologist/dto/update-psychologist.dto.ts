@@ -232,7 +232,7 @@ export class UpdatePsychologistDto {
   personal_biography?: string;
 
   @ApiPropertyOptional({
-    description: 'Horarios de disponibilidad',
+    description: 'Dias de disponibilidad',
     enum: EAvailability,
     isArray: true,
     example: [EAvailability.MONDAY, EAvailability.TUESDAY],
@@ -259,7 +259,7 @@ export class UpdatePsychologistDto {
   @IsArray({ message: 'La disponibilidad debe ser un array' })
   @IsEnum(EAvailability, {
     each: true,
-    message: 'Cada horario de disponibilidad debe ser válido',
+    message: 'Cada día de disponibilidad debe ser válido',
   })
   availability?: EAvailability[];
 
