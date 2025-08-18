@@ -3,6 +3,7 @@ import {
   NotFoundException,
   UnauthorizedException,
   ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
@@ -64,13 +65,17 @@ export class UsersService {
     return await this.paginationService.paginate(patients, paginationDto);
   }
 
-  async findById(id: string): Promise<User> {
+  async findById(id: string, requester?: string): Promise<User> {
     const user: User | null = await this.usersRepository.findOne({
       where: { id, is_active: true },
     });
 
     if (!user) {
-      throw new NotFoundException(`No se encontró el usuario con ID ${id}`);
+      throw new NotFoundException('No se encontró usuario con ese ID');
+    }
+
+    if (user.role === ERole.ADMIN && (!requester || requester !== user.id)) {
+      throw new NotFoundException('No se encontró usuario con ese ID');
     }
 
     return user;
@@ -85,7 +90,7 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new NotFoundException(`No se encontró el usuario con ID ${id}`);
+      throw new NotFoundException('No se encontró usuario con ese ID');
     }
 
     const appointments = this.appointmentRepository.manager
@@ -118,7 +123,7 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new NotFoundException(`No se encontró el usuario con ID ${id}`);
+      throw new NotFoundException('No se encontró usuario con ese ID');
     }
 
     const appointments = this.appointmentRepository
@@ -148,7 +153,7 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new NotFoundException(`No se encontró el usuario con ID ${id}`);
+      throw new NotFoundException('No se encontró usuario con ese ID');
     }
 
     const payments = this.paymentsRepository
@@ -192,7 +197,14 @@ export class UsersService {
       });
 
       if (!user) {
-        throw new NotFoundException(`No se encontró el usuario con ID ${id}`);
+        throw new BadRequestException('No se encontró usuario con ese ID');
+      }
+
+      if (
+        user.role === ERole.ADMIN &&
+        (!userIdFromToken || userIdFromToken !== user.id)
+      ) {
+        throw new NotFoundException('No se encontró usuario con ese ID');
       }
 
       if (userRole !== ERole.ADMIN && userIdFromToken !== id)
@@ -314,8 +326,16 @@ export class UsersService {
       const userRepo = queryRunner.manager.getRepository(User);
 
       const user = await userRepo.findOneBy({ id, is_active: true });
+
       if (!user) {
-        throw new NotFoundException(`User with ID ${id} not found`);
+        throw new BadRequestException('No se encontró usuario con ese ID');
+      }
+
+      if (
+        user.role === ERole.ADMIN &&
+        (!userIdFromToken || userIdFromToken !== user.id)
+      ) {
+        throw new NotFoundException('No se encontró usuario con ese ID');
       }
 
       if (userRole !== ERole.ADMIN && userIdFromToken !== id) {
