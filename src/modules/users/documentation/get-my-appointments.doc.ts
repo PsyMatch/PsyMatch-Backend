@@ -1,5 +1,10 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+} from '@nestjs/swagger';
 
 export const GetMyAppointmentsSwaggerDoc = () =>
   applyDecorators(
@@ -22,4 +27,6 @@ export const GetMyAppointmentsSwaggerDoc = () =>
       status: 500,
       description: 'Error interno del servidor',
     }),
+    ApiQuery({ name: 'page', required: false, type: Number }),
+    ApiQuery({ name: 'limit', required: false, type: Number }),
   );

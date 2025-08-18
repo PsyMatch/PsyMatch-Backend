@@ -45,11 +45,19 @@ const transformToArray = (value: unknown): string[] =>
 export class SignUpPsychologistDto {
   @ApiProperty({
     description: 'Nombre completo del psicólogo',
-    example: 'Dr. Pablo Suárez',
+    example: 'Pablo Suárez',
   })
   @IsString()
   @IsNotEmpty()
   name: string;
+
+  @ApiPropertyOptional({
+    description: 'Alias del psicólogo',
+    example: 'Licenciado Pablo Suárez',
+  })
+  @IsString()
+  @IsNotEmpty()
+  alias?: string;
 
   @ApiProperty({
     description: 'DNI (Documento Nacional de Identidad)',
@@ -154,7 +162,7 @@ export class SignUpPsychologistDto {
 
   @ApiProperty({
     description: 'Número de matrícula profesional (6 dígitos)',
-    example: 123456,
+    example: 324165,
     minimum: 100000,
     maximum: 999999,
   })
@@ -216,7 +224,7 @@ export class SignUpPsychologistDto {
 
   @ApiProperty({
     description: 'Idiomas hablados',
-    example: ['spanish', 'english'],
+    example: [ELanguage.SPANISH, ELanguage.ENGLISH],
     enum: ELanguage,
     isArray: true,
   })
@@ -228,7 +236,10 @@ export class SignUpPsychologistDto {
 
   @ApiProperty({
     description: 'Enfoques terapéuticos utilizados',
-    example: ['cognitive_behavioral_therapy', 'psychodynamic_therapy'],
+    example: [
+      ETherapyApproach.COGNITIVE_BEHAVIORAL_THERAPY,
+      ETherapyApproach.PSYCHODYNAMIC_THERAPY,
+    ],
     enum: ETherapyApproach,
     isArray: true,
   })
@@ -242,7 +253,7 @@ export class SignUpPsychologistDto {
 
   @ApiProperty({
     description: 'Tipos de sesión ofrecidos',
-    example: ['individual', 'couple'],
+    example: [ESessionType.INDIVIDUAL, ESessionType.COUPLE],
     enum: ESessionType,
     isArray: true,
   })
@@ -254,7 +265,7 @@ export class SignUpPsychologistDto {
 
   @ApiProperty({
     description: 'Modalidad de consulta',
-    example: 'in_person',
+    example: EModality.IN_PERSON,
     enum: EModality,
   })
   @IsEnum(EModality)
@@ -262,7 +273,10 @@ export class SignUpPsychologistDto {
 
   @ApiProperty({
     description: 'Lista de especialidades profesionales',
-    example: ['anxiety_disorder', 'depression'],
+    example: [
+      EPsychologistSpecialty.ANXIETY_DISORDER,
+      EPsychologistSpecialty.DEPRESSION,
+    ],
     enum: EPsychologistSpecialty,
     isArray: true,
   })
@@ -274,7 +288,7 @@ export class SignUpPsychologistDto {
 
   @ApiProperty({
     description: 'Lista de obras sociales aceptadas',
-    example: ['osde', 'swiss-medical', 'ioma'],
+    example: [EInsurance.OSDE, EInsurance.SWISS_MEDICAL, EInsurance.IOMA],
     enum: EInsurance,
     isArray: true,
   })
@@ -286,7 +300,11 @@ export class SignUpPsychologistDto {
 
   @ApiProperty({
     description: 'Días disponibles para turnos',
-    example: ['monday', 'wednesday', 'friday'],
+    example: [
+      EAvailability.MONDAY,
+      EAvailability.WEDNESDAY,
+      EAvailability.FRIDAY,
+    ],
     enum: EAvailability,
     isArray: true,
   })

@@ -70,21 +70,29 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new NotFoundException('No se encontró el usuario con ese ID');
+      throw new NotFoundException(`No se encontró el usuario con ID ${id}`);
     }
 
     return user;
   }
 
   async getMyPsychologists(
-    userId: string,
+    id: string,
     paginationDto: PaginationDto,
   ): Promise<PaginatedResponse<Psychologist>> {
+    const user: User | null = await this.usersRepository.findOne({
+      where: { id, is_active: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`No se encontró el usuario con ID ${id}`);
+    }
+
     const appointments = this.appointmentRepository.manager
       .getRepository(Psychologist)
       .createQueryBuilder('psychologist')
       .innerJoin('psychologist.appointments', 'appointment')
-      .where('appointment.patientId = :userId', { userId })
+      .where('appointment.patientId = :id', { id })
       .groupBy('psychologist.id');
 
     const result = await this.paginationService.paginate(
@@ -102,20 +110,47 @@ export class UsersService {
   }
 
   async getMyAppointments(
-    userId: string,
+    id: string,
     paginationDto: PaginationDto,
   ): Promise<PaginatedResponse<Appointment>> {
+    const user: User | null = await this.usersRepository.findOne({
+      where: { id, is_active: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`No se encontró el usuario con ID ${id}`);
+    }
+
     const appointments = this.appointmentRepository
       .createQueryBuilder('appointment')
-      .where('appointment.patientId = :userId', { userId });
+      .where('appointment.patientId = :id', { id });
 
-    return await this.paginationService.paginate(appointments, paginationDto);
+    const result = await this.paginationService.paginate(
+      appointments,
+      paginationDto,
+    );
+
+    if (!result.data.length) {
+      throw new NotFoundException(
+        'Este paciente aún no tiene citas registradas',
+      );
+    }
+
+    return result;
   }
 
   async getMyPayments(
-    userId: string,
+    id: string,
     paginationDto: PaginationDto,
   ): Promise<PaginatedResponse<Payment>> {
+    const user: User | null = await this.usersRepository.findOne({
+      where: { id, is_active: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`No se encontró el usuario con ID ${id}`);
+    }
+
     const payments = this.paymentsRepository
       .createQueryBuilder('payment')
       .innerJoinAndSelect(
@@ -123,8 +158,8 @@ export class UsersService {
         'appointment',
         'payment.appointment_id = appointment.id',
       )
-      .where('appointment."psychologistId" = :userId', {
-        userId,
+      .where('appointment."psychologistId" = :id', {
+        id,
       });
 
     const result = await this.paginationService.paginate(
@@ -149,11 +184,16 @@ export class UsersService {
     profilePicture?: Express.Multer.File,
   ): Promise<UpdateUserResponseDto> {
     const DEFAULT_PROFILE_URL =
-      'https://res.cloudinary.com/dibnkd72j/image/upload/v1755031810/default-profile-picture_lzshvt.webp';
+      'https://res.cloudinary.com/dibnkd72j/image/upload/v1755495603/default-pacient-profile-picture_kqpobf.webp';
     return this.queryHelper.runInTransaction(async (queryRunner) => {
       const userRepo = queryRunner.manager.getRepository(User);
-      const user = await userRepo.findOneBy({ id, is_active: true });
-      if (!user) throw new NotFoundException(`User with UUID ${id} not found`);
+      const user: User | null = await this.usersRepository.findOne({
+        where: { id, is_active: true },
+      });
+
+      if (!user) {
+        throw new NotFoundException(`No se encontró el usuario con ID ${id}`);
+      }
 
       if (userRole !== ERole.ADMIN && userIdFromToken !== id)
         throw new UnauthorizedException('No puedes actualizar otro usuario');
@@ -279,7 +319,9 @@ export class UsersService {
       }
 
       if (userRole !== ERole.ADMIN && userIdFromToken !== id) {
-        throw new UnauthorizedException('You cannot delete another user');
+        throw new UnauthorizedException(
+          'No tienes permiso para acceder o modificar este recurso',
+        );
       }
 
       user.is_active = false;

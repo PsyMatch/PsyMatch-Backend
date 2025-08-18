@@ -4,7 +4,6 @@ export class UpdateUserResponseDto {
   @ApiPropertyOptional({ description: 'ID del usuario' })
   id?: string;
 
-  // Los siguientes campos son opcionales y solo se incluirán si fueron modificados
   @ApiPropertyOptional({ description: 'Nombre completo del usuario' })
   name?: string;
 
