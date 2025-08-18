@@ -107,7 +107,6 @@ export class VerificationPsychologistController {
   }
 
   @Get('verified')
-  @Roles([ERole.ADMIN])
   @ApiOperation({
     summary: 'Obterner todos los profesionales verificados (SOLO ADMIN)',
     description: 'Obtener una lista paginada de psicólogos verificados',
