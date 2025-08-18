@@ -80,6 +80,9 @@ export class Psychologist extends User {
   @Column({ type: 'enum', enum: EAvailability, array: true, nullable: false })
   availability: EAvailability[];
 
+  @Column({ type: 'int', nullable: true })
+  consultation_fee: number;
+
   @OneToMany(() => Reviews, (reviews) => reviews.psychologist)
   reviews: Reviews[];
 

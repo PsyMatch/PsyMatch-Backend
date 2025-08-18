@@ -14,7 +14,6 @@ import {
   IsDateString,
   IsEnum,
   MaxLength,
-  IsPhoneNumber,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
@@ -67,11 +66,18 @@ export class SignUpDto {
       'Número de teléfono del usuario (formato internacional soportado)',
     example: '+5491122334455',
   })
-  @IsPhoneNumber(undefined, {
-    message: 'El teléfono debe ser un número válido.',
+  @IsOptional()
+  @Transform(({ value }) => cleanEmpty(value))
+  @Matches(/^\+?\d{8,15}$/, {
+    message:
+      'El teléfono debe ser un número válido (8 a 15 dígitos, puede iniciar con +).',
   })
-  @Length(8, 15, { message: 'El teléfono debe tener entre 8 y 15 dígitos.' })
-  phone: string;
+  phone?: string;
+  // @IsPhoneNumber(undefined, {
+  //   message: 'El teléfono debe ser un número válido.',
+  // })
+  // @Length(8, 15, { message: 'El teléfono debe tener entre 8 y 15 dígitos.' })
+  // phone: string;
 
   @ApiProperty({
     description: 'Fecha de nacimiento del usuario',

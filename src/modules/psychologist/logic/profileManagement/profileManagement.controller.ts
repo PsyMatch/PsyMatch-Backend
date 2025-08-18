@@ -8,7 +8,6 @@ import {
   UseInterceptors,
   UploadedFile,
 } from '@nestjs/common';
-import { JWTAuthGuard } from '../../../auth/guards/auth.guard';
 import { RolesGuard } from '../../../auth/guards/roles.guard';
 import { Roles } from '../../../auth/decorators/role.decorator';
 import { ERole } from '../../../../common/enums/role.enum';
@@ -31,10 +30,11 @@ import { UpdatePsychologistDto } from '../../dto/update-psychologist.dto';
 import { ResponseProfessionalDto } from '../../dto/response-professional.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileValidationPipe } from '../../../files/pipes/file-validation.pipe';
+import { CombinedAuthGuard } from 'src/modules/auth/guards/combined-auth.guard';
 
 @ApiTags('Profesionales')
 @Controller('psychologist')
-@UseGuards(JWTAuthGuard, RolesGuard)
+@UseGuards(CombinedAuthGuard, RolesGuard)
 @ApiBearerAuth('JWT-auth')
 export class ProfileManagementController {
   constructor(private profileService: ProfileService) {}

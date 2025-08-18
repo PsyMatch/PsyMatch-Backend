@@ -5,17 +5,17 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { JWTAuthGuard } from '../../../auth/guards/auth.guard';
 import { RolesGuard } from '../../../auth/guards/roles.guard';
 import { PatientsOfProfessionalService } from './patientsOfProfessional.service';
 import { IAuthRequest } from '../../../auth/interfaces/auth-request.interface';
 import { Roles } from '../../../auth/decorators/role.decorator';
 import { ERole } from '../../../../common/enums/role.enum';
 import { ResponseUserDto } from '../../../users/dto/response-user.dto';
+import { CombinedAuthGuard } from 'src/modules/auth/guards/combined-auth.guard';
 
 @ApiTags('Profesionales')
 @Controller('psychologist/patients')
-@UseGuards(JWTAuthGuard, RolesGuard)
+@UseGuards(CombinedAuthGuard, RolesGuard)
 @ApiBearerAuth('JWT-auth')
 export class PatientsOfProfessionalController {
   constructor(

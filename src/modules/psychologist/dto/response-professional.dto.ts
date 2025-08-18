@@ -238,4 +238,11 @@ export class ResponseProfessionalDto {
   })
   @Expose()
   profile_picture?: string;
+
+  @ApiPropertyOptional({
+    description: 'Precio de la consulta (solo para psicólogos)',
+    example: 100,
+  })
+  @Expose()
+  consultation_fee?: number;
 }

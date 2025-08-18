@@ -12,7 +12,6 @@ import { CreateRecordDto } from './dto/create-record.dto';
 import { UpdateRecordDto } from './dto/update-record.dto';
 import { Roles } from '../../modules/auth/decorators/role.decorator';
 import { RolesGuard } from '../../modules/auth/guards/roles.guard';
-import { JWTAuthGuard } from '../../modules/auth/guards/auth.guard';
 import { ERole } from '../../common/enums/role.enum';
 import {
   ApiBearerAuth,
@@ -28,6 +27,7 @@ import {
   ApiConsumes,
   ApiBody,
 } from '@nestjs/swagger';
+import { CombinedAuthGuard } from '../auth/guards/combined-auth.guard';
 
 @Controller('records')
 @ApiTags('Historiales Médicos')
@@ -41,7 +41,7 @@ import {
 @ApiInternalServerErrorResponse({
   description: 'Error interno del servidor',
 })
-@UseGuards(JWTAuthGuard, RolesGuard)
+@UseGuards(CombinedAuthGuard, RolesGuard)
 export class RecordsController {
   constructor(private readonly recordsService: RecordsService) {}
 
