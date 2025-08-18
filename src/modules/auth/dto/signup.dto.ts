@@ -102,7 +102,7 @@ export class SignUpDto {
 
   @ApiPropertyOptional({
     description: 'Obra social del usuario',
-    example: 'GALENO',
+    example: EInsurance.OSDE,
     enum: EInsurance,
   })
   @Transform(({ value }) => cleanEmpty(value))

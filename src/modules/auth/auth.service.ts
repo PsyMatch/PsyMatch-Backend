@@ -103,7 +103,7 @@ export class AuthService {
       const savedUser = await patientRepo.save(newUser);
 
       const defaultProfilePicUrl =
-        'https://res.cloudinary.com/dibnkd72j/image/upload/v1755031810/default-profile-picture_lzshvt.webp';
+        'https://res.cloudinary.com/dibnkd72j/image/upload/v1755495603/default-pacient-profile-picture_kqpobf.webp';
 
       if (profilePicture && savedUser.id) {
         const profilePictureUrl =
