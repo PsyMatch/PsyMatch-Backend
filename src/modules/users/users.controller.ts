@@ -15,7 +15,6 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
-import { JWTAuthGuard } from '../auth/guards/auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { IAuthRequest } from '../auth/interfaces/auth-request.interface';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -44,6 +43,7 @@ import { GetMyDataSwaggerDoc } from './documentation/get-my-data.doc';
 import { UpdateUserResponseDto } from './dto/update-user-response.dto';
 import { ResponsePublicUserDto } from './dto/response-public-user.dto';
 import { FindPublicByIdSwaggerDoc } from './documentation/find-public-id.doc';
+import { CombinedAuthGuard } from '../auth/guards/combined-auth.guard';
 
 @ApiTags('Usuarios')
 @Controller('users')
@@ -51,7 +51,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  @UseGuards(JWTAuthGuard, RolesGuard)
+  @UseGuards(CombinedAuthGuard, RolesGuard)
   @Roles([ERole.ADMIN])
   @FindAllSwaggerDoc()
   async findAll(
@@ -65,7 +65,7 @@ export class UsersController {
   }
 
   @Get('patients')
-  @UseGuards(JWTAuthGuard, RolesGuard)
+  @UseGuards(CombinedAuthGuard, RolesGuard)
   @Roles([ERole.ADMIN])
   @FindAllPatientsSwaggerDoc()
   async findAllPatients(
@@ -79,7 +79,7 @@ export class UsersController {
   }
 
   @Get('me')
-  @UseGuards(JWTAuthGuard)
+  @UseGuards(CombinedAuthGuard)
   @ResponseType(ResponseUserDto)
   @GetMyDataSwaggerDoc()
   async getMyData(
@@ -94,7 +94,7 @@ export class UsersController {
   }
 
   @Put('me')
-  @UseGuards(JWTAuthGuard)
+  @UseGuards(CombinedAuthGuard)
   @UseInterceptors(FileInterceptor('profile_picture'))
   @UpdateSwaggerDoc()
   async updateMe(
@@ -120,7 +120,7 @@ export class UsersController {
   }
 
   @Get('me/psychologists')
-  @UseGuards(JWTAuthGuard)
+  @UseGuards(CombinedAuthGuard)
   @GetMyPsychologistsSwaggerDoc()
   async getMyPsychologists(
     @Req() req: IAuthRequest,
@@ -138,7 +138,7 @@ export class UsersController {
   }
 
   @Get('me/appointments')
-  @UseGuards(JWTAuthGuard)
+  @UseGuards(CombinedAuthGuard)
   @GetMyAppointmentsSwaggerDoc()
   async getMyAppointments(
     @Req() req: IAuthRequest,
@@ -156,7 +156,7 @@ export class UsersController {
   }
 
   @Get('me/payments')
-  @UseGuards(JWTAuthGuard)
+  @UseGuards(CombinedAuthGuard)
   @GetMyPaymentsSwaggerDoc()
   async getMyPayments(
     @Req() request: IAuthRequest,
@@ -177,7 +177,7 @@ export class UsersController {
   }
 
   @Get(':id')
-  @UseGuards(JWTAuthGuard, RolesGuard)
+  @UseGuards(CombinedAuthGuard, RolesGuard)
   @Roles([ERole.ADMIN])
   @FindByIdSwaggerDoc()
   async findById(
@@ -193,7 +193,7 @@ export class UsersController {
   }
 
   @Get('public/:id')
-  @UseGuards(JWTAuthGuard)
+  @UseGuards(CombinedAuthGuard)
   @FindPublicByIdSwaggerDoc()
   @ResponseType(ResponsePublicUserDto)
   async findPublicById(
@@ -209,7 +209,7 @@ export class UsersController {
   }
 
   @Put(':id')
-  @UseGuards(JWTAuthGuard, RolesGuard)
+  @UseGuards(CombinedAuthGuard, RolesGuard)
   @Roles([ERole.ADMIN])
   @UseInterceptors(FileInterceptor('profile_picture'))
   @UpdateSwaggerDoc()
@@ -231,7 +231,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @UseGuards(JWTAuthGuard, RolesGuard)
+  @UseGuards(CombinedAuthGuard, RolesGuard)
   @Roles([ERole.ADMIN])
   @DeleteSwaggerDoc()
   async delete(

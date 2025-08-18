@@ -7,14 +7,14 @@ import {
 } from '@nestjs/swagger';
 import { ERole } from '../../../../common/enums/role.enum';
 import { Roles } from '../../../auth/decorators/role.decorator';
-import { JWTAuthGuard } from '../../../auth/guards/auth.guard';
 import { RolesGuard } from '../../../auth/guards/roles.guard';
 import { IAuthRequest } from '../../../auth/interfaces/auth-request.interface';
 import { PaymentsOfProfessionalsService } from './paymentsOfProfessionals.service';
 import { Payment } from '../../../payments/entities/payment.entity';
+import { CombinedAuthGuard } from 'src/modules/auth/guards/combined-auth.guard';
 
 @ApiTags('Profesionales')
-@UseGuards(JWTAuthGuard, RolesGuard)
+@UseGuards(CombinedAuthGuard, RolesGuard)
 @ApiBearerAuth('JWT-auth')
 @Controller('psychologist/payments')
 export class PaymentsOfProfessionalsController {

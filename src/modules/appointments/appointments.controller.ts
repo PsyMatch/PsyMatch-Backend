@@ -21,11 +21,11 @@ import {
   ApiQuery,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { JWTAuthGuard } from '../auth/guards/auth.guard';
 import { IAuthRequest } from '../auth/interfaces/auth-request.interface';
+import { CombinedAuthGuard } from '../auth/guards/combined-auth.guard';
 
 @ApiTags('Citas')
-@UseGuards(JWTAuthGuard)
+@UseGuards(CombinedAuthGuard)
 @ApiBearerAuth('JWT-auth')
 @Controller('appointments')
 export class AppointmentsController {

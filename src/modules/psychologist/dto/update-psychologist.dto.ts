@@ -276,4 +276,10 @@ export class UpdatePsychologistDto {
   @IsOptional()
   @IsString({ message: 'El título profesional debe ser un string' })
   professional_title?: string;
+
+  @ApiPropertyOptional({
+    description: 'Precio de la consulta (solo para psicólogos)',
+    example: 100,
+  })
+  consultation_fee?: number;
 }

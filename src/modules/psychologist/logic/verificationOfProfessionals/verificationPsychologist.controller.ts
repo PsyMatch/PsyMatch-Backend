@@ -15,12 +15,12 @@ import {
   PaginationDto,
 } from '../../../../common/dto/pagination.dto';
 import { ResponseProfessionalDto } from '../../dto/response-professional.dto';
-import { JWTAuthGuard } from '../../../auth/guards/auth.guard';
+import { CombinedAuthGuard } from 'src/modules/auth/guards/combined-auth.guard';
 
 @Controller('psychologist/verification')
 @ApiTags('Profesionales')
 @ApiBearerAuth('JWT-auth')
-@UseGuards(JWTAuthGuard, RolesGuard)
+@UseGuards(CombinedAuthGuard, RolesGuard)
 export class VerificationPsychologistController {
   constructor(
     private readonly verificationPsychologistService: VerificationPsychologistService,

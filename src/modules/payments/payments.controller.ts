@@ -20,14 +20,14 @@ import {
 import { PaymentsService } from './payments.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
-import { JWTAuthGuard } from '../auth/guards/auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/role.decorator';
 import { ERole } from '../../common/enums/role.enum';
+import { CombinedAuthGuard } from '../auth/guards/combined-auth.guard';
 
 @ApiTags('Pagos')
 @Controller('payments')
-@UseGuards(JWTAuthGuard, RolesGuard)
+@UseGuards(CombinedAuthGuard, RolesGuard)
 @ApiBearerAuth('JWT-auth')
 export class PaymentsController {
   constructor(private readonly service: PaymentsService) {}

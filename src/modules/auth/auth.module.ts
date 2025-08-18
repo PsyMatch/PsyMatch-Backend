@@ -12,6 +12,7 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { PassportModule } from '@nestjs/passport';
 import { GoogleStrategy } from './strategies/google.strategy';
+import { JwtStrategy } from './strategies/jwt.strategy';
 import { UsersService } from '../users/users.service';
 import { PaginationService } from '../../common/services/pagination.service';
 import { Appointment } from '../appointments/entities/appointment.entity';
@@ -63,6 +64,7 @@ import { Payment } from '../payments/entities/payment.entity';
       useClass: ThrottlerGuard,
     },
     GoogleStrategy,
+    JwtStrategy,
     UsersService,
     PaginationService,
   ],
