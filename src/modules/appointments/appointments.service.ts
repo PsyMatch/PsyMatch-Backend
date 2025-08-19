@@ -298,7 +298,9 @@ export class AppointmentsService {
       );
     }
 
-    await this.appointmentRepository.remove(a);
+    a.status = AppointmentStatus.CANCELLED;
+    await this.appointmentRepository.save(a);
+
     return {
       message: `Appointment with ID ${id} deleted successfully`,
       appointment_id: id,

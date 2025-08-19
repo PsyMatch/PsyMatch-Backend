@@ -54,9 +54,10 @@ export class UsersController {
   @UseGuards(CombinedAuthGuard, RolesGuard)
   @Roles([ERole.ADMIN])
   @FindAllSwaggerDoc()
-  async findAll(
-    @Query() paginationDto: PaginationDto,
-  ): Promise<{ message: string; data: PaginatedResponse<User> }> {
+  async findAll(@Query() paginationDto: PaginationDto): Promise<{
+    message: string;
+    data: PaginatedResponse<Omit<User, 'password'>>;
+  }> {
     const users = await this.usersService.findAll(paginationDto);
     return {
       message: 'Lista de usuarios recuperada exitosamente',
@@ -68,9 +69,10 @@ export class UsersController {
   @UseGuards(CombinedAuthGuard, RolesGuard)
   @Roles([ERole.ADMIN])
   @FindAllPatientsSwaggerDoc()
-  async findAllPatients(
-    @Query() paginationDto: PaginationDto,
-  ): Promise<{ message: string; data: PaginatedResponse<User> }> {
+  async findAllPatients(@Query() paginationDto: PaginationDto): Promise<{
+    message: string;
+    data: PaginatedResponse<Omit<User, 'password'>>;
+  }> {
     const patients = await this.usersService.findAllPatients(paginationDto);
     return {
       message: 'Todos los pacientes recuperados exitosamente',
@@ -95,6 +97,7 @@ export class UsersController {
 
   @Put('me')
   @UseGuards(CombinedAuthGuard)
+  @ResponseType(UpdateUserResponseDto)
   @UseInterceptors(FileInterceptor('profile_picture'))
   @UpdateSwaggerDoc()
   async updateMe(
@@ -121,6 +124,7 @@ export class UsersController {
 
   @Get('me/psychologists')
   @UseGuards(CombinedAuthGuard)
+  @ResponseType(ResponseUserDto)
   @GetMyPsychologistsSwaggerDoc()
   async getMyPsychologists(
     @Req() req: IAuthRequest,
@@ -194,8 +198,8 @@ export class UsersController {
 
   @Get('public/:id')
   @UseGuards(CombinedAuthGuard)
-  @FindPublicByIdSwaggerDoc()
   @ResponseType(ResponsePublicUserDto)
+  @FindPublicByIdSwaggerDoc()
   async findPublicById(
     @Req() req: IAuthRequest,
     @Param('id', ParseUUIDPipe) id: string,
