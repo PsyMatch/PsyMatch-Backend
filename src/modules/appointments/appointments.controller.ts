@@ -9,6 +9,7 @@ import {
   UseGuards,
   Req,
   Query,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
@@ -23,6 +24,8 @@ import {
 } from '@nestjs/swagger';
 import { IAuthRequest } from '../auth/interfaces/auth-request.interface';
 import { CombinedAuthGuard } from '../auth/guards/combined-auth.guard';
+import { CreateAppointmentDocumentation } from './documentation/createApppointment.documentation';
+import { AnyFilesInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Citas')
 @UseGuards(CombinedAuthGuard)
@@ -32,7 +35,8 @@ export class AppointmentsController {
   constructor(private readonly appointmentsService: AppointmentsService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Crear nueva cita (usuario autenticado)' })
+  @UseInterceptors(AnyFilesInterceptor())
+  @CreateAppointmentDocumentation()
   create(@Req() req: IAuthRequest, @Body() dto: CreateAppointmentDto) {
     return this.appointmentsService.create(req, dto);
   }

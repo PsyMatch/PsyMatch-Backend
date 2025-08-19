@@ -4,17 +4,18 @@ import {
   IsNotEmpty,
   IsDateString,
   IsOptional,
-  IsInt,
   Min,
   MaxLength,
   IsString,
   Matches,
   IsNumber,
-  MinLength,
 } from 'class-validator';
+import { Transform } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { AppointmentStatus } from '../enums/appointment-status.enum';
 import { EModality } from '../../psychologist/enums/modality.enum';
+import { ESessionType } from 'src/modules/psychologist/enums/session-types.enum';
+import { ETherapyApproach } from 'src/modules/psychologist/enums/therapy-approaches.enum';
+import { EPsychologistSpecialty } from 'src/modules/psychologist/enums/specialities.enum';
 
 export class CreateAppointmentDto {
   @ApiProperty({
@@ -27,26 +28,16 @@ export class CreateAppointmentDto {
   date: string;
 
   @ApiProperty({
-    description: 'Hora de la cita en formato HH:mm (24 horas)',
+    description: 'Hora de la cita - Solo horarios disponibles',
     example: '14:00',
-    pattern: '^([01]\\d|2[0-3]):([0-5]\\d)$',
+    enum: ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00'],
   })
   @IsString()
-  @Matches(/^([01]\d|2[0-3]):([0-5]\d)$/, {
-    message: 'hour debe tener formato HH:mm',
+  @Matches(/^(09:00|10:00|11:00|14:00|15:00|16:00)$/, {
+    message:
+      'hour debe ser uno de los horarios disponibles: 09:00, 10:00, 11:00, 14:00, 15:00, 16:00',
   })
   hour: string;
-
-  @ApiPropertyOptional({
-    description: 'Duración de la sesión en minutos',
-    example: 60,
-    minimum: 15,
-    default: 60,
-  })
-  @IsOptional()
-  @IsInt()
-  @Min(15)
-  duration?: number;
 
   @ApiPropertyOptional({
     description: 'Notas adicionales sobre la cita',
@@ -75,16 +66,6 @@ export class CreateAppointmentDto {
   @IsNotEmpty()
   psychologist_id: string;
 
-  @ApiPropertyOptional({
-    description: 'Estado inicial de la cita',
-    enum: AppointmentStatus,
-    example: AppointmentStatus.PENDING,
-    default: AppointmentStatus.PENDING,
-  })
-  @IsOptional()
-  @IsEnum(AppointmentStatus)
-  status?: AppointmentStatus;
-
   @ApiProperty({
     description: 'Modalidad de la sesión (presencial, online o híbrida)',
     enum: EModality,
@@ -94,22 +75,29 @@ export class CreateAppointmentDto {
   modality: EModality;
 
   @ApiPropertyOptional({
-    description: 'Tipo de sesión terapéutica',
-    example: 'Individual',
-    minLength: 3,
+    description: 'Especialidad del psicólogo',
+    enum: EPsychologistSpecialty,
+    example: EPsychologistSpecialty.ANGER_MANAGEMENT,
   })
   @IsOptional()
-  @IsString()
-  @MinLength(3)
-  session_type?: string;
+  specialty?: EPsychologistSpecialty;
+
+  @ApiPropertyOptional({
+    description: 'Tipo de sesión terapéutica',
+    enum: ESessionType,
+    example: ESessionType.INDIVIDUAL,
+  })
+  @IsOptional()
+  session_type?: ESessionType;
 
   @ApiPropertyOptional({
     description: 'Enfoque terapéutico a utilizar',
-    example: 'Terapia cognitivo-conductual',
+    enum: ETherapyApproach,
+    example: ETherapyApproach.COGNITIVE_BEHAVIORAL_THERAPY,
   })
   @IsOptional()
   @IsString()
-  therapy_approach?: string;
+  therapy_approach?: ETherapyApproach;
 
   @ApiPropertyOptional({
     description: 'Obra social o seguro médico del paciente',
@@ -127,6 +115,11 @@ export class CreateAppointmentDto {
     format: 'float',
   })
   @IsOptional()
+  @Transform(({ value }): number | undefined => {
+    if (value === null || value === undefined || value === '') return undefined;
+    const num = Number(value);
+    return isNaN(num) ? undefined : num;
+  })
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
   price?: number;
