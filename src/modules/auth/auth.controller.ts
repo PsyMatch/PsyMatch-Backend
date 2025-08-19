@@ -105,7 +105,7 @@ export class AuthController {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
     return res.redirect(
-      'https://psymatch-frontend.onrender.com/dashboard/user',
+      'https://psymatch-frontend-app.onrender.com/dashboard/user',
     );
   }
 }
