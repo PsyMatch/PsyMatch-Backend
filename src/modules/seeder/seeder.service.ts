@@ -352,7 +352,7 @@ export class SeederService {
           EAvailability.THURSDAY,
           EAvailability.SUNDAY,
         ],
-        verified: EPsychologistStatus.PENDING,
+        verified: EPsychologistStatus.VALIDATED,
         profile_picture:
           'https://res.cloudinary.com/dibnkd72j/image/upload/v1755591733/default-female-psychologist-profile-picture_qyogmy.webp',
       },
@@ -412,7 +412,7 @@ export class SeederService {
           ETherapyApproach.GROUP_THERAPY,
         ],
         availability: [EAvailability.WEDNESDAY, EAvailability.FRIDAY],
-        verified: EPsychologistStatus.PENDING,
+        verified: EPsychologistStatus.VALIDATED,
         profile_picture:
           'https://res.cloudinary.com/dibnkd72j/image/upload/v1755591733/default-female-psychologist-profile-picture_qyogmy.webp',
       },
@@ -471,7 +471,7 @@ export class SeederService {
           ETherapyApproach.ART_THERAPY,
         ],
         availability: [EAvailability.THURSDAY, EAvailability.SUNDAY],
-        verified: EPsychologistStatus.PENDING,
+        verified: EPsychologistStatus.VALIDATED,
         profile_picture:
           'https://res.cloudinary.com/dibnkd72j/image/upload/v1755591733/default-female-psychologist-profile-picture_qyogmy.webp',
       },
@@ -531,7 +531,7 @@ export class SeederService {
           ETherapyApproach.EYE_MOVEMENT_DESENSITIZATION_REPROCESSING,
         ],
         availability: [EAvailability.TUESDAY, EAvailability.SATURDAY],
-        verified: EPsychologistStatus.PENDING,
+        verified: EPsychologistStatus.VALIDATED,
         profile_picture:
           'https://res.cloudinary.com/dibnkd72j/image/upload/v1755591733/default-female-psychologist-profile-picture_qyogmy.webp',
       },
