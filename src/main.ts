@@ -13,7 +13,10 @@ async function bootstrap() {
     app.enableCors({
       origin:
         envs.server.environment === 'production'
-          ? ['http://localhost:3000', 'https://psymatch-frontend.onrender.com']
+          ? [
+              'http://localhost:3000',
+              'https://psymatch-frontend-app.onrender.com',
+            ]
           : true,
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
       credentials: true,
