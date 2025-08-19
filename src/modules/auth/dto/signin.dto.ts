@@ -2,31 +2,38 @@ import {
   IsEmail,
   IsNotEmpty,
   IsString,
-  MinLength,
   Matches,
+  Length,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class SignInDto {
   @ApiProperty({
-    description: 'User email',
-    example: 'admin@psymatch.com',
+    description: 'Correo electrónico del usuario',
+    example: 'tu@email.com',
   })
-  @IsEmail({}, { message: 'Email must have a valid format' })
-  @IsNotEmpty({ message: 'Email is required' })
+  @IsEmail(
+    {},
+    { message: 'El correo electrónico debe tener un formato válido.' },
+  )
+  @IsNotEmpty({ message: 'El correo electrónico es obligatorio.' })
   email: string;
 
   @ApiProperty({
     description:
-      'User password (minimum 8 characters, must include uppercase, lowercase, number and special character)',
-    example: 'Abcd1234!',
+      'Contraseña del usuario (debe contener al menos una minúscula, una mayúscula y un número; el carácter especial es opcional)',
+    example: 'MiContraseña123!',
+    minLength: 6,
+    maxLength: 100,
   })
-  @IsString({ message: 'Password must be a string' })
-  @IsNotEmpty({ message: 'Password is required' })
-  @MinLength(8, { message: 'Password must be at least 8 characters long' })
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, {
+  @IsString({ message: 'La contraseña debe ser un string.' })
+  @IsNotEmpty({ message: 'La contraseña es obligatoria.' })
+  @Matches(/^(?=.*\p{Lu})(?=.*\p{Ll})(?=.*\d).{6,100}$/u, {
     message:
-      'Password must include at least one uppercase letter, one lowercase letter, one number and one special character',
+      'La contraseña debe contener al menos una minúscula, una mayúscula y un número. El carácter especial es opcional.',
+  })
+  @Length(6, 100, {
+    message: 'La contraseña debe tener entre 6 y 100 caracteres.',
   })
   password: string;
 }

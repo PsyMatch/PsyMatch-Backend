@@ -3,6 +3,9 @@
 /node_modules
 /build
 
+# lock files
+*lock*
+
 # Logs
 logs
 *.log

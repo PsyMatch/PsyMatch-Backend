@@ -15,7 +15,7 @@ import databaseConfig from '../../configs/typeorm.config';
         const dbconfig = configService.get<TypeOrmModuleOptions>('typeorm');
         if (!dbconfig)
           throw new InternalServerErrorException(
-            'The configuration for TypeORM was not found',
+            'No se encontró la configuración de TypeORM',
           );
         return dbconfig;
       },

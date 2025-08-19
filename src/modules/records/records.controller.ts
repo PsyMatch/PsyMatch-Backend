@@ -4,9 +4,6 @@ import {
   Post,
   Body,
   Param,
-  Delete,
-  HttpCode,
-  HttpStatus,
   Put,
   UseGuards,
 } from '@nestjs/common';
@@ -15,7 +12,6 @@ import { CreateRecordDto } from './dto/create-record.dto';
 import { UpdateRecordDto } from './dto/update-record.dto';
 import { Roles } from '../../modules/auth/decorators/role.decorator';
 import { RolesGuard } from '../../modules/auth/guards/roles.guard';
-import { AuthGuard } from '../../modules/auth/guards/auth.guard';
 import { ERole } from '../../common/enums/role.enum';
 import {
   ApiBearerAuth,
@@ -31,65 +27,75 @@ import {
   ApiConsumes,
   ApiBody,
 } from '@nestjs/swagger';
+import { CombinedAuthGuard } from '../auth/guards/combined-auth.guard';
 
 @Controller('records')
-@ApiTags('Records')
+@ApiTags('Historiales Médicos')
 @ApiBearerAuth('JWT-auth')
 @ApiUnauthorizedResponse({
-  description: 'Unauthorized - Invalid or missing JWT token',
+  description: 'No autorizado - Token JWT inválido o faltante',
 })
 @ApiForbiddenResponse({
-  description: 'Forbidden - Insufficient permissions for this role',
+  description: 'Prohibido - Permisos insuficientes para este rol',
 })
 @ApiInternalServerErrorResponse({
-  description: 'Internal server error',
+  description: 'Error interno del servidor',
 })
-@UseGuards(AuthGuard, RolesGuard)
+@UseGuards(CombinedAuthGuard, RolesGuard)
 export class RecordsController {
   constructor(private readonly recordsService: RecordsService) {}
 
   @Post()
   @ApiConsumes('multipart/form-data')
   @ApiOperation({
-    summary: 'Create a new medical record',
+    summary: 'Crear un nuevo historial médico',
     description:
-      'Creates a new medical record entry. Only psychologists can create records for their patients.',
+      'Crea una nueva entrada de historial médico. Solo los psicólogos pueden crear historiales para sus pacientes.',
   })
   @ApiBody({
     schema: {
       type: 'object',
       properties: {
         patient_id: { type: 'string', example: 'patient-uuid' },
-        title: { type: 'string', example: 'Session Notes' },
-        description: { type: 'string', example: 'Patient progress notes...' },
+        title: { type: 'string', example: 'Notas de Sesión' },
+        description: {
+          type: 'string',
+          example: 'Notas de progreso del paciente...',
+        },
         session_type: { type: 'string', example: 'individual' },
-        treatment_plan: { type: 'string', example: 'Continue CBT sessions' },
-        diagnosis: { type: 'string', example: 'Generalized Anxiety Disorder' },
-        medications: { type: 'string', example: 'Sertraline 50mg daily' },
+        treatment_plan: {
+          type: 'string',
+          example: 'Continuar sesiones de TCC',
+        },
+        diagnosis: {
+          type: 'string',
+          example: 'Trastorno de Ansiedad Generalizada',
+        },
+        medications: { type: 'string', example: 'Sertralina 50mg diarios' },
         next_appointment: { type: 'string', example: '2024-03-22T10:00:00Z' },
-        notes: { type: 'string', example: 'Patient showed improvement' },
+        notes: { type: 'string', example: 'El paciente mostró mejoras' },
       },
     },
   })
   @ApiResponse({
     status: 201,
-    description: 'Record created successfully',
+    description: 'Historial creado exitosamente',
     schema: {
       example: {
         success: true,
         statusCode: 201,
-        message: 'Record created successfully',
+        message: 'Historial creado exitosamente',
         data: {
           id: 'uuid-record-id',
-          title: 'Session Notes',
-          description: 'Patient progress notes...',
+          title: 'Notas de Sesión',
+          description: 'Notas de progreso del paciente...',
           createdAt: '2025-01-15T10:30:00Z',
         },
       },
     },
   })
   @ApiBadRequestResponse({
-    description: 'Invalid input data or validation errors',
+    description: 'Datos de entrada inválidos o errores de validación',
   })
   @Roles([ERole.PSYCHOLOGIST])
   create(@Body() dto: CreateRecordDto) {
@@ -98,23 +104,23 @@ export class RecordsController {
 
   @Get()
   @ApiOperation({
-    summary: 'Get all medical records',
+    summary: 'Obtener todos los historiales médicos',
     description:
-      'Retrieves all medical records in the system. Only administrators have access to all records.',
+      'Recupera todos los historiales médicos del sistema. Solo los administradores tienen acceso a todos los historiales.',
   })
   @ApiResponse({
     status: 200,
-    description: 'List of all records retrieved successfully',
+    description: 'Lista de todos los historiales recuperada exitosamente',
     schema: {
       example: {
         success: true,
         statusCode: 200,
-        message: 'Records retrieved successfully',
+        message: 'Historiales recuperados exitosamente',
         data: [
           {
             id: 'uuid-record-1',
-            title: 'Initial Assessment',
-            description: 'First consultation notes...',
+            title: 'Evaluación Inicial',
+            description: 'Notas de primera consulta...',
             createdAt: '2025-01-15T10:30:00Z',
           },
         ],
@@ -128,27 +134,27 @@ export class RecordsController {
 
   @Get(':id')
   @ApiOperation({
-    summary: 'Get a medical record by ID',
+    summary: 'Obtener historial médico por ID',
     description:
-      'Retrieves a specific medical record by its ID. Access depends on user role and ownership.',
+      'Recupera un historial médico específico por su ID. El acceso depende del rol del usuario y la propiedad.',
   })
   @ApiParam({
     name: 'id',
-    description: 'Unique identifier of the medical record',
+    description: 'Identificador único del historial médico',
     example: 'uuid-record-id',
   })
   @ApiResponse({
     status: 200,
-    description: 'Record retrieved successfully',
+    description: 'Historial recuperado exitosamente',
     schema: {
       example: {
         success: true,
         statusCode: 200,
-        message: 'Record retrieved successfully',
+        message: 'Historial recuperado exitosamente',
         data: {
           id: 'uuid-record-id',
-          title: 'Session Notes',
-          description: 'Detailed session notes...',
+          title: 'Notas de Sesión',
+          description: 'Notas detalladas de la sesión...',
           createdAt: '2025-01-15T10:30:00Z',
           updatedAt: '2025-01-15T10:30:00Z',
         },
@@ -156,7 +162,7 @@ export class RecordsController {
     },
   })
   @ApiNotFoundResponse({
-    description: 'Record not found or access denied',
+    description: 'Historial no encontrado o acceso denegado',
   })
   @Roles([ERole.ADMIN, ERole.PSYCHOLOGIST, ERole.PATIENT])
   findOne(@Param('id') id: string) {
@@ -165,34 +171,34 @@ export class RecordsController {
 
   @Get('user/:userId')
   @ApiOperation({
-    summary: 'Get medical records by user ID',
+    summary: 'Obtener historiales médicos por ID de usuario',
     description:
-      'Retrieves all medical records for a specific user/patient. Accessible by admins, psychologists, and the patient themselves.',
+      'Recupera todos los historiales médicos de un usuario/paciente específico. Accesible por administradores, psicólogos y el propio paciente.',
   })
   @ApiParam({
     name: 'userId',
-    description: 'Unique identifier of the user/patient',
+    description: 'Identificador único del usuario/paciente',
     example: 'uuid-user-id',
   })
   @ApiResponse({
     status: 200,
-    description: 'User records retrieved successfully',
+    description: 'Historiales del usuario recuperados exitosamente',
     schema: {
       example: {
         success: true,
         statusCode: 200,
-        message: 'User records retrieved successfully',
+        message: 'Historiales del usuario recuperados exitosamente',
         data: [
           {
             id: 'uuid-record-1',
-            title: 'Session 1',
-            description: 'First session notes...',
+            title: 'Sesión 1',
+            description: 'Notas de primera sesión...',
             createdAt: '2025-01-15T10:30:00Z',
           },
           {
             id: 'uuid-record-2',
-            title: 'Session 2',
-            description: 'Second session notes...',
+            title: 'Sesión 2',
+            description: 'Notas de segunda sesión...',
             createdAt: '2025-01-22T10:30:00Z',
           },
         ],
@@ -200,7 +206,7 @@ export class RecordsController {
     },
   })
   @ApiNotFoundResponse({
-    description: 'User not found or no records available',
+    description: 'Usuario no encontrado o no hay historiales disponibles',
   })
   @Roles([ERole.ADMIN, ERole.PSYCHOLOGIST, ERole.PATIENT])
   findByUserId(@Param('userId') userId: string) {
@@ -209,28 +215,28 @@ export class RecordsController {
 
   @Get('psychologist/:psychologistId')
   @ApiOperation({
-    summary: 'Get medical records by psychologist ID',
+    summary: 'Obtener historiales médicos por ID de psicólogo',
     description:
-      'Retrieves all medical records created by a specific psychologist. Accessible by admins and the psychologist themselves.',
+      'Recupera todos los historiales médicos creados por un psicólogo específico. Accesible por administradores y el propio psicólogo.',
   })
   @ApiParam({
     name: 'psychologistId',
-    description: 'Unique identifier of the psychologist',
+    description: 'Identificador único del psicólogo',
     example: 'uuid-psychologist-id',
   })
   @ApiResponse({
     status: 200,
-    description: 'Psychologist records retrieved successfully',
+    description: 'Historiales del psicólogo recuperados exitosamente',
     schema: {
       example: {
         success: true,
         statusCode: 200,
-        message: 'Psychologist records retrieved successfully',
+        message: 'Historiales del psicólogo recuperados exitosamente',
         data: [
           {
             id: 'uuid-record-1',
-            title: 'Patient A - Session 1',
-            description: 'Session notes for Patient A...',
+            title: 'Paciente A - Sesión 1',
+            description: 'Notas de sesión para Paciente A...',
             createdAt: '2025-01-15T10:30:00Z',
           },
         ],
@@ -238,7 +244,7 @@ export class RecordsController {
     },
   })
   @ApiNotFoundResponse({
-    description: 'Psychologist not found or no records available',
+    description: 'Psicólogo no encontrado o no hay historiales disponibles',
   })
   @Roles([ERole.ADMIN, ERole.PSYCHOLOGIST])
   findByPsychologistId(@Param('psychologistId') psychologistId: string) {
@@ -247,34 +253,33 @@ export class RecordsController {
 
   @Get('user/:userId/psychologist/:psychologistId')
   @ApiOperation({
-    summary: 'Get records by user and psychologist relationship',
+    summary: 'Obtener historiales por relación usuario-psicólogo',
     description:
-      'Retrieves medical records for a specific user-psychologist relationship. Shows all records created by the psychologist for the specific patient.',
+      'Recupera historiales médicos de una relación específica usuario-psicólogo. Muestra todos los historiales creados por el psicólogo para el paciente específico.',
   })
   @ApiParam({
     name: 'userId',
-    description: 'Unique identifier of the user/patient',
+    description: 'Identificador único del usuario/paciente',
     example: 'uuid-user-id',
   })
   @ApiParam({
     name: 'psychologistId',
-    description: 'Unique identifier of the psychologist',
+    description: 'Identificador único del psicólogo',
     example: 'uuid-psychologist-id',
   })
   @ApiResponse({
     status: 200,
-    description: 'Relationship records retrieved successfully',
+    description: 'Historiales de la relación recuperados exitosamente',
     schema: {
       example: {
         success: true,
         statusCode: 200,
-        message: 'Relationship records retrieved successfully',
+        message: 'Historiales de la relación recuperados exitosamente',
         data: [
           {
             id: 'uuid-record-1',
-            title: 'Initial Assessment',
-            description:
-              'First consultation between patient and psychologist...',
+            title: 'Evaluación Inicial',
+            description: 'Primera consulta entre paciente y psicólogo...',
             createdAt: '2025-01-15T10:30:00Z',
           },
         ],
@@ -283,7 +288,7 @@ export class RecordsController {
   })
   @ApiNotFoundResponse({
     description:
-      'User, psychologist not found or no records available for this relationship',
+      'Usuario, psicólogo no encontrado o no hay historiales disponibles para esta relación',
   })
   @Roles([ERole.ADMIN, ERole.PSYCHOLOGIST])
   findByUserAndPsychologist(
@@ -299,101 +304,81 @@ export class RecordsController {
   @Put(':id')
   @ApiConsumes('multipart/form-data')
   @ApiOperation({
-    summary: 'Update a medical record',
+    summary: 'Actualizar un historial médico',
     description:
-      'Updates an existing medical record. Only admins and the psychologist who created the record can update it.',
+      'Actualiza un historial médico existente. Solo los administradores y el psicólogo que creó el historial pueden actualizarlo.',
   })
   @ApiBody({
     schema: {
       type: 'object',
       properties: {
-        title: { type: 'string', example: 'Updated Session Notes' },
-        description: { type: 'string', example: 'Updated patient progress...' },
+        title: { type: 'string', example: 'Notas de Sesión Actualizadas' },
+        description: {
+          type: 'string',
+          example: 'Progreso actualizado del paciente...',
+        },
         session_type: { type: 'string', example: 'individual' },
-        treatment_plan: { type: 'string', example: 'Modified CBT approach' },
-        diagnosis: { type: 'string', example: 'Updated diagnosis' },
-        medications: { type: 'string', example: 'Adjusted medication' },
+        treatment_plan: { type: 'string', example: 'Enfoque TCC modificado' },
+        diagnosis: { type: 'string', example: 'Diagnóstico actualizado' },
+        medications: { type: 'string', example: 'Medicación ajustada' },
         next_appointment: { type: 'string', example: '2024-03-29T10:00:00Z' },
-        notes: { type: 'string', example: 'Additional notes' },
+        notes: { type: 'string', example: 'Notas adicionales' },
       },
     },
   })
   @ApiParam({
     name: 'id',
-    description: 'Unique identifier of the medical record to update',
+    description: 'Identificador único del historial médico a actualizar',
     example: 'uuid-record-id',
   })
   @ApiResponse({
     status: 200,
-    description: 'Record updated successfully',
+    description: 'Historial actualizado exitosamente',
     schema: {
       example: {
         success: true,
         statusCode: 200,
-        message: 'Record updated successfully',
+        message: 'Historial actualizado exitosamente',
         data: {
           id: 'uuid-record-id',
-          title: 'Updated Session Notes',
-          description: 'Updated session notes...',
+          title: 'Notas de Sesión Actualizadas',
+          description: 'Notas de sesión actualizadas...',
           updatedAt: '2025-01-15T11:00:00Z',
         },
       },
     },
   })
   @ApiBadRequestResponse({
-    description: 'Invalid input data or validation errors',
+    description: 'Datos de entrada inválidos o errores de validación',
   })
   @ApiNotFoundResponse({
-    description: 'Record not found or access denied',
+    description: 'Historial no encontrado o acceso denegado',
   })
   @Roles([ERole.ADMIN, ERole.PSYCHOLOGIST])
   update(@Param('id') id: string, @Body() dto: UpdateRecordDto) {
     return this.recordsService.update(id, dto);
   }
 
-  @Delete(':id')
-  @ApiOperation({
-    summary: 'Delete a medical record',
-    description:
-      'Permanently deletes a medical record from the system. Only admins and the psychologist who created the record can delete it.',
-  })
-  @ApiParam({
-    name: 'id',
-    description: 'Unique identifier of the medical record to delete',
-    example: 'uuid-record-id',
-  })
-  @ApiResponse({
-    status: 204,
-    description: 'Record deleted successfully - No content returned',
-  })
-  @ApiNotFoundResponse({
-    description: 'Record not found or access denied',
-  })
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @Roles([ERole.ADMIN, ERole.PSYCHOLOGIST])
-  remove(@Param('id') id: string) {
-    return this.recordsService.remove(id);
-  }
-
   @Put(':id/soft-delete')
   @ApiOperation({
-    summary: 'Soft delete a medical record',
+    summary: 'Eliminación suave de un historial médico',
     description:
-      'Marks a medical record as inactive instead of permanently deleting it. Only admins and the psychologist who created the record can soft delete it.',
+      'Marca un historial médico como inactivo en lugar de eliminarlo permanentemente. Solo los administradores y el psicólogo que creó el historial pueden eliminarlo suavemente.',
   })
   @ApiParam({
     name: 'id',
-    description: 'Unique identifier of the medical record to soft delete',
+    description:
+      'Identificador único del historial médico a eliminar suavemente',
     example: 'uuid-record-id',
   })
   @ApiResponse({
     status: 200,
-    description: 'Record soft deleted successfully',
+    description: 'Historial eliminado suavemente exitosamente',
     schema: {
       example: {
         success: true,
         statusCode: 200,
-        message: 'Record soft deleted successfully',
+        message: 'Historial eliminado suavemente exitosamente',
         data: {
           id: 'uuid-record-id',
           is_active: false,
@@ -403,7 +388,7 @@ export class RecordsController {
     },
   })
   @ApiNotFoundResponse({
-    description: 'Record not found or access denied',
+    description: 'Historial no encontrado o acceso denegado',
   })
   @Roles([ERole.ADMIN, ERole.PSYCHOLOGIST])
   softDelete(@Param('id') id: string) {

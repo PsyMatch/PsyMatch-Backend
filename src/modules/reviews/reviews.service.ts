@@ -5,6 +5,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Reviews } from './entities/reviews.entity';
 import { Repository } from 'typeorm';
 import { Psychologist } from '../psychologist/entities/psychologist.entity';
+import { Appointment } from '../appointments/entities/appointment.entity';
+import { AppointmentStatus } from '../appointments/enums/appointment-status.enum';
 
 @Injectable()
 export class ReviewsService {
@@ -13,22 +15,42 @@ export class ReviewsService {
     private reviewsRepository: Repository<Reviews>,
     @InjectRepository(Psychologist)
     private readonly psychologistRepository: Repository<Psychologist>,
+    @InjectRepository(Appointment)
+    private readonly appointmentRepository: Repository<Appointment>,
   ) {}
 
   async createNewReviewService(
     createReviewData: CreateReviewDto,
+    userId: string,
   ): Promise<{ message: string; review: Reviews }> {
     const foundReview = await this.reviewsRepository.findOne({
       where: { comment: createReviewData.comment },
     });
 
-    if (foundReview) throw new BadRequestException('Review already exists');
+    const completedAppointment = await this.appointmentRepository.findOne({
+      where: {
+        patient: { id: userId },
+        psychologist: { id: createReviewData.psychologistId },
+        status: AppointmentStatus.COMPLETED,
+      },
+      relations: ['patient', 'psychologist'],
+    });
+
+    if (!completedAppointment) {
+      throw new BadRequestException(
+        'Solo puede dejar una reseña después de completar una cita con el profesional',
+      );
+    }
+
+    if (foundReview) {
+      throw new BadRequestException('La reseña ya existe');
+    }
 
     const newReview = this.reviewsRepository.create(createReviewData);
 
     await this.reviewsRepository.save(newReview);
 
-    return { message: 'Review created successfully', review: newReview };
+    return { message: 'Reseña creada exitosamente', review: newReview };
   }
 
   async findOneByPsychologistIdService(id: string): Promise<reviewResponseDto> {
@@ -37,17 +59,21 @@ export class ReviewsService {
       relations: ['reviews'],
     });
     if (!psychologistReviews) {
-      throw new BadRequestException('No reviews found for this psychologist');
+      throw new BadRequestException(
+        'No se encontraron reseñas para este psicólogo',
+      );
     }
 
     if (!psychologistReviews.reviews.length) {
-      throw new BadRequestException('No reviews found for this psychologist');
+      throw new BadRequestException(
+        'No se encontraron reseñas para este psicólogo',
+      );
     }
-    return { message: 'Reviews found', reviews: psychologistReviews };
+    return { message: 'Reseñas encontradas', reviews: psychologistReviews };
   }
 
   async removeReviewByIdService(id: string): Promise<{ message: string }> {
     await this.reviewsRepository.delete(id);
-    return { message: 'Review removed successfully' };
+    return { message: 'Reseña eliminada exitosamente' };
   }
 }

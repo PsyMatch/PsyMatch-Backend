@@ -7,7 +7,6 @@ import {
   TableInheritance,
 } from 'typeorm';
 import { ERole } from '../../../common/enums/role.enum';
-import { EInsurance } from '../enums/insurance_accepted .enum';
 
 @Entity('users')
 @TableInheritance({
@@ -30,20 +29,11 @@ export class User {
   @Column({ type: 'bigint', unique: true, nullable: true })
   dni: number;
 
-  @Column({ type: 'text', nullable: true })
-  address: string;
-
   @Column({ type: 'text', unique: true, nullable: false })
   email: string;
 
   @Column({ type: 'text', nullable: true })
   password: string;
-
-  @Column({ type: 'enum', enum: EInsurance, nullable: true })
-  health_insurance: EInsurance;
-
-  @Column({ type: 'text', nullable: true })
-  emergency_contact: string;
 
   @Column({ type: 'decimal', precision: 10, scale: 8, nullable: true })
   latitude: number;
@@ -65,11 +55,11 @@ export class User {
   @Column({ type: 'boolean', default: true })
   is_active: boolean;
 
-  @Column({ type: 'timestamp', nullable: true })
-  last_login: Date;
-
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  last_login: Date;
 
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updated_at: Date;

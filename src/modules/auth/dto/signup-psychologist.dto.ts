@@ -11,286 +11,304 @@ import {
   IsInt,
   IsPositive,
   IsDateString,
+  Validate,
+  Length,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { EPsychologistSpecialty } from '../../psychologist/enums/specialities.enum';
-import { EInsurance } from '../../users/enums/insurance_accepted .enum';
+import { EInsurance } from '../../users/enums/insurances.enum';
 import { ETherapyApproach } from '../../psychologist/enums/therapy-approaches.enum';
 import { ESessionType } from '../../psychologist/enums/session-types.enum';
 import { EModality } from '../../psychologist/enums/modality.enum';
-import { ELanguages } from '../../psychologist/enums/languages.enum';
+import { ELanguage } from '../../psychologist/enums/languages.enum';
 import { EAvailability } from '../../psychologist/enums/availability.enum';
+import { MatchPasswordHelper } from '../../utils/helpers/matchPassword.helper';
 
-const transformToNumber = (value: unknown): number | undefined => {
-  if (typeof value === 'string' && value.trim() !== '') {
-    const num = Number(value);
-    return isNaN(num) ? undefined : num;
-  }
-  return typeof value === 'number' ? value : undefined;
-};
+const transformToNumber = (value: unknown): number | undefined =>
+  typeof value === 'number'
+    ? value
+    : typeof value === 'string' && value.trim() !== ''
+      ? Number(value)
+      : undefined;
+
+const transformToArray = (value: unknown): string[] =>
+  typeof value === 'string'
+    ? value
+        .split(',')
+        .map((item) => item.trim())
+        .filter((item) => item !== '')
+    : Array.isArray(value)
+      ? (value as string[])
+      : [];
 
 export class SignUpPsychologistDto {
   @ApiProperty({
-    description: 'Full name of the psychologist',
-    example: 'Dr. Ana García',
+    description: 'Nombre completo del psicólogo',
+    example: 'Pablo Suárez',
   })
   @IsString()
   @IsNotEmpty()
   name: string;
 
   @ApiProperty({
-    description: 'DNI (National Identity Document)',
-    example: 87654321,
+    description: 'DNI (Documento Nacional de Identidad)',
+    example: 34567890,
     minimum: 1000000,
     maximum: 99999999,
   })
-  @IsNotEmpty({ message: 'DNI is required' })
-  @Transform(({ value }: { value: unknown }) => transformToNumber(value))
-  @IsNumber({}, { message: 'DNI must be a number' })
-  @IsInt({ message: 'DNI must be an integer' })
-  @IsPositive({ message: 'DNI must be a positive number' })
+  @IsNotEmpty({ message: 'El DNI es obligatorio.' })
+  @Transform(({ value }) => transformToNumber(value))
+  @IsNumber({}, { message: 'El DNI debe ser un número.' })
+  @IsInt({ message: 'El DNI debe ser un número entero.' })
+  @IsPositive({ message: 'El DNI debe ser un número positivo.' })
   dni: number;
 
-  @ApiPropertyOptional({
-    description: 'User birthdate',
-    example: '2001-05-01',
+  @ApiProperty({
+    description: 'Fecha de nacimiento',
+    example: '1982-09-15',
     type: 'string',
     format: 'date',
   })
-  @IsOptional()
-  @IsDateString({}, { message: 'Birthdate must be a valid date' })
-  birthdate?: Date;
+  @IsDateString(
+    {},
+    { message: 'La fecha de nacimiento debe ser una fecha válida.' },
+  )
+  birthdate: Date;
 
   @ApiProperty({
-    description: 'Email address (must be unique)',
-    example: 'ana.garcia@psychologist.com',
+    description: 'Correo electrónico (debe ser único)',
+    example: 'pablo.suarez@psychologist.com',
   })
-  @IsEmail()
-  @IsNotEmpty()
+  @IsEmail(
+    {},
+    { message: 'El correo electrónico debe tener un formato válido.' },
+  )
+  @IsNotEmpty({ message: 'El correo electrónico es obligatorio.' })
   email: string;
 
   @ApiProperty({
-    description: 'Password with security requirements',
-    example: 'SecurePass123!',
+    description:
+      'Contraseña del usuario (debe contener al menos una minúscula, una mayúscula y un número; el carácter especial es opcional)',
+    example: 'PabloPass789!',
+    minLength: 6,
+    maxLength: 100,
   })
-  @IsString()
-  @IsNotEmpty()
+  @IsString({ message: 'La contraseña debe ser un string.' })
+  @IsNotEmpty({ message: 'La contraseña es obligatoria.' })
+  @Matches(/^(?=.*\p{Lu})(?=.*\p{Ll})(?=.*\d).{6,100}$/u, {
+    message:
+      'La contraseña debe contener al menos una minúscula, una mayúscula y un número. El carácter especial es opcional.',
+  })
+  @Length(6, 100, {
+    message: 'La contraseña debe tener entre 6 y 100 caracteres.',
+  })
   password: string;
 
   @ApiProperty({
-    description: 'Password confirmation (must match password)',
-    example: 'SecurePass123!',
+    description:
+      'Confirmación de contraseña (debe coincidir con la contraseña)',
+    example: 'PabloPass789!',
   })
-  @IsString()
-  @IsNotEmpty()
+  @Validate(MatchPasswordHelper, ['password'])
   confirmPassword: string;
 
   @ApiProperty({
-    description: 'Phone number',
-    example: '+5411777888999',
+    description: 'Número de teléfono',
+    example: '+5491166554433',
     required: false,
   })
   @IsOptional()
-  @IsString()
-  @Matches(/^\+?[1-9]\d{1,14}$/, {
+  @IsString({ message: 'El teléfono debe ser un string.' })
+  @Matches(/^(\+?[1-9]\d{1,14})$/, {
     message:
-      'Phone must be a valid international phone number (e.g., +5411123456789 or 1123456789)',
+      'El teléfono debe ser un número válido en formato internacional (ej: +5411123456789 o 1123456789)',
   })
   phone?: string;
 
   @ApiProperty({
-    description: 'Latitude coordinate',
-    example: -34.6037,
+    description: 'Coordenada de latitud',
+    example: -33.1234,
     required: false,
   })
+  @Transform(({ value }) => transformToNumber(value))
   @IsOptional()
-  @Transform(({ value }: { value: unknown }) =>
-    value && typeof value === 'string' ? parseFloat(value) : undefined,
-  )
   latitude?: number;
 
   @ApiProperty({
-    description: 'Longitude coordinate',
-    example: -58.3816,
+    description: 'Coordenada de longitud',
+    example: -61.4321,
     required: false,
   })
   @IsOptional()
-  @Transform(({ value }: { value: unknown }) =>
-    value && typeof value === 'string' ? parseFloat(value) : undefined,
-  )
+  @Transform(({ value }) => transformToNumber(value))
   longitude?: number;
 
   @ApiPropertyOptional({
-    description: 'Office address for consultations',
-    example: 'Consultorio en Av. Callao 1000, Piso 5',
+    description: 'Dirección del consultorio para consultas',
+    example: 'Consultorio en Calle Sarmiento 200, Piso 2',
   })
   @IsOptional()
   @IsString()
   office_address?: string;
 
   @ApiProperty({
-    description: 'License number (6 digits)',
-    example: 123456,
+    description: 'Número de matrícula profesional (6 dígitos)',
+    example: 324165,
     minimum: 100000,
     maximum: 999999,
   })
-  @Transform(({ value }: { value: unknown }) => transformToNumber(value))
-  @IsNotEmpty({ message: 'License number is required' })
-  @IsNumber({}, { message: 'License number must be a number' })
-  @IsInt({ message: 'License number must be an integer' })
-  @IsPositive({ message: 'License number must be a positive number' })
+  @Transform(({ value }) => transformToNumber(value))
+  @IsNotEmpty({ message: 'El número de matrícula es obligatorio.' })
+  @IsNumber({}, { message: 'El número de matrícula debe ser un número.' })
+  @IsInt({ message: 'El número de matrícula debe ser un número entero.' })
+  @IsPositive({
+    message: 'El número de matrícula debe ser un número positivo.',
+  })
   license_number: number;
 
-  @ApiPropertyOptional({
-    description: 'Optional profile picture URL',
-    example: 'https://example.com/profile.jpg',
+  @ApiProperty({
+    type: 'string',
+    format: 'binary',
+    required: true,
+    description: 'Imagen de perfil (obligatoria)',
+    example: 'https://example.com/profile/pablo-suarez.jpg',
   })
   @IsOptional()
-  @IsString()
   profile_picture?: string;
 
-  @ApiPropertyOptional({
-    description: 'Personal biography',
+  @ApiProperty({
+    description: 'Biografía personal',
     example:
-      'Psychologist specialized in cognitive behavioral therapy with 10 years of experience.',
+      'Psicólogo especializado en terapia cognitivo conductual con 10 años de experiencia.',
   })
-  @IsOptional()
-  @IsString()
-  personal_biography?: string;
+  @IsString({ message: 'La biografía personal debe ser un string.' })
+  @IsNotEmpty({ message: 'La biografía personal es obligatoria.' })
+  personal_biography: string;
 
-  @ApiPropertyOptional({
-    description: 'Years of professional experience',
+  @ApiProperty({
+    description: 'Título profesional del psicólogo',
+    example: 'Licenciado en Psicología',
+  })
+  @IsString({ message: 'El título profesional debe ser un string.' })
+  @IsNotEmpty({ message: 'El título profesional es obligatorio.' })
+  professional_title: string;
+
+  @ApiProperty({
+    description: 'Años de experiencia profesional',
     example: 5,
     minimum: 0,
     maximum: 50,
   })
-  @IsOptional()
-  @Transform(({ value }: { value: unknown }) => transformToNumber(value))
-  @IsNumber({}, { message: 'Professional experience must be a number' })
-  @IsInt({ message: 'Professional experience must be an integer' })
-  professional_experience?: number;
+  @Transform(({ value }) => transformToNumber(value))
+  @IsNumber(
+    {},
+    { message: 'Los años de experiencia profesional deben ser un número.' },
+  )
+  @IsInt({
+    message: 'Los años de experiencia profesional deben ser un número entero.',
+  })
+  @IsNotEmpty({
+    message: 'Los años de experiencia profesional son obligatorios.',
+  })
+  professional_experience: number;
 
-  @ApiPropertyOptional({
-    description: 'Languages spoken',
-    example: ['spanish', 'english'],
-    enum: ELanguages,
+  @ApiProperty({
+    description: 'Idiomas hablados',
+    example: [ELanguage.SPANISH, ELanguage.ENGLISH],
+    enum: ELanguage,
     isArray: true,
   })
-  @IsOptional()
-  @Transform(({ value }) => {
-    if (typeof value === 'string') {
-      return value.split(',').map((item) => item.trim());
-    }
-    return Array.isArray(value)
-      ? (value as ELanguages[])
-      : ([value] as ELanguages[]);
-  })
+  @Transform(({ value }) => transformToArray(value))
   @IsArray()
-  @IsEnum(ELanguages, { each: true })
-  languages?: ELanguages[];
+  @ArrayNotEmpty({ message: 'Debe especificar al menos un idioma.' })
+  @IsEnum(ELanguage, { each: true })
+  languages: ELanguage[];
 
-  @ApiPropertyOptional({
-    description: 'Therapy approaches used',
-    example: ['cognitive_behavioral_therapy', 'psychodynamic_therapy'],
+  @ApiProperty({
+    description: 'Enfoques terapéuticos utilizados',
+    example: [
+      ETherapyApproach.COGNITIVE_BEHAVIORAL_THERAPY,
+      ETherapyApproach.PSYCHODYNAMIC_THERAPY,
+    ],
     enum: ETherapyApproach,
     isArray: true,
   })
-  @IsOptional()
-  @Transform(({ value }) => {
-    if (typeof value === 'string') {
-      return value.split(',').map((item) => item.trim());
-    }
-    return Array.isArray(value)
-      ? (value as ETherapyApproach[])
-      : ([value] as ETherapyApproach[]);
-  })
+  @Transform(({ value }) => transformToArray(value))
   @IsArray()
+  @ArrayNotEmpty({
+    message: 'Debe especificar al menos un enfoque terapéutico.',
+  })
   @IsEnum(ETherapyApproach, { each: true })
-  therapy_approaches?: ETherapyApproach[];
+  therapy_approaches: ETherapyApproach[];
 
-  @ApiPropertyOptional({
-    description: 'Session types offered',
-    example: ['individual', 'couple'],
+  @ApiProperty({
+    description: 'Tipos de sesión ofrecidos',
+    example: [ESessionType.INDIVIDUAL, ESessionType.COUPLE],
     enum: ESessionType,
     isArray: true,
   })
-  @IsOptional()
-  @Transform(({ value }) => {
-    if (typeof value === 'string') {
-      return value.split(',').map((item) => item.trim());
-    }
-    return Array.isArray(value)
-      ? (value as ESessionType[])
-      : ([value] as ESessionType[]);
-  })
+  @Transform(({ value }) => transformToArray(value))
   @IsArray()
+  @ArrayNotEmpty({ message: 'Debe especificar al menos un tipo de sesión.' })
   @IsEnum(ESessionType, { each: true })
-  session_types?: ESessionType[];
-
-  @ApiPropertyOptional({
-    description: 'Consultation modality',
-    example: 'in_person',
-    enum: EModality,
-  })
-  @IsOptional()
-  @IsEnum(EModality)
-  modality?: EModality;
+  session_types: ESessionType[];
 
   @ApiProperty({
-    description: 'Array of specialties',
-    example: ['anxiety_disorder', 'depression'],
+    description: 'Modalidad de consulta',
+    example: EModality.IN_PERSON,
+    enum: EModality,
+  })
+  @IsEnum(EModality)
+  modality: EModality;
+
+  @ApiProperty({
+    description: 'Lista de especialidades profesionales',
+    example: [
+      EPsychologistSpecialty.ANXIETY_DISORDER,
+      EPsychologistSpecialty.DEPRESSION,
+    ],
     enum: EPsychologistSpecialty,
     isArray: true,
   })
-  @Transform(({ value }) => {
-    if (typeof value === 'string') {
-      return value.split(',').map((item) => item.trim());
-    }
-    return Array.isArray(value)
-      ? (value as EPsychologistSpecialty[])
-      : ([value] as EPsychologistSpecialty[]);
-  })
+  @Transform(({ value }) => transformToArray(value))
   @IsArray()
   @ArrayNotEmpty()
   @IsEnum(EPsychologistSpecialty, { each: true })
   specialities: EPsychologistSpecialty[];
 
   @ApiProperty({
-    description: 'Array of insurance providers accepted',
-    example: ['osde', 'swiss-medical', 'ioma'],
+    description: 'Lista de obras sociales aceptadas',
+    example: [EInsurance.OSDE, EInsurance.SWISS_MEDICAL, EInsurance.IOMA],
     enum: EInsurance,
     isArray: true,
   })
-  @Transform(({ value }) => {
-    if (typeof value === 'string') {
-      return value.split(',').map((item) => item.trim());
-    }
-    return Array.isArray(value)
-      ? (value as EInsurance[])
-      : ([value] as EInsurance[]);
-  })
+  @Transform(({ value }) => transformToArray(value))
   @IsArray()
   @ArrayNotEmpty()
   @IsEnum(EInsurance, { each: true })
   insurance_accepted: EInsurance[];
 
   @ApiProperty({
-    description: 'Array of available days for appointments',
-    example: ['monday', 'wednesday', 'friday'],
+    description: 'Días disponibles para turnos',
+    example: [
+      EAvailability.MONDAY,
+      EAvailability.WEDNESDAY,
+      EAvailability.FRIDAY,
+    ],
     enum: EAvailability,
     isArray: true,
   })
-  @Transform(({ value }) => {
-    if (typeof value === 'string') {
-      return value.split(',').map((item) => item.trim());
-    }
-    return Array.isArray(value)
-      ? (value as EAvailability[])
-      : ([value] as EAvailability[]);
-  })
+  @Transform(({ value }) => transformToArray(value))
   @IsArray()
   @ArrayNotEmpty()
   @IsEnum(EAvailability, { each: true })
   availability: EAvailability[];
+
+  @ApiPropertyOptional({
+    description: 'Precio de la consulta (solo para psicólogos)',
+    example: 100,
+  })
+  @IsOptional()
+  consultation_fee?: number;
 }

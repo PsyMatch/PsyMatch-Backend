@@ -8,10 +8,19 @@ import { Psychologist } from '../psychologist/entities/psychologist.entity';
 import { JwtService } from '@nestjs/jwt';
 import { FilesModule } from '../files/files.module';
 import { PaginationService } from '../../common/services/pagination.service';
+import { Payment } from '../payments/entities/payment.entity';
+import { Appointment } from '../appointments/entities/appointment.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Patient, Psychologist]),
+    TypeOrmModule.forFeature([
+      User,
+      Patient,
+      Psychologist,
+      //CODIGO DE PEDRO//
+      Appointment,
+      Payment,
+    ]),
     FilesModule,
   ],
   controllers: [UsersController],

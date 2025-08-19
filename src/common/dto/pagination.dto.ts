@@ -4,7 +4,7 @@ import { Transform } from 'class-transformer';
 
 export class PaginationDto {
   @ApiProperty({
-    description: 'Page to display (starts at 1)',
+    description: 'Página a mostrar (comienza en 1)',
     example: 1,
     default: 1,
     minimum: 1,
@@ -14,12 +14,12 @@ export class PaginationDto {
     const parsed = parseInt(value as string, 10);
     return isNaN(parsed) ? 1 : parsed;
   })
-  @IsInt({ message: 'Page must be an integer' })
-  @IsPositive({ message: 'Page must be a positive number' })
+  @IsInt({ message: 'La página debe ser un número entero' })
+  @IsPositive({ message: 'La página debe ser un número positivo' })
   page: number = 1;
 
   @ApiProperty({
-    description: 'Number of elements per page',
+    description: 'Cantidad de elementos por página',
     example: 10,
     default: 10,
     minimum: 1,
@@ -30,8 +30,8 @@ export class PaginationDto {
     const parsed = parseInt(value as string, 10);
     return isNaN(parsed) ? 10 : parsed;
   })
-  @IsInt({ message: 'Limit must be an integer' })
-  @Min(1, { message: 'Minimum limit is 1' })
+  @IsInt({ message: 'El límite debe ser un número entero' })
+  @Min(1, { message: 'El límite mínimo es 1' })
   limit: number = 10;
 }
 

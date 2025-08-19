@@ -80,11 +80,6 @@ export class RecordsService {
     return await this.recordRepository.save(record);
   }
 
-  async remove(id: string): Promise<void> {
-    const record = await this.findOne(id, true);
-    await this.recordRepository.remove(record);
-  }
-
   async softDelete(id: string): Promise<Record> {
     const record = await this.findOne(id, true);
     record.is_active = false;
@@ -134,9 +129,5 @@ export class RecordsService {
       where: whereCondition,
       order: { created_at: 'DESC' },
     });
-  }
-
-  helloWorld(): string {
-    return 'Hello World from RecordsService!';
   }
 }

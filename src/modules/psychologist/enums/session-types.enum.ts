@@ -1,6 +1,6 @@
 export enum ESessionType {
-  INDIVIDUAL = 'individual',
-  COUPLE = 'couple',
-  FAMILY = 'family',
-  GROUP = 'group',
+  INDIVIDUAL = 'Individual',
+  COUPLE = 'Pareja',
+  FAMILY = 'Familiar',
+  GROUP = 'Grupo',
 }

@@ -41,8 +41,8 @@ export class FilesService {
     const uploadString = `data:${file.mimetype};base64,${base64String}`;
 
     const publicId = documentType
-      ? `${documentType}_${userId}_${Date.now()}`
-      : `user_${userId}_${Date.now()}`;
+      ? `${documentType}_user_${userId}`
+      : `user_${userId}`;
 
     const result = await this.cloudinary.uploader.upload(uploadString, {
       folder: `PsyMatch/${folder}`,

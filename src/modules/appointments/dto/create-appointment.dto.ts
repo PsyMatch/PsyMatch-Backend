@@ -1,77 +1,126 @@
 import {
-  IsEnum,
   IsUUID,
+  IsEnum,
+  IsNotEmpty,
   IsDateString,
   IsOptional,
+  Min,
+  MaxLength,
+  IsString,
+  Matches,
   IsNumber,
-  IsPositive,
 } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { AppointmentStatus } from '../entities/appointment.entity';
-import { EModality } from 'src/modules/psychologist/enums/modality.enum';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { EModality } from '../../psychologist/enums/modality.enum';
+import { ESessionType } from 'src/modules/psychologist/enums/session-types.enum';
+import { ETherapyApproach } from 'src/modules/psychologist/enums/therapy-approaches.enum';
+import { EPsychologistSpecialty } from 'src/modules/psychologist/enums/specialities.enum';
 
 export class CreateAppointmentDto {
   @ApiProperty({
-    description: 'UUID of the patient/user booking the appointment',
-    example: 'user-uuid',
+    description: 'Fecha de la cita en formato YYYY-MM-DD o ISO',
+    example: '2025-08-15',
+    type: String,
+  })
+  @IsDateString()
+  @IsNotEmpty()
+  date: string;
+
+  @ApiProperty({
+    description: 'Hora de la cita - Solo horarios disponibles',
+    example: '14:00',
+    enum: ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00'],
+  })
+  @IsString()
+  @Matches(/^(09:00|10:00|11:00|14:00|15:00|16:00)$/, {
+    message:
+      'hour debe ser uno de los horarios disponibles: 09:00, 10:00, 11:00, 14:00, 15:00, 16:00',
+  })
+  hour: string;
+
+  @ApiPropertyOptional({
+    description: 'Notas adicionales sobre la cita',
+    example: 'Primera consulta - ansiedad generalizada',
+    maxLength: 500,
+  })
+  @IsOptional()
+  @MaxLength(500)
+  notes?: string;
+
+  @ApiProperty({
+    description: 'UUID del paciente que solicita la cita',
+    example: '123e4567-e89b-12d3-a456-426614174000',
     format: 'uuid',
   })
-  @IsUUID('4', { message: 'user_id must be a valid UUID' })
+  @IsUUID()
+  @IsNotEmpty()
   user_id: string;
 
   @ApiProperty({
-    description: 'UUID of the psychologist for the appointment',
-    example: 'psychologist-uuid',
+    description: 'UUID del psicólogo con quien se agenda la cita',
+    example: '987fcdeb-51a2-43d7-9f12-123456789abc',
     format: 'uuid',
   })
-  @IsUUID('4', { message: 'psychologist_id must be a valid UUID' })
+  @IsUUID()
+  @IsNotEmpty()
   psychologist_id: string;
 
   @ApiProperty({
-    description: 'Appointment date and time in ISO 8601 format',
-    example: '2024-03-15T10:00:00Z',
-    format: 'date-time',
-  })
-  @IsDateString({}, { message: 'date must be a valid ISO 8601 date string' })
-  date: string;
-
-  @ApiPropertyOptional({
-    description: 'Duration of the appointment in minutes',
-    example: 60,
-    default: 60,
-    minimum: 30,
-    maximum: 180,
-  })
-  @IsOptional()
-  @Transform(({ value }) => {
-    if (typeof value === 'string') {
-      const parsed = parseInt(value, 10);
-      return isNaN(parsed) ? value : parsed;
-    }
-    return typeof value === 'number' ? value : undefined;
-  })
-  @IsNumber({}, { message: 'duration must be a number' })
-  @IsPositive({ message: 'duration must be a positive number' })
-  duration?: number;
-
-  @ApiPropertyOptional({
-    description: 'Status of the appointment',
-    enum: AppointmentStatus,
-    example: AppointmentStatus.PENDING,
-    default: AppointmentStatus.PENDING,
-  })
-  @IsOptional()
-  @IsEnum(AppointmentStatus, {
-    message: 'status must be a valid appointment status',
-  })
-  status?: AppointmentStatus;
-
-  @ApiProperty({
-    description: 'Modality of the appointment (in-person, virtual o hybrid)',
+    description: 'Modalidad de la sesión (presencial, online o híbrida)',
     enum: EModality,
-    example: EModality.IN_PERSON,
+    example: EModality.ONLINE,
   })
-  @IsEnum(EModality, { message: 'modality must be a valid modality type' })
+  @IsEnum(EModality)
   modality: EModality;
+
+  @ApiPropertyOptional({
+    description: 'Especialidad del psicólogo',
+    enum: EPsychologistSpecialty,
+    example: EPsychologistSpecialty.ANGER_MANAGEMENT,
+  })
+  @IsOptional()
+  specialty?: EPsychologistSpecialty;
+
+  @ApiPropertyOptional({
+    description: 'Tipo de sesión terapéutica',
+    enum: ESessionType,
+    example: ESessionType.INDIVIDUAL,
+  })
+  @IsOptional()
+  session_type?: ESessionType;
+
+  @ApiPropertyOptional({
+    description: 'Enfoque terapéutico a utilizar',
+    enum: ETherapyApproach,
+    example: ETherapyApproach.COGNITIVE_BEHAVIORAL_THERAPY,
+  })
+  @IsOptional()
+  @IsString()
+  therapy_approach?: ETherapyApproach;
+
+  @ApiPropertyOptional({
+    description: 'Obra social o seguro médico del paciente',
+    example: 'OSDE',
+  })
+  @IsOptional()
+  @IsString()
+  insurance?: string;
+
+  @ApiPropertyOptional({
+    description: 'Precio de la sesión en pesos argentinos',
+    example: 8500.0,
+    minimum: 0,
+    type: 'number',
+    format: 'float',
+  })
+  @IsOptional()
+  @Transform(({ value }): number | undefined => {
+    if (value === null || value === undefined || value === '') return undefined;
+    const num = Number(value);
+    return isNaN(num) ? undefined : num;
+  })
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0)
+  price?: number;
 }

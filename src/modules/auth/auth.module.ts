@@ -12,12 +12,21 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { PassportModule } from '@nestjs/passport';
 import { GoogleStrategy } from './strategies/google.strategy';
+import { JwtStrategy } from './strategies/jwt.strategy';
 import { UsersService } from '../users/users.service';
-import { PaginationService } from 'src/common/services/pagination.service';
+import { PaginationService } from '../../common/services/pagination.service';
+import { Appointment } from '../appointments/entities/appointment.entity';
+import { Payment } from '../payments/entities/payment.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Patient, Psychologist]),
+    TypeOrmModule.forFeature([
+      User,
+      Patient,
+      Psychologist,
+      Appointment,
+      Payment,
+    ]),
     ConfigModule,
     FilesModule,
     ThrottlerModule.forRoot([
@@ -55,9 +64,10 @@ import { PaginationService } from 'src/common/services/pagination.service';
       useClass: ThrottlerGuard,
     },
     GoogleStrategy,
+    JwtStrategy,
     UsersService,
     PaginationService,
   ],
-  exports: [AuthService],
+  exports: [AuthService, JwtModule],
 })
 export class AuthModule {}

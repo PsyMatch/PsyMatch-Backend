@@ -13,19 +13,9 @@ import {
   UploadedFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import {
-  ApiTags,
-  ApiBearerAuth,
-  ApiOperation,
-  ApiResponse,
-  ApiQuery,
-  ApiBody,
-  ApiConsumes,
-} from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
-import { AuthGuard } from '../auth/guards/auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { SameUserOrAdminGuard } from '../auth/guards/same-user.guard';
 import { IAuthRequest } from '../auth/interfaces/auth-request.interface';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FileValidationPipe } from '../files/pipes/file-validation.pipe';
@@ -33,352 +23,230 @@ import { ERole } from '../../common/enums/role.enum';
 import { Roles } from '../auth/decorators/role.decorator';
 import { ResponseType } from '../../common/decorators/response-type.decorator';
 import { ResponseUserDto } from './dto/response-user.dto';
-import { PaginationDto } from '../../common/dto/pagination.dto';
+import {
+  PaginatedResponse,
+  PaginationDto,
+} from '../../common/dto/pagination.dto';
+import { Payment } from '../payments/entities/payment.entity';
+import { User } from './entities/user.entity';
+import { Appointment } from '../appointments/entities/appointment.entity';
+import { Psychologist } from '../psychologist/entities/psychologist.entity';
+import { DeleteSwaggerDoc } from './documentation/delete.doc';
+import { FindAllPatientsSwaggerDoc } from './documentation/find-all-patients.doc';
+import { FindAllSwaggerDoc } from './documentation/find-all.doc';
+import { FindByIdSwaggerDoc } from './documentation/find-by-id.doc';
+import { GetMyAppointmentsSwaggerDoc } from './documentation/get-my-appointments.doc';
+import { GetMyPaymentsSwaggerDoc } from './documentation/get-my-payments.doc';
+import { GetMyPsychologistsSwaggerDoc } from './documentation/get-my-psichologists.doc';
+import { UpdateSwaggerDoc } from './documentation/update.doc';
+import { GetMyDataSwaggerDoc } from './documentation/get-my-data.doc';
+import { UpdateUserResponseDto } from './dto/update-user-response.dto';
+import { ResponsePublicUserDto } from './dto/response-public-user.dto';
+import { FindPublicByIdSwaggerDoc } from './documentation/find-public-id.doc';
+import { CombinedAuthGuard } from '../auth/guards/combined-auth.guard';
 
-@ApiTags('Users')
+@ApiTags('Usuarios')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(CombinedAuthGuard, RolesGuard)
   @Roles([ERole.ADMIN])
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({
-    summary: 'Get all users (Admin Only)',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Users list retrieved successfully',
-    schema: {
-      type: 'object',
-      properties: {
-        data: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              id: { type: 'string', example: 'uuid-string' },
-              name: { type: 'string', example: 'Juan Carlos Pérez' },
-              profile_picture: {
-                type: 'string',
-                example: 'https://cloudinary.com/profile.jpg',
-                nullable: true,
-              },
-              phone: {
-                type: 'string',
-                example: '+5411123456789',
-                nullable: true,
-              },
-              birthdate: {
-                type: 'string',
-                format: 'date',
-                example: '2025-07-31',
-                nullable: true,
-              },
-              dni: { type: 'number', example: 12345678 },
-              health_insurance: {
-                type: 'string',
-                example: 'osde',
-                description: 'Health insurance provider',
-                enum: [
-                  'osde',
-                  'swiss-medical',
-                  'ioma',
-                  'pami',
-                  'unión-personal',
-                  'osdepy',
-                  'luis-pasteur',
-                  'jerarquicos-salud',
-                  'sancor-salud',
-                  'osecac',
-                  'osmecón-salud',
-                  'apross',
-                  'osprera',
-                  'ospat',
-                  'ase-nacional',
-                  'ospsip',
-                ],
-                nullable: true,
-              },
-              address: {
-                type: 'string',
-                example: 'Av. Corrientes 1234, Buenos Aires',
-                nullable: true,
-              },
-              email: {
-                type: 'string',
-                example: 'juan.perez@email.com',
-                description: 'User email address',
-              },
-              psychologists: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    name: { type: 'string', example: 'Dr. Ana García' },
-                    email: {
-                      type: 'string',
-                      example: 'ana.garcia@psychologist.com',
-                    },
-                    role: { type: 'string', example: 'psychologist' },
-                  },
-                },
-                nullable: true,
-                description:
-                  'Assigned psychologists (only populated when user role is PATIENT)',
-              },
-            },
-          },
-        },
-      },
-    },
-  })
-  @ApiResponse({ status: 401, description: 'Invalid or expired token' })
-  @ApiResponse({
-    status: 403,
-    description: 'Access denied - Admin role required',
-  })
-  @ApiQuery({ name: 'page', required: false, type: Number })
-  @ApiQuery({ name: 'limit', required: false, type: Number })
-  async findAll(@Query() paginationDto: PaginationDto) {
-    return await this.usersService.findAll(paginationDto);
+  @FindAllSwaggerDoc()
+  async findAll(@Query() paginationDto: PaginationDto): Promise<{
+    message: string;
+    data: PaginatedResponse<Omit<User, 'password'>>;
+  }> {
+    const users = await this.usersService.findAll(paginationDto);
+    return {
+      message: 'Lista de usuarios recuperada exitosamente',
+      data: users,
+    };
   }
 
   @Get('patients')
-  @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(CombinedAuthGuard, RolesGuard)
   @Roles([ERole.ADMIN])
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({
-    summary: 'Get all patients (Admin Only)',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Users list retrieved successfully',
-    schema: {
-      type: 'object',
-      properties: {
-        data: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              id: { type: 'string', example: 'uuid-string' },
-              name: { type: 'string', example: 'Juan Carlos Pérez' },
-              profile_picture: {
-                type: 'string',
-                example: 'https://cloudinary.com/profile.jpg',
-                nullable: true,
-              },
-              phone: {
-                type: 'string',
-                example: '+5411123456789',
-                nullable: true,
-              },
-              birthdate: {
-                type: 'string',
-                format: 'date',
-                example: '2025-07-31',
-                nullable: true,
-              },
-              dni: { type: 'number', example: 12345678 },
-              health_insurance: {
-                type: 'string',
-                example: 'osde',
-                description: 'Health insurance provider',
-                enum: [
-                  'osde',
-                  'swiss-medical',
-                  'ioma',
-                  'pami',
-                  'unión-personal',
-                  'osdepy',
-                  'luis-pasteur',
-                  'jerarquicos-salud',
-                  'sancor-salud',
-                  'osecac',
-                  'osmecón-salud',
-                  'apross',
-                  'osprera',
-                  'ospat',
-                  'ase-nacional',
-                  'ospsip',
-                ],
-                nullable: true,
-              },
-              address: {
-                type: 'string',
-                example: 'Av. Corrientes 1234, Buenos Aires',
-                nullable: true,
-              },
-              email: {
-                type: 'string',
-                example: 'juan.perez@email.com',
-                description: 'User email address',
-              },
-              psychologists: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    name: { type: 'string', example: 'Dr. Ana García' },
-                    email: {
-                      type: 'string',
-                      example: 'ana.garcia@psychologist.com',
-                    },
-                    role: { type: 'string', example: 'psychologist' },
-                  },
-                },
-                nullable: true,
-                description:
-                  'Assigned psychologists (only populated when user role is PATIENT)',
-              },
-            },
-          },
-        },
-      },
-    },
-  })
-  @ApiResponse({ status: 401, description: 'Invalid or expired token' })
-  @ApiResponse({
-    status: 403,
-    description: 'Access denied - Admin role required',
-  })
-  @ApiQuery({ name: 'page', required: false, type: Number })
-  @ApiQuery({ name: 'limit', required: false, type: Number })
-  async findAllPatients(@Query() paginationDto: PaginationDto) {
-    return await this.usersService.findAllPatients(paginationDto);
+  @FindAllPatientsSwaggerDoc()
+  async findAllPatients(@Query() paginationDto: PaginationDto): Promise<{
+    message: string;
+    data: PaginatedResponse<Omit<User, 'password'>>;
+  }> {
+    const patients = await this.usersService.findAllPatients(paginationDto);
+    return {
+      message: 'Todos los pacientes recuperados exitosamente',
+      data: patients,
+    };
+  }
+
+  @Get('me')
+  @UseGuards(CombinedAuthGuard)
+  @ResponseType(ResponseUserDto)
+  @GetMyDataSwaggerDoc()
+  async getMyData(
+    @Req() req: IAuthRequest,
+  ): Promise<{ message: string; data: User }> {
+    const requester = req.user.id;
+    const user = await this.usersService.findById(requester, requester);
+    return {
+      message: 'Información del usuario recuperada exitosamente',
+      data: user,
+    };
+  }
+
+  @Put('me')
+  @UseGuards(CombinedAuthGuard)
+  @ResponseType(UpdateUserResponseDto)
+  @UseInterceptors(FileInterceptor('profile_picture'))
+  @UpdateSwaggerDoc()
+  async updateMe(
+    @Req() req: IAuthRequest,
+    @Body() userData: UpdateUserDto,
+    @UploadedFile(new FileValidationPipe({ isOptional: true }))
+    profilePicture?: Express.Multer.File,
+  ): Promise<{ message: string; data: UpdateUserResponseDto }> {
+    const requester = req.user.id;
+    const userRole = req.user.role;
+    const updatedFields = await this.usersService.update(
+      requester,
+      userData,
+      requester,
+      userRole,
+      profilePicture,
+    );
+
+    return {
+      message: 'Paciente actualizado exitosamente',
+      data: updatedFields,
+    };
+  }
+
+  @Get('me/psychologists')
+  @UseGuards(CombinedAuthGuard)
+  @ResponseType(ResponseUserDto)
+  @GetMyPsychologistsSwaggerDoc()
+  async getMyPsychologists(
+    @Req() req: IAuthRequest,
+    @Query() paginationDto: PaginationDto,
+  ): Promise<{ message: string; data: PaginatedResponse<Psychologist> }> {
+    const requester = req.user.id;
+    const psychologists = await this.usersService.getMyPsychologists(
+      requester,
+      paginationDto,
+    );
+    return {
+      message: 'Lista de los psicólogos del paciente recuperados exitosamente',
+      data: psychologists,
+    };
+  }
+
+  @Get('me/appointments')
+  @UseGuards(CombinedAuthGuard)
+  @GetMyAppointmentsSwaggerDoc()
+  async getMyAppointments(
+    @Req() req: IAuthRequest,
+    @Query() paginationDto: PaginationDto,
+  ): Promise<{ message: string; data: PaginatedResponse<Appointment> }> {
+    const requester = req.user.id;
+    const appointments = await this.usersService.getMyAppointments(
+      requester,
+      paginationDto,
+    );
+    return {
+      message: 'Lista de las citas del paciente recuperadas exitosamente',
+      data: appointments,
+    };
+  }
+
+  @Get('me/payments')
+  @UseGuards(CombinedAuthGuard)
+  @GetMyPaymentsSwaggerDoc()
+  async getMyPayments(
+    @Req() request: IAuthRequest,
+    @Query() paginationDto: PaginationDto,
+  ): Promise<{
+    message: string;
+    data: PaginatedResponse<Payment>;
+  }> {
+    const requester = request.user.id;
+    const payments = await this.usersService.getMyPayments(
+      requester,
+      paginationDto,
+    );
+    return {
+      message: 'Lista de pagos del paciente recuperada exitosamente',
+      data: payments,
+    };
   }
 
   @Get(':id')
-  @ResponseType(ResponseUserDto)
-  @UseGuards(AuthGuard, SameUserOrAdminGuard)
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Get user by ID' })
-  @ApiResponse({
-    status: 200,
-    description: 'User found successfully',
-    type: ResponseUserDto,
-  })
-  @ApiResponse({ status: 401, description: 'Invalid or expired token' })
-  @ApiResponse({ status: 403, description: 'Access denied' })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @UseGuards(CombinedAuthGuard, RolesGuard)
+  @Roles([ERole.ADMIN])
+  @FindByIdSwaggerDoc()
   async findById(
+    @Req() req: IAuthRequest,
     @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<{ data: ResponseUserDto }> {
-    const user = await this.usersService.findById(id);
-    return { data: user as ResponseUserDto };
+  ): Promise<{ message: string; data: ResponseUserDto }> {
+    const requester = req.user.id;
+    const user = await this.usersService.findById(id, requester);
+    return {
+      message: 'Usuario encontrado exitosamente',
+      data: user as unknown as ResponseUserDto,
+    };
+  }
+
+  @Get('public/:id')
+  @UseGuards(CombinedAuthGuard)
+  @ResponseType(ResponsePublicUserDto)
+  @FindPublicByIdSwaggerDoc()
+  async findPublicById(
+    @Req() req: IAuthRequest,
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<{ message: string; data: ResponsePublicUserDto }> {
+    const requester = req.user.id;
+    const user = await this.usersService.findById(id, requester);
+    return {
+      message: 'Usuario encontrado exitosamente',
+      data: user as unknown as ResponsePublicUserDto,
+    };
   }
 
   @Put(':id')
-  @UseGuards(AuthGuard, SameUserOrAdminGuard)
+  @UseGuards(CombinedAuthGuard, RolesGuard)
+  @Roles([ERole.ADMIN])
   @UseInterceptors(FileInterceptor('profile_picture'))
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Update user by ID' })
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        phone: { type: 'string', example: '+5411987654321' },
-        birthdate: { type: 'string', example: '1990-05-15' },
-        address: { type: 'string', example: 'Av. Santa Fe 2000, Buenos Aires' },
-        latitude: { type: 'string', example: '-34.5975' },
-        longitude: { type: 'string', example: '-58.3816' },
-        password: { type: 'string', example: 'NewPassword123!' },
-        health_insurance: {
-          type: 'string',
-          example: 'osde',
-          description: 'Health insurance provider',
-          enum: [
-            'osde',
-            'swiss-medical',
-            'ioma',
-            'pami',
-            'unión-personal',
-            'osdepy',
-            'luis-pasteur',
-            'jerarquicos-salud',
-            'sancor-salud',
-            'osecac',
-            'osmecón-salud',
-            'apross',
-            'osprera',
-            'ospat',
-            'ase-nacional',
-            'ospsip',
-          ],
-        },
-        emergency_contact: {
-          type: 'string',
-          example: 'Juan Perez - +5411111111 - Hermano',
-        },
-        profile_picture: {
-          type: 'string',
-          format: 'binary',
-          description:
-            'Optional profile picture file (JPG, JPEG, PNG, WEBP - max 2MB)',
-        },
-      },
-    },
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'User updated successfully',
-    schema: {
-      type: 'object',
-      properties: {
-        message: { type: 'string', example: 'User updated successfully' },
-        id: { type: 'string', example: 'uuid-string' },
-      },
-    },
-  })
-  @ApiResponse({ status: 401, description: 'Invalid or expired token' })
-  @ApiResponse({ status: 403, description: 'Access denied' })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @UpdateSwaggerDoc()
   async update(
     @Req() req: IAuthRequest,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() userData: UpdateUserDto,
     @UploadedFile(new FileValidationPipe({ isOptional: true }))
-    _profilePicture?: Express.Multer.File,
-  ): Promise<{ message: string; id: string }> {
+    profilePicture?: Express.Multer.File,
+  ): Promise<{ message: string; data: UpdateUserResponseDto }> {
     const updatedUser = await this.usersService.update(
       id,
       userData,
       req.user.id,
       req.user.role,
+      profilePicture,
     );
-    return { message: 'User updated successfully', id: updatedUser };
+    return { message: 'Usuario actualizado exitosamente', data: updatedUser };
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard, SameUserOrAdminGuard)
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Delete user by ID' })
-  @ApiResponse({
-    status: 200,
-    description: 'User deleted successfully',
-    schema: {
-      type: 'object',
-      properties: {
-        message: { type: 'string', example: 'User deleted successfully' },
-        id: { type: 'string', example: 'uuid-string' },
-      },
-    },
-  })
-  @ApiResponse({ status: 401, description: 'Invalid or expired token' })
-  @ApiResponse({ status: 403, description: 'Access denied' })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @UseGuards(CombinedAuthGuard, RolesGuard)
+  @Roles([ERole.ADMIN])
+  @DeleteSwaggerDoc()
   async delete(
     @Req() req: IAuthRequest,
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<{ message: string; id: string }> {
-    const userId = await this.usersService.delete(
+    const requester = await this.usersService.delete(
       id,
       req.user.id,
       req.user.role,
     );
-    return { message: 'User deleted successfully', id: userId };
+    return { message: 'Usuario eliminado exitosamente', id: requester };
   }
 }

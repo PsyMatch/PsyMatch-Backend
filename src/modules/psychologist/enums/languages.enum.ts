@@ -1,5 +1,5 @@
-export enum ELanguages {
-  ENGLISH = 'english',
-  SPANISH = 'spanish',
-  PORTUGUESE = 'portuguese',
+export enum ELanguage {
+  ENGLISH = 'Inglés',
+  SPANISH = 'Español',
+  PORTUGUESE = 'Portugués',
 }

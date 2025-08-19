@@ -7,6 +7,7 @@ import {
   Max,
   IsEnum,
   IsArray,
+  Matches,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
@@ -14,45 +15,87 @@ import { EPsychologistSpecialty } from '../enums/specialities.enum';
 import { ETherapyApproach } from '../enums/therapy-approaches.enum';
 import { ESessionType } from '../enums/session-types.enum';
 import { EModality } from '../enums/modality.enum';
-import { EInsurance } from '../../users/enums/insurance_accepted .enum';
+import { EInsurance } from '../../users/enums/insurances.enum';
+import { EAvailability } from '../enums/availability.enum';
 
 export class UpdatePsychologistDto {
   @ApiPropertyOptional({
-    description: 'Professional license number',
-    example: 'PSI-12345-BA',
+    description: 'Número de licencia profesional',
+    example: 12345,
+  })
+  @Transform(({ value }): number | undefined => {
+    if (value === '' || value === null || value === undefined) {
+      return undefined;
+    }
+    const parsed =
+      typeof value === 'string' ? parseInt(value, 10) : Number(value);
+    return isNaN(parsed) ? undefined : parsed;
   })
   @IsOptional()
-  @IsString({ message: 'License number must be a string' })
-  @Length(5, 50, {
-    message: 'License number must be between 5 and 50 characters',
-  })
-  license_number?: string;
+  @IsNumber({}, { message: 'El número de licencia debe ser un número' })
+  @Min(1, { message: 'El número de licencia debe ser mayor a 0' })
+  license_number?: number;
 
   @ApiPropertyOptional({
-    description: 'Office address',
-    example: 'Av. Corrientes 1234, Oficina 302, Buenos Aires',
+    description:
+      'Número de teléfono del usuario (formato internacional aceptado)',
+    example: '+5411123456789',
+  })
+  @Transform(({ value }): string | undefined => {
+    if (value === '' || value === null || value === undefined) {
+      return undefined;
+    }
+    return String(value);
   })
   @IsOptional()
-  @IsString({ message: 'Office address must be a string' })
+  @IsString({ message: 'El teléfono debe ser un string.' })
+  @Matches(/^(\+?[1-9]\d{1,14})$/, {
+    message:
+      'El teléfono debe ser un número válido (ej., +5411123456789 o 1123456789)',
+  })
+  @Length(8, 15, { message: 'El teléfono debe tener entre 8 y 15 dígitos.' })
+  phone?: string;
+
+  @ApiPropertyOptional({
+    description: 'Dirección del consultorio',
+    example: 'Av. Corrientes 1234, Oficina 302, Buenos Aires',
+  })
+  @Transform(({ value }): string | undefined => {
+    if (value === '' || value === null || value === undefined) {
+      return undefined;
+    }
+    return String(value);
+  })
+  @IsOptional()
+  @IsString({ message: 'La dirección del consultorio debe ser un string' })
   @Length(10, 200, {
-    message: 'Office address must be between 10 and 200 characters',
+    message:
+      'La dirección del consultorio debe tener entre 10 y 200 caracteres',
   })
   office_address?: string;
 
   @ApiPropertyOptional({
-    description: 'Years of professional experience',
+    description: 'Años de experiencia profesional',
     example: 5,
     minimum: 0,
     maximum: 50,
   })
+  @Transform(({ value }): number | undefined => {
+    if (value === '' || value === null || value === undefined) {
+      return undefined;
+    }
+    const parsed =
+      typeof value === 'string' ? parseInt(value, 10) : Number(value);
+    return isNaN(parsed) ? undefined : parsed;
+  })
   @IsOptional()
-  @IsNumber({}, { message: 'Experience years must be a number' })
-  @Min(0, { message: 'Experience years cannot be negative' })
-  @Max(50, { message: 'Experience years cannot exceed 50' })
-  experience_years?: number;
+  @IsNumber({}, { message: 'Los años de experiencia deben ser un número' })
+  @Min(0, { message: 'Los años de experiencia no pueden ser negativos' })
+  @Max(50, { message: 'Los años de experiencia no pueden exceder 50' })
+  professional_experience?: number;
 
   @ApiPropertyOptional({
-    description: 'Professional specialties',
+    description: 'Especialidades profesionales',
     enum: EPsychologistSpecialty,
     isArray: true,
     example: [
@@ -60,116 +103,183 @@ export class UpdatePsychologistDto {
       EPsychologistSpecialty.DEPRESSION,
     ],
   })
-  @IsOptional()
-  @Transform(({ value }) => {
+  @Transform(({ value }): EPsychologistSpecialty[] | undefined => {
+    if (value === '' || value === null || value === undefined) {
+      return undefined;
+    }
     if (typeof value === 'string') {
-      return value.split(',').map((item) => item.trim());
+      return value
+        .split(',')
+        .map((item) => item.trim() as EPsychologistSpecialty);
     }
     return Array.isArray(value)
       ? (value as EPsychologistSpecialty[])
       : ([value] as EPsychologistSpecialty[]);
   })
-  @IsArray()
-  @IsEnum(EPsychologistSpecialty, { each: true })
+  @IsOptional()
+  @IsArray({ message: 'Las especialidades deben ser un array' })
+  @IsEnum(EPsychologistSpecialty, {
+    each: true,
+    message: 'Cada especialidad debe ser válida',
+  })
   specialities?: EPsychologistSpecialty[];
 
   @ApiPropertyOptional({
-    description: 'Therapy approaches',
+    description: 'Enfoques terapéuticos',
     enum: ETherapyApproach,
     isArray: true,
     example: [ETherapyApproach.COGNITIVE_BEHAVIORAL_THERAPY],
   })
-  @IsOptional()
-  @Transform(({ value }) => {
+  @Transform(({ value }): ETherapyApproach[] | undefined => {
+    if (value === '' || value === null || value === undefined) {
+      return undefined;
+    }
     if (typeof value === 'string') {
-      return value.split(',').map((item) => item.trim());
+      return value.split(',').map((item) => item.trim() as ETherapyApproach);
     }
     return Array.isArray(value)
       ? (value as ETherapyApproach[])
       : ([value] as ETherapyApproach[]);
   })
-  @IsArray()
-  @IsEnum(ETherapyApproach, { each: true })
+  @IsOptional()
+  @IsArray({ message: 'Los enfoques terapéuticos deben ser un array' })
+  @IsEnum(ETherapyApproach, {
+    each: true,
+    message: 'Cada enfoque terapéutico debe ser válido',
+  })
   therapy_approaches?: ETherapyApproach[];
 
   @ApiPropertyOptional({
-    description: 'Session types offered',
+    description: 'Tipos de sesión ofrecidos',
     enum: ESessionType,
     isArray: true,
     example: [ESessionType.INDIVIDUAL],
   })
-  @IsOptional()
-  @Transform(({ value }) => {
+  @Transform(({ value }): ESessionType[] | undefined => {
+    if (value === '' || value === null || value === undefined) {
+      return undefined;
+    }
     if (typeof value === 'string') {
-      return value.split(',').map((item) => item.trim());
+      return value.split(',').map((item) => item.trim() as ESessionType);
     }
     return Array.isArray(value)
       ? (value as ESessionType[])
       : ([value] as ESessionType[]);
   })
-  @IsArray()
-  @IsEnum(ESessionType, { each: true })
+  @IsOptional()
+  @IsArray({ message: 'Los tipos de sesión deben ser un array' })
+  @IsEnum(ESessionType, {
+    each: true,
+    message: 'Cada tipo de sesión debe ser válido',
+  })
   session_types?: ESessionType[];
 
   @ApiPropertyOptional({
-    description: 'Therapy modality',
+    description: 'Modalidad de terapia',
     enum: EModality,
     example: EModality.ONLINE,
   })
+  @Transform(({ value }): EModality | undefined => {
+    if (value === '' || value === null || value === undefined) {
+      return undefined;
+    }
+    return value as EModality;
+  })
   @IsOptional()
-  @IsEnum(EModality, { message: 'Modality must be a valid option' })
+  @IsEnum(EModality, { message: 'La modalidad debe ser una opción válida' })
   modality?: EModality;
 
   @ApiPropertyOptional({
-    description: 'Insurance providers accepted',
+    description: 'Obras sociales aceptadas',
     enum: EInsurance,
     isArray: true,
-    example: [EInsurance.OSDE, EInsurance.SWISSMEDICAL],
+    example: [EInsurance.OSDE, EInsurance.SWISS_MEDICAL],
   })
-  @IsOptional()
-  @Transform(({ value }) => {
+  @Transform(({ value }): EInsurance[] | undefined => {
+    if (value === '' || value === null || value === undefined) {
+      return undefined;
+    }
     if (typeof value === 'string') {
-      return value.split(',').map((item) => item.trim());
+      return value.split(',').map((item) => item.trim() as EInsurance);
     }
     return Array.isArray(value)
       ? (value as EInsurance[])
       : ([value] as EInsurance[]);
   })
-  @IsArray()
+  @IsOptional()
+  @IsArray({ message: 'Las obras sociales aceptadas deben ser un array' })
   @IsEnum(EInsurance, {
     each: true,
-    message: 'Each insurance must be a valid provider',
+    message: 'Cada obra social debe ser un proveedor válido',
   })
   insurance_accepted?: EInsurance[];
 
   @ApiPropertyOptional({
-    description: 'Rate per session in USD',
-    example: 80.0,
-    minimum: 10,
-    maximum: 500,
+    description: 'Biografía profesional',
+    example: 'Psicólogo clínico licenciado con más de 5 años de experiencia...',
+  })
+  @Transform(({ value }): string | undefined => {
+    if (value === '' || value === null || value === undefined) {
+      return undefined;
+    }
+    return String(value);
   })
   @IsOptional()
-  @IsNumber({}, { message: 'Rate per session must be a number' })
-  @Min(10, { message: 'Rate per session must be at least $10' })
-  @Max(500, { message: 'Rate per session cannot exceed $500' })
-  rate_per_session?: number;
-
-  @ApiPropertyOptional({
-    description: 'Professional biography',
-    example: 'Licensed clinical psychologist with 5+ years of experience...',
-  })
-  @IsOptional()
-  @IsString({ message: 'Bio must be a string' })
+  @IsString({ message: 'La biografía debe ser un string' })
   @Length(50, 1000, {
-    message: 'Bio must be between 50 and 1000 characters',
+    message: 'La biografía debe tener entre 50 y 1000 caracteres',
   })
-  bio?: string;
+  personal_biography?: string;
 
   @ApiPropertyOptional({
-    description: 'Availability schedule (JSON format)',
-    example: '{"monday": ["09:00-12:00", "14:00-18:00"]}',
+    description: 'Dias de disponibilidad',
+    enum: EAvailability,
+    isArray: true,
+    example: [EAvailability.MONDAY, EAvailability.TUESDAY],
+  })
+  @Transform(({ value }) => {
+    if (value === '' || value === null || value === undefined) {
+      return undefined;
+    }
+    if (typeof value === 'string') {
+      try {
+        const parsed: unknown = JSON.parse(value);
+        return Array.isArray(parsed)
+          ? (parsed as EAvailability[])
+          : [parsed as EAvailability];
+      } catch {
+        return value.split(',').map((item) => item.trim()) as EAvailability[];
+      }
+    }
+    return Array.isArray(value)
+      ? (value as EAvailability[])
+      : [value as EAvailability];
   })
   @IsOptional()
-  @IsString({ message: 'Availability must be a string' })
-  availability?: string;
+  @IsArray({ message: 'La disponibilidad debe ser un array' })
+  @IsEnum(EAvailability, {
+    each: true,
+    message: 'Cada día de disponibilidad debe ser válido',
+  })
+  availability?: EAvailability[];
+
+  @ApiPropertyOptional({
+    description: 'Título profesional',
+    example: 'Licenciado en Psicología',
+  })
+  @Transform(({ value }): string | undefined => {
+    if (value === '' || value === null || value === undefined) {
+      return undefined;
+    }
+    return String(value);
+  })
+  @IsOptional()
+  @IsString({ message: 'El título profesional debe ser un string' })
+  professional_title?: string;
+
+  @ApiPropertyOptional({
+    description: 'Precio de la consulta (solo para psicólogos)',
+    example: 100,
+  })
+  consultation_fee?: number;
 }

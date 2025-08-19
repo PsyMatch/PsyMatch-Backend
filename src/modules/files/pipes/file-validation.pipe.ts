@@ -27,9 +27,10 @@ export class FileValidationPipe implements PipeTransform {
     }
 
     const allowedMimeTypes = [
+      'image/jpg',
       'image/jpeg',
       'image/png',
-      'image/jpg',
+      'image/gif',
       'image/webp',
     ];
 
@@ -39,8 +40,8 @@ export class FileValidationPipe implements PipeTransform {
 
     if (!allowedMimeTypes.includes(file.mimetype)) {
       const fileTypes = allowPDF
-        ? 'PDF, JPG, JPEG, PNG and WEBP files are allowed'
-        : 'JPG, JPEG, PNG and WEBP files are allowed';
+        ? 'PDF, JPG, JPEG, PNG, GIF and WEBP files are allowed'
+        : 'JPG, JPEG, PNG, GIF and WEBP files are allowed';
       throw new BadRequestException(`Invalid file type. Only ${fileTypes}`);
     }
 

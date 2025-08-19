@@ -1,29 +1,40 @@
 import {
   Injectable,
-  CanActivate,
   ExecutionContext,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { AuthGuard } from '@nestjs/passport';
 import { Observable } from 'rxjs';
+import { Request } from 'express';
 import { JwtService, TokenExpiredError } from '@nestjs/jwt';
-import { IAuthRequest } from '../interfaces/auth-request.interface';
+import { ConfigService } from '@nestjs/config';
 import { IJwtPayload } from '../interfaces/jwt-payload.interface';
+import { IAuthRequest } from '../interfaces/auth-request.interface';
 
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class CombinedAuthGuard extends AuthGuard(['jwt', 'google']) {
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) {}
+  ) {
+    super();
+  }
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest<IAuthRequest>();
     const authHeader = request.headers.authorization;
 
+    const path = request.route?.path || request.path;
+    const isGoogleAuthEndpoint =
+      path === '/auth/google' || path === '/auth/google/callback';
+
+    if (isGoogleAuthEndpoint) {
+      return super.canActivate(context);
+    }
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw new UnauthorizedException('Missing or invalid token');
+      throw new UnauthorizedException('Token faltante o inválido');
     }
 
     const token = authHeader.split(' ')[1];
@@ -31,7 +42,8 @@ export class AuthGuard implements CanActivate {
     try {
       const secret = this.configService.get<string>('JWT_SECRET');
       const payload = this.jwtService.verify<IJwtPayload>(token, { secret });
-      payload.iat = new Date().toLocaleString('en-AR', {
+
+      payload.iat = new Date().toLocaleString('es-AR', {
         timeZone: 'America/Argentina/Buenos_Aires',
         weekday: 'long',
         day: '2-digit',
@@ -41,7 +53,7 @@ export class AuthGuard implements CanActivate {
         minute: '2-digit',
         hour12: false,
       });
-      payload.exp = new Date().toLocaleString('en-AR', {
+      payload.exp = new Date().toLocaleString('es-AR', {
         timeZone: 'America/Argentina/Buenos_Aires',
         weekday: 'long',
         day: '2-digit',
@@ -51,6 +63,7 @@ export class AuthGuard implements CanActivate {
         minute: '2-digit',
         hour12: false,
       });
+
       request.user = payload;
       request.tokenExpiresAt = payload.exp;
 
@@ -58,7 +71,7 @@ export class AuthGuard implements CanActivate {
     } catch (error) {
       if (error instanceof TokenExpiredError) {
         throw new UnauthorizedException(
-          `The token expired on: ${error.expiredAt.toLocaleString('en-AR', {
+          `El token expiró el ${error.expiredAt.toLocaleString('es-AR', {
             timeZone: 'America/Argentina/Buenos_Aires',
             weekday: 'long',
             day: '2-digit',
@@ -70,7 +83,23 @@ export class AuthGuard implements CanActivate {
           })}`,
         );
       }
-      throw new UnauthorizedException('Invalid Token');
+      throw new UnauthorizedException('Token inválido');
     }
+  }
+
+  handleRequest<T extends IJwtPayload>(
+    err: Error | null,
+    user: T | false,
+    _info: unknown,
+    context: ExecutionContext,
+  ): T {
+    if (err || !user) {
+      throw err || new UnauthorizedException('Acceso no autorizado');
+    }
+
+    const request = context.switchToHttp().getRequest<IAuthRequest>();
+    request.user = user;
+
+    return user;
   }
 }

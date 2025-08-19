@@ -1,0 +1,42 @@
+import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { ERole } from '../../../../common/enums/role.enum';
+import { Roles } from '../../../auth/decorators/role.decorator';
+import { RolesGuard } from '../../../auth/guards/roles.guard';
+import { IAuthRequest } from '../../../auth/interfaces/auth-request.interface';
+import { PaymentsOfProfessionalsService } from './paymentsOfProfessionals.service';
+import { Payment } from '../../../payments/entities/payment.entity';
+import { CombinedAuthGuard } from 'src/modules/auth/guards/combined-auth.guard';
+
+@ApiTags('Profesionales')
+@UseGuards(CombinedAuthGuard, RolesGuard)
+@ApiBearerAuth('JWT-auth')
+@Controller('psychologist/payments')
+export class PaymentsOfProfessionalsController {
+  constructor(
+    private readonly paymentsService: PaymentsOfProfessionalsService,
+  ) {}
+
+  @Get()
+  @Roles([ERole.PSYCHOLOGIST])
+  @ApiOperation({ summary: 'Obtener los pagos del psicólogo logueado' })
+  @ApiResponse({ status: 200, description: 'Pagos recuperados exitosamente' })
+  @ApiResponse({
+    status: 401,
+    description: 'No autorizado - Token inválido o faltante',
+  })
+  @ApiResponse({ status: 403, description: 'Prohibido - No es un psicólogo' })
+  @ApiResponse({ status: 404, description: 'No se encontraron pagos' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
+  async getPayments(
+    @Req() request: IAuthRequest,
+  ): Promise<{ message: string; data: Payment[] }> {
+    const userId = request.user.id;
+    return await this.paymentsService.getPaymentsOfProfessional(userId);
+  }
+}

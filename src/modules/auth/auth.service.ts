@@ -31,32 +31,20 @@ export class AuthService {
     private readonly userService: UsersService,
   ) {}
 
-  private cleanEmptyStrings<T extends Record<string, unknown>>(
-    obj: T,
-  ): Partial<T> {
-    const cleaned: Partial<T> = { ...obj };
-    Object.keys(cleaned).forEach((key) => {
-      if (cleaned[key as keyof T] === '' || cleaned[key as keyof T] === null) {
-        delete cleaned[key as keyof T];
-      }
-    });
-    return cleaned;
-  }
-
   async signUpService(
     userData: SignUpDto,
     profilePicture?: Express.Multer.File,
-  ): Promise<{ message: string; data: User; token: string }> {
+  ): Promise<{ message: string; data: Patient; token: string }> {
     return this.queryHelper.runInTransaction(async (queryRunner) => {
       const userRepo = queryRunner.manager.getRepository(User);
       const patientRepo = queryRunner.manager.getRepository(Patient);
-      const { email, phone, dni } = userData;
+      const { email, dni } = userData;
 
       const existingUserByEmail = await userRepo.findOne({
         where: { email, is_active: true },
       });
       if (existingUserByEmail) {
-        throw new ConflictException('Email already exists');
+        throw new ConflictException('El email ya existe');
       }
 
       if (dni) {
@@ -64,49 +52,58 @@ export class AuthService {
           where: { dni, is_active: true },
         });
         if (existingUserByDni) {
-          throw new ConflictException('DNI already exists');
-        }
-      }
-
-      if (phone) {
-        const existingUserByPhone = await userRepo.findOne({
-          where: { phone, is_active: true },
-        });
-        if (existingUserByPhone) {
-          throw new ConflictException('Phone number already exists');
+          throw new ConflictException('El DNI ya existe');
         }
       }
 
       if (userData.password && userData.confirmPassword) {
         if (userData.password !== userData.confirmPassword) {
-          throw new BadRequestException('Password confirmation does not match');
+          throw new BadRequestException(
+            'La confirmación de contraseña no coincide',
+          );
         }
       }
 
-      let hashedPassword: string | undefined;
-      if (userData.password) {
-        hashedPassword = await bcrypt.hash(userData.password, 10);
+      const hashedPassword = await bcrypt.hash(userData.password, 10);
+
+      //===============================
+      // DESCOMENTAR CUANDO USEMOS MAPS
+      //===============================
+      // const hasAddress = !!userData.address && userData.address.trim() !== '';
+      // const hasLatitude =
+      //   userData.latitude !== undefined;
+      // const hasLongitude =
+      //   userData.longitude !== undefined;
+
+      // if (hasAddress) {
+      //   if (!hasLatitude || !hasLongitude) {
+      //     throw new BadRequestException(
+      //       'Si se proporciona dirección de hogar, también deben proporcionarse latitud y longitud.',
+      //     );
+      //   }
+      // } else {
+      //   if (hasLatitude || hasLongitude) {
+      //     throw new BadRequestException(
+      //       'No se puede proporcionar latitud o longitud si no hay dirección de hogar.',
+      //     );
+      //   }
+      // }
+
+      if (!userData.address) {
+        userData.latitude = undefined;
+        userData.longitude = undefined;
       }
 
-      const cleanedData = this.cleanEmptyStrings({
-        name: userData.name,
-        email: userData.email,
-        phone: userData.phone,
-        birthdate: userData.birthdate,
-        dni: userData.dni,
-        health_insurance: userData.health_insurance,
-        address: userData.address,
-        emergency_contact: userData.emergency_contact,
-        latitude: userData.latitude,
-        longitude: userData.longitude,
-        profile_picture: userData.profile_picture,
+      const newUser = patientRepo.create({
+        ...userData,
         password: hashedPassword,
         role: ERole.PATIENT,
       });
 
-      const newUser = patientRepo.create(cleanedData);
-
       const savedUser = await patientRepo.save(newUser);
+
+      const defaultProfilePicUrl =
+        'https://res.cloudinary.com/dibnkd72j/image/upload/v1755495603/default-pacient-profile-picture_kqpobf.webp';
 
       if (profilePicture && savedUser.id) {
         const profilePictureUrl =
@@ -116,87 +113,112 @@ export class AuthService {
           );
         savedUser.profile_picture = profilePictureUrl;
         await patientRepo.save(savedUser);
+      } else if (!profilePicture && savedUser.id) {
+        savedUser.profile_picture = defaultProfilePicUrl;
+        await patientRepo.save(savedUser);
       }
 
-      const userWithRelations = await patientRepo.findOne({
-        where: { id: savedUser.id },
-      });
-
-      if (!userWithRelations) {
-        throw new BadRequestException('Error creating user');
+      if (!savedUser) {
+        throw new BadRequestException('Error al crear el usuario');
       }
 
       const payload = {
-        id: userWithRelations.id,
-        email: userWithRelations.email,
-        role: userWithRelations.role,
+        id: savedUser.id,
+        email: savedUser.email,
+        role: savedUser.role,
       };
 
       const token = this.jwtService.sign(payload);
 
       return {
-        message: 'User successfully registered',
-        data: userWithRelations,
+        message: 'Paciente registrado exitosamente',
+        data: savedUser,
         token,
       };
     });
   }
 
   async signUpPsychologistService(
-    userData: SignUpPsychologistDto,
+    psychologistData: SignUpPsychologistDto,
     profilePicture?: Express.Multer.File,
-  ): Promise<{ message: string; data: User; token: string }> {
+  ): Promise<{ message: string; data: Psychologist; token: string }> {
     return this.queryHelper.runInTransaction(async (queryRunner) => {
       const userRepo = queryRunner.manager.getRepository(User);
       const psychologistRepo = queryRunner.manager.getRepository(Psychologist);
-      const { email, phone, dni } = userData;
+      const { email, dni } = psychologistData;
 
       const existingUserByEmail = await userRepo.findOne({
         where: { email, is_active: true },
       });
       if (existingUserByEmail) {
-        throw new ConflictException('Email already exists');
+        throw new ConflictException('El email ya existe');
       }
 
       const existingUserByDni = await userRepo.findOne({
         where: { dni, is_active: true },
       });
       if (existingUserByDni) {
-        throw new ConflictException('DNI already exists');
+        throw new ConflictException('El DNI ya existe');
       }
 
       const existingUserByLicense = await psychologistRepo.findOne({
-        where: { license_number: userData.license_number, is_active: true },
+        where: {
+          license_number: psychologistData.license_number,
+          is_active: true,
+        },
       });
       if (existingUserByLicense) {
-        throw new ConflictException('License number already exists');
+        throw new ConflictException('El número de matrícula ya existe');
       }
 
-      if (phone) {
-        const existingUserByPhone = await userRepo.findOne({
-          where: { phone, is_active: true },
-        });
-        if (existingUserByPhone) {
-          throw new ConflictException('Phone number already exists');
-        }
+      if (psychologistData.password !== psychologistData.confirmPassword)
+        throw new BadRequestException(
+          'La confirmación de contraseña no coincide',
+        );
+
+      const hashedPassword = await bcrypt.hash(psychologistData.password, 10);
+
+      //===============================
+      // DESCOMENTAR CUANDO USEMOS MAPS
+      //===============================
+      // const hasOfficeAddress =
+      //   !!psychologistData.office_address &&
+      //   psychologistData.office_address.trim() !== '';
+      // const hasLatitude =
+      //   psychologistData.latitude !== undefined
+      // const hasLongitude =
+      //   psychologistData.longitude !== undefined
+
+      // if (hasOfficeAddress) {
+      //   if (!hasLatitude || !hasLongitude) {
+      //     throw new BadRequestException(
+      //       'Si se proporciona dirección de consultorio, también deben proporcionarse latitud y longitud.',
+      //     );
+      //   }
+      // } else {
+      //   if (hasLatitude || hasLongitude) {
+      //     throw new BadRequestException(
+      //       'No se puede proporcionar latitud o longitud si no hay dirección de consultorio.',
+      //     );
+      //   }
+      //   if (psychologistData.modality !== EModality.ONLINE) {
+      //     throw new BadRequestException(
+      //       'Si no se proporciona dirección de consultorio, la modalidad debe ser obligatoriamente online',
+      //     );
+      //   }
+      // }
+
+      if (!psychologistData.office_address) {
+        psychologistData.latitude = undefined;
+        psychologistData.longitude = undefined;
       }
 
-      if (userData.password !== userData.confirmPassword)
-        throw new BadRequestException('Password confirmation does not match');
-
-      const hashedPassword = await bcrypt.hash(userData.password, 10);
-
-      const { confirmPassword: _confirmPassword, ...psychologistData } =
-        userData;
-
-      const cleanedPsychologistData = this.cleanEmptyStrings({
+      const newPsychologist = psychologistRepo.create({
         ...psychologistData,
         password: hashedPassword,
         role: ERole.PSYCHOLOGIST,
         verified: EPsychologistStatus.PENDING,
       });
-
-      const newPsychologist = psychologistRepo.create(cleanedPsychologistData);
 
       const savedPsychologist = await psychologistRepo.save(newPsychologist);
 
@@ -210,25 +232,21 @@ export class AuthService {
         await psychologistRepo.save(savedPsychologist);
       }
 
-      const psychologistForToken = await psychologistRepo.findOne({
-        where: { id: savedPsychologist.id },
-      });
-
-      if (!psychologistForToken) {
-        throw new BadRequestException('Error creating psychologist');
+      if (!savedPsychologist) {
+        throw new BadRequestException('Error al crear el psicólogo');
       }
 
       const payload = {
-        id: psychologistForToken.id,
-        email: psychologistForToken.email,
-        role: psychologistForToken.role,
+        id: savedPsychologist.id,
+        email: savedPsychologist.email,
+        role: savedPsychologist.role,
       };
 
       const token = this.jwtService.sign(payload);
 
       return {
-        message: 'Psychologist successfully registered',
-        data: psychologistForToken,
+        message: 'Psicólogo registrado exitosamente',
+        data: savedPsychologist,
         token,
       };
     });
@@ -244,17 +262,22 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new BadRequestException('Invalid email or password');
+      throw new BadRequestException('Email o contraseña inválidos');
+    }
+
+    if (!user.password || typeof user.password !== 'string') {
+      throw new BadRequestException(
+        'Este usuario debe iniciar sesión con Google o el método de autenticación correspondiente.',
+      );
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      throw new BadRequestException('Invalid email or password');
+      throw new BadRequestException('Email o contraseña inválidos');
     }
 
-    user.last_login = new Date();
-    await this.userRepository.save(user);
+    await this.userRepository.update(user.id, { last_login: new Date() });
 
     const payload = {
       id: user.id,
@@ -265,7 +288,7 @@ export class AuthService {
     const token = this.jwtService.sign(payload);
 
     return {
-      message: 'User successfully logged in',
+      message: 'Usuario logueado exitosamente',
       data: user,
       token,
     };

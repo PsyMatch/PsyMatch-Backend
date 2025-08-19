@@ -1,42 +1,52 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Expose, Type } from 'class-transformer';
-import { ERole } from '../../../common/enums/role.enum';
+import { Expose, Exclude, Transform, Type } from 'class-transformer';
 import { EPsychologistSpecialty } from '../../psychologist/enums/specialities.enum';
 import { EPsychologistStatus } from '../../psychologist/enums/verified.enum';
-import { EInsurance } from '../enums/insurance_accepted .enum';
+import { EInsurance } from '../enums/insurances.enum';
+import { EAvailability } from '../../psychologist/enums/availability.enum';
+import { ELanguage } from '../../psychologist/enums/languages.enum';
+import { EModality } from '../../psychologist/enums/modality.enum';
+import { ESessionType } from '../../psychologist/enums/session-types.enum';
+import { ETherapyApproach } from '../../psychologist/enums/therapy-approaches.enum';
+import { ERole } from '../../../common/enums/role.enum';
+
+const formatDateTime = (value: unknown): string => {
+  if (value instanceof Date) {
+    return value.toLocaleString('es-AR', {
+      timeZone: 'America/Argentina/Buenos_Aires',
+      weekday: 'long',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+  }
+  return String(value);
+};
 
 export class ResponseUserDto {
   @ApiProperty({
-    description: 'User unique identifier',
-    example: '4fc84832-3908-4639-8222-ecd5096120a2',
+    description: 'Identificador único del usuario',
   })
   @Expose()
   id: string;
 
   @ApiProperty({
-    description: 'User name',
-    example: 'John Doe',
+    description: 'Nombre del usuario',
   })
   @Expose()
   name: string;
 
   @ApiPropertyOptional({
-    description: 'User profile picture URL',
-    example: 'https://example.com/profile.jpg',
+    description: 'Alias del usuario',
   })
   @Expose()
-  profile_picture?: string;
+  alias?: string;
 
   @ApiPropertyOptional({
-    description: 'User phone number',
-    example: '+5411123456789',
-  })
-  @Expose()
-  phone?: string;
-
-  @ApiPropertyOptional({
-    description: 'User birthdate',
-    example: '2025-07-31',
+    description: 'Fecha de nacimiento del usuario',
     type: 'string',
     format: 'date',
   })
@@ -44,109 +54,63 @@ export class ResponseUserDto {
   birthdate?: Date;
 
   @ApiPropertyOptional({
-    description: 'User DNI (National Identity Document)',
-    example: 12345678,
+    description: 'Número de teléfono del usuario',
+  })
+  @Expose()
+  phone?: string;
+
+  @ApiPropertyOptional({
+    description: 'DNI (Documento Nacional de Identidad)',
   })
   @Expose()
   dni?: number;
 
   @ApiPropertyOptional({
-    description: 'User health insurance provider',
-    enum: EInsurance,
-    example: EInsurance.OSDE,
-  })
-  @Expose()
-  health_insurance?: EInsurance;
-
-  @ApiPropertyOptional({
-    description: 'User address',
-    example: 'Av. Siempre Fernet 742',
+    description: 'Dirección del usuario',
   })
   @Expose()
   address?: string;
 
   @ApiPropertyOptional({
-    description: 'Emergency contact information',
-    example: 'María Pérez - +5411987654321 - Madre',
-  })
-  @Expose()
-  emergency_contact?: string;
-
-  @ApiPropertyOptional({
-    description: 'User location latitude',
-    example: -34.6037,
-  })
-  @Expose()
-  latitude?: number;
-
-  @ApiPropertyOptional({
-    description: 'User location longitude',
-    example: -58.3816,
-  })
-  @Expose()
-  longitude?: number;
-
-  @ApiProperty({
-    description: 'User email address',
-    example: 'john.doe@example.com',
-  })
-  @Expose()
-  email: string;
-
-  @ApiProperty({
-    description: 'User role',
-    enum: ERole,
-    example: ERole.PATIENT,
-  })
-  @Expose()
-  role: ERole;
-
-  @ApiPropertyOptional({
-    description: 'Office address (only for psychologists)',
-    example: 'Av. Corrientes 1234, Oficina 302, Buenos Aires',
+    description: 'Dirección del consultorio (solo para psicólogos)',
   })
   @Expose()
   office_address?: string;
 
   @ApiPropertyOptional({
-    description: 'Verification status (only for psychologists)',
-    enum: EPsychologistStatus,
-    example: EPsychologistStatus.VALIDATED,
+    description: 'Latitud de ubicación del usuario',
   })
-  @Expose()
-  verified?: EPsychologistStatus;
+  @Exclude()
+  latitude?: number;
 
   @ApiPropertyOptional({
-    description: 'Professional license number (only for psychologists)',
-    example: 'PSI-12345-BA',
+    description: 'Longitud de ubicación del usuario',
+  })
+  @Exclude()
+  longitude?: number;
+
+  @ApiProperty({
+    description: 'Dirección de correo electrónico del usuario',
   })
   @Expose()
-  license_number?: string;
+  email: string;
 
   @ApiPropertyOptional({
-    description: 'Specialties (only for psychologists)',
-    enum: EPsychologistSpecialty,
-    isArray: true,
-    example: [
-      EPsychologistSpecialty.BIPOLAR_DISORDER,
-      EPsychologistSpecialty.DEPRESSION,
-    ],
-  })
-  @Expose()
-  specialities?: EPsychologistSpecialty[];
-
-  @ApiPropertyOptional({
-    description: 'Insurance providers accepted (only for psychologists)',
+    description: 'Proveedor de obra social',
     enum: EInsurance,
-    isArray: true,
-    example: [EInsurance.OSDE, EInsurance.SWISSMEDICAL, EInsurance.IOMA],
   })
   @Expose()
-  insurance_accepted?: EInsurance[];
+  health_insurance?: EInsurance;
+
+  @ApiPropertyOptional({
+    description: 'Información de contacto de emergencia',
+  })
+  @Expose()
+  emergency_contact?: string;
 
   @ApiPropertyOptional({
     description:
-      'Assigned psychologists (only populated when user role is PATIENT or ADMIN)',
+      'Psicólogos asignados (solo se llena cuando el rol del usuario es PACIENTE o ADMIN)',
     type: () => ResponseUserDto,
     isArray: true,
   })
@@ -155,12 +119,141 @@ export class ResponseUserDto {
   psychologists?: ResponseUserDto[];
 
   @ApiPropertyOptional({
+    description: 'Título profesional (solo para psicólogos)',
+  })
+  @Expose()
+  professional_title?: string;
+
+  @ApiPropertyOptional({
+    description: 'Número de matrícula profesional (solo para psicólogos)',
+  })
+  @Expose()
+  license_number?: number;
+
+  @ApiPropertyOptional({
+    description: 'Biografía personal (solo para psicólogos)',
+  })
+  @Expose()
+  personal_biography?: string;
+
+  @ApiPropertyOptional({
+    description: 'Años de experiencia profesional (solo para psicólogos)',
+  })
+  @Expose()
+  professional_experience?: number;
+
+  @ApiPropertyOptional({
+    description: 'Idiomas hablados (solo para psicólogos)',
+    enum: ELanguage,
+    isArray: true,
+  })
+  @Expose()
+  languages?: ELanguage[];
+
+  @ApiPropertyOptional({
+    description: 'Enfoques terapéuticos (solo para psicólogos)',
+    enum: ETherapyApproach,
+    isArray: true,
+  })
+  @Expose()
+  therapy_approaches?: ETherapyApproach[];
+
+  @ApiPropertyOptional({
+    description: 'Tipos de sesión ofrecidos (solo para psicólogos)',
+    enum: ESessionType,
+    isArray: true,
+  })
+  @Expose()
+  session_types?: string[];
+
+  @ApiPropertyOptional({
+    description: 'Modalidad de consulta (solo para psicólogos)',
+    enum: EModality,
+  })
+  @Expose()
+  modality?: string;
+
+  @ApiPropertyOptional({
+    description: 'Especialidades (solo para psicólogos)',
+    enum: EPsychologistSpecialty,
+    isArray: true,
+  })
+  @Expose()
+  specialities?: EPsychologistSpecialty[];
+
+  @ApiPropertyOptional({
+    description: 'Proveedores de seguros aceptados (solo para psicólogos)',
+    enum: EInsurance,
+    isArray: true,
+  })
+  @Expose()
+  insurance_accepted?: EInsurance[];
+
+  @ApiPropertyOptional({
+    description: 'Disponibilidad (solo para psicólogos)',
+    enum: EAvailability,
+    isArray: true,
+  })
+  @Expose()
+  availability?: EAvailability[];
+
+  @ApiPropertyOptional({
+    description: 'Precio de la consulta (solo para psicólogos)',
+  })
+  @Expose()
+  consultation_fee?: number;
+
+  @ApiPropertyOptional({
+    description: 'Estado de verificación (solo para psicólogos)',
+    enum: EPsychologistStatus,
+  })
+  @Expose()
+  verified?: EPsychologistStatus;
+
+  @ApiPropertyOptional({
     description:
-      'Assigned patients (only populated when user role is PSYCHOLOGIST)',
+      'Pacientes asignados (solo se llena cuando el rol del usuario es PSICÓLOGO)',
     type: () => ResponseUserDto,
     isArray: true,
   })
   @Expose()
   @Type(() => ResponseUserDto)
   patients?: ResponseUserDto[];
+
+  @ApiProperty({
+    description: 'Rol del usuario',
+    enum: ERole,
+  })
+  @Expose()
+  role: ERole;
+
+  @ApiPropertyOptional({
+    description: 'URL de la foto de perfil del usuario',
+  })
+  @Expose()
+  profile_picture?: string;
+
+  @ApiProperty({
+    description: 'Fecha de creación del usuario',
+    type: 'string',
+  })
+  @Transform(({ value }) => formatDateTime(value))
+  @Expose()
+  created_at: string;
+
+  @ApiProperty({
+    description: 'Fecha de último inicio de sesión del usuario',
+    type: 'string',
+  })
+  @Transform(({ value }) => formatDateTime(value))
+  @Expose()
+  last_login: string;
+
+  @ApiProperty({
+    description: 'Fecha de actualización del usuario',
+    type: 'string',
+  })
+  @Transform(({ value }) => formatDateTime(value))
+  @Expose()
+  updated_at: string;
 }
