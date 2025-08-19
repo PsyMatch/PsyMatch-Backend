@@ -22,12 +22,10 @@ import { Psychologist } from '../psychologist/entities/psychologist.entity';
 import { FilesService } from '../files/files.service';
 import lodash from 'lodash';
 import crypto from 'crypto';
-import { Logger } from '@nestjs/common';
 import { UpdateUserResponseDto } from './dto/update-user-response.dto';
 
 @Injectable()
 export class UsersService {
-  private readonly logger = new Logger(UsersService.name);
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
@@ -42,16 +40,25 @@ export class UsersService {
 
   async findAll(
     paginationDto: PaginationDto,
-  ): Promise<PaginatedResponse<User>> {
-    const users = this.usersRepository
+  ): Promise<PaginatedResponse<Omit<User, 'password'>>> {
+    const usersQuery = this.usersRepository
       .createQueryBuilder('user')
       .where('user.is_active = :isActive', { isActive: true });
 
-    if (!users) {
+    const paginatedResult = await this.paginationService.paginate(
+      usersQuery,
+      paginationDto,
+    );
+
+    if (!paginatedResult.data.length) {
       throw new NotFoundException('No se encontraron usuarios activos');
     }
 
-    return await this.paginationService.paginate(users, paginationDto);
+    paginatedResult.data = paginatedResult.data.map(
+      ({ password: _password, ...rest }) => rest,
+    ) as Omit<User[], 'password'>;
+
+    return paginatedResult;
   }
 
   async findAllPatients(
@@ -62,7 +69,20 @@ export class UsersService {
       .where('user.role = :role', { role: ERole.PATIENT })
       .andWhere('user.is_active = :isActive', { isActive: true });
 
-    return await this.paginationService.paginate(patients, paginationDto);
+    const paginatedResult = await this.paginationService.paginate(
+      patients,
+      paginationDto,
+    );
+
+    if (!paginatedResult.data.length) {
+      throw new NotFoundException('No se encontraron pacientes activos');
+    }
+
+    paginatedResult.data = paginatedResult.data.map(
+      ({ password: _password, ...rest }) => rest,
+    ) as Omit<User[], 'password'>;
+
+    return paginatedResult;
   }
 
   async findById(id: string, requester?: string): Promise<User> {
@@ -126,12 +146,15 @@ export class UsersService {
       throw new NotFoundException('No se encontró usuario con ese ID');
     }
 
-    const appointments = this.appointmentRepository
+    const appointmentsQuery = this.appointmentRepository
       .createQueryBuilder('appointment')
-      .where('appointment.patientId = :id', { id });
+      .leftJoinAndSelect('appointment.patient', 'patient')
+      .leftJoinAndSelect('appointment.psychologist', 'psychologist')
+      .where('patient.id = :id OR psychologist.id = :id', { id })
+      .orderBy('appointment.date', 'ASC');
 
     const result = await this.paginationService.paginate(
-      appointments,
+      appointmentsQuery,
       paginationDto,
     );
 
@@ -140,6 +163,12 @@ export class UsersService {
         'Este paciente aún no tiene citas registradas',
       );
     }
+
+    result.data = result.data.map((appointment: Appointment) => ({
+      ...appointment,
+      patient: appointment.patient,
+      psychologist: appointment.psychologist,
+    }));
 
     return result;
   }
@@ -278,16 +307,6 @@ export class UsersService {
         if (newFileHash !== currentFileHash) {
           newProfilePictureUrl =
             await this.filesService.uploadImageToCloudinary(profilePicture, id);
-          profilePictureChanged = true;
-        }
-      } else if (
-        'profile_picture' in userData &&
-        (userData.profile_picture === '' ||
-          userData.profile_picture === null ||
-          userData.profile_picture === undefined)
-      ) {
-        if (user.profile_picture !== DEFAULT_PROFILE_URL) {
-          newProfilePictureUrl = DEFAULT_PROFILE_URL;
           profilePictureChanged = true;
         }
       }

@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Exclude, Expose, Transform } from 'class-transformer';
 import { EPsychologistSpecialty } from '../../psychologist/enums/specialities.enum';
 import { EPsychologistStatus } from '../../psychologist/enums/verified.enum';
 import { EInsurance } from '../enums/insurances.enum';
@@ -37,6 +37,11 @@ export class ResponsePublicUserDto {
     example: '+5411123456789',
   })
   @Expose()
+  @Transform(
+    ({ obj }: { obj: ResponsePublicUserDto }) =>
+      obj.role === ERole.PSYCHOLOGIST ? obj.phone : Exclude(),
+    { toPlainOnly: true },
+  )
   phone?: string;
 
   @ApiPropertyOptional({

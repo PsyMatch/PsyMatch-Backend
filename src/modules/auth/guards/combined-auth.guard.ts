@@ -6,24 +6,23 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { Observable } from 'rxjs';
 import { Request } from 'express';
-import { ParamsDictionary } from 'express-serve-static-core';
-import { ParsedQs } from 'qs';
+import { JwtService, TokenExpiredError } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { IJwtPayload } from '../interfaces/jwt-payload.interface';
-
-interface ExtendedRequest
-  extends Request<ParamsDictionary, unknown, unknown, ParsedQs> {
-  route: {
-    path: string;
-  };
-  user?: IJwtPayload;
-}
+import { IAuthRequest } from '../interfaces/auth-request.interface';
 
 @Injectable()
 export class CombinedAuthGuard extends AuthGuard(['jwt', 'google']) {
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+  ) {
+    super();
+  }
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
-    const request = context.switchToHttp().getRequest<ExtendedRequest>();
+    const request = context.switchToHttp().getRequest<IAuthRequest>();
     const authHeader = request.headers.authorization;
 
     const path = request.route?.path || request.path;
@@ -34,17 +33,58 @@ export class CombinedAuthGuard extends AuthGuard(['jwt', 'google']) {
       return super.canActivate(context);
     }
 
-    if (!authHeader) {
-      throw new UnauthorizedException(
-        'No se proporcionó un token de autenticación',
-      );
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new UnauthorizedException('Token faltante o inválido');
     }
 
-    if (authHeader.startsWith('Bearer ')) {
-      return super.canActivate(context);
-    }
+    const token = authHeader.split(' ')[1];
 
-    throw new UnauthorizedException('Metodo de autenticacion no valido');
+    try {
+      const secret = this.configService.get<string>('JWT_SECRET');
+      const payload = this.jwtService.verify<IJwtPayload>(token, { secret });
+
+      payload.iat = new Date().toLocaleString('es-AR', {
+        timeZone: 'America/Argentina/Buenos_Aires',
+        weekday: 'long',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      });
+      payload.exp = new Date().toLocaleString('es-AR', {
+        timeZone: 'America/Argentina/Buenos_Aires',
+        weekday: 'long',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      });
+
+      request.user = payload;
+      request.tokenExpiresAt = payload.exp;
+
+      return true;
+    } catch (error) {
+      if (error instanceof TokenExpiredError) {
+        throw new UnauthorizedException(
+          `El token expiró el ${error.expiredAt.toLocaleString('es-AR', {
+            timeZone: 'America/Argentina/Buenos_Aires',
+            weekday: 'long',
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+          })}`,
+        );
+      }
+      throw new UnauthorizedException('Token inválido');
+    }
   }
 
   handleRequest<T extends IJwtPayload>(
@@ -57,7 +97,7 @@ export class CombinedAuthGuard extends AuthGuard(['jwt', 'google']) {
       throw err || new UnauthorizedException('Acceso no autorizado');
     }
 
-    const request = context.switchToHttp().getRequest<ExtendedRequest>();
+    const request = context.switchToHttp().getRequest<IAuthRequest>();
     request.user = user;
 
     return user;

@@ -60,7 +60,8 @@ export class SeederService {
         emergency_contact: 'María Pérez - +5411987654321 - Madre',
         latitude: -34.6037,
         longitude: -58.3816,
-        profile_picture: 'https://example.com/profile/juan-perez.jpg',
+        profile_picture:
+          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755495603/default-pacient-profile-picture_kqpobf.webp',
       },
       {
         name: 'María González',
@@ -75,7 +76,7 @@ export class SeederService {
         role: ERole.PATIENT,
         emergency_contact: 'Carlos González - +5411122334455 - Padre',
         profile_picture:
-          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755031810/default-profile-picture_lzshvt.webp',
+          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755495603/default-pacient-profile-picture_kqpobf.webp',
       },
       {
         name: 'Pedro Rodríguez',
@@ -91,7 +92,7 @@ export class SeederService {
         latitude: -31.4167,
         longitude: -64.1833,
         profile_picture:
-          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755031810/default-profile-picture_lzshvt.webp',
+          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755495603/default-pacient-profile-picture_kqpobf.webp',
       },
       {
         name: 'Ana López',
@@ -105,7 +106,7 @@ export class SeederService {
         health_insurance: EInsurance.OSDE,
         role: ERole.PATIENT,
         profile_picture:
-          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755031810/default-profile-picture_lzshvt.webp',
+          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755495603/default-pacient-profile-picture_kqpobf.webp',
       },
       {
         name: 'Carlos Martínez',
@@ -120,7 +121,7 @@ export class SeederService {
         role: ERole.PATIENT,
         emergency_contact: 'Laura Martínez - +541155667788 - Hermana',
         profile_picture:
-          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755031810/default-profile-picture_lzshvt.webp',
+          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755495603/default-pacient-profile-picture_kqpobf.webp',
       },
       {
         name: 'Laura Fernández',
@@ -133,7 +134,8 @@ export class SeederService {
         birthdate: '1987-11-17',
         health_insurance: EInsurance.UNION_PERSONAL,
         role: ERole.PATIENT,
-        profile_picture: 'https://example.com/profile/laura-fernandez.jpg',
+        profile_picture:
+          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755495603/default-pacient-profile-picture_kqpobf.webp',
       },
       {
         name: 'Sofía Ramírez',
@@ -147,7 +149,7 @@ export class SeederService {
         health_insurance: EInsurance.OSDEPYM,
         role: ERole.PATIENT,
         profile_picture:
-          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755031810/default-profile-picture_lzshvt.webp',
+          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755495603/default-pacient-profile-picture_kqpobf.webp',
       },
       {
         name: 'Martín Castro',
@@ -162,7 +164,7 @@ export class SeederService {
         role: ERole.PATIENT,
         emergency_contact: 'Valentina Castro - +541166778899 - Esposa',
         profile_picture:
-          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755031810/default-profile-picture_lzshvt.webp',
+          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755495603/default-pacient-profile-picture_kqpobf.webp',
       },
       {
         name: 'Valentina Torres',
@@ -176,7 +178,7 @@ export class SeederService {
         health_insurance: EInsurance.JERARQUICOS_SALUD,
         role: ERole.PATIENT,
         profile_picture:
-          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755031810/default-profile-picture_lzshvt.webp',
+          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755495603/default-pacient-profile-picture_kqpobf.webp',
       },
       {
         name: 'Federico Gómez',
@@ -192,7 +194,7 @@ export class SeederService {
         latitude: -31.4167,
         longitude: -64.1833,
         profile_picture:
-          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755031810/default-profile-picture_lzshvt.webp',
+          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755495603/default-pacient-profile-picture_kqpobf.webp',
       },
       {
         name: 'Camila Herrera',
@@ -206,7 +208,7 @@ export class SeederService {
         health_insurance: EInsurance.OSMECON_SALUD,
         role: ERole.PATIENT,
         profile_picture:
-          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755031810/default-profile-picture_lzshvt.webp',
+          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755495603/default-pacient-profile-picture_kqpobf.webp',
       },
       {
         name: 'Luciano Díaz',
@@ -221,7 +223,7 @@ export class SeederService {
         role: ERole.PATIENT,
         emergency_contact: 'Sofía Díaz - +5411122334455 - Madre',
         profile_picture:
-          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755031810/default-profile-picture_lzshvt.webp',
+          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755495603/default-pacient-profile-picture_kqpobf.webp',
       },
     ];
 
@@ -270,7 +272,8 @@ export class SeederService {
           EAvailability.FRIDAY,
         ],
         verified: EPsychologistStatus.VALIDATED,
-        profile_picture: 'https://example.com/profile/ana-garcia.jpg',
+        profile_picture:
+          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755591733/default-female-psychologist-profile-picture_qyogmy.webp',
       },
       {
         name: 'Roberto Silva',
@@ -310,7 +313,8 @@ export class SeederService {
           EAvailability.SATURDAY,
         ],
         verified: EPsychologistStatus.VALIDATED,
-        profile_picture: 'https://example.com/profile/roberto-silva.jpg',
+        profile_picture:
+          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755591732/default-male-psychologist-profile-picture_sqyd1d.webp',
       },
       {
         name: 'Carmen Ruiz',
@@ -349,7 +353,8 @@ export class SeederService {
           EAvailability.SUNDAY,
         ],
         verified: EPsychologistStatus.PENDING,
-        profile_picture: 'https://example.com/profile/carmen-ruiz.jpg',
+        profile_picture:
+          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755591733/default-female-psychologist-profile-picture_qyogmy.webp',
       },
       {
         name: 'Pablo Méndez',
@@ -377,7 +382,8 @@ export class SeederService {
         therapy_approaches: [ETherapyApproach.ACCEPTANCE_COMMITMENT_THERAPY],
         availability: [EAvailability.MONDAY, EAvailability.THURSDAY],
         verified: EPsychologistStatus.VALIDATED,
-        profile_picture: 'https://example.com/profile/pablo-mendez.jpg',
+        profile_picture:
+          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755591732/default-male-psychologist-profile-picture_sqyd1d.webp',
       },
       {
         name: 'Lucía Benítez',
@@ -407,7 +413,8 @@ export class SeederService {
         ],
         availability: [EAvailability.WEDNESDAY, EAvailability.FRIDAY],
         verified: EPsychologistStatus.PENDING,
-        profile_picture: 'https://example.com/profile/lucia-benitez.jpg',
+        profile_picture:
+          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755591733/default-female-psychologist-profile-picture_qyogmy.webp',
       },
       {
         name: 'Esteban Morales',
@@ -434,7 +441,8 @@ export class SeederService {
         therapy_approaches: [ETherapyApproach.HUMANISTIC_CENTRED_THERAPY],
         availability: [EAvailability.TUESDAY, EAvailability.SATURDAY],
         verified: EPsychologistStatus.VALIDATED,
-        profile_picture: 'https://example.com/profile/esteban-morales.jpg',
+        profile_picture:
+          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755591732/default-male-psychologist-profile-picture_sqyd1d.webp',
       },
       {
         name: 'Paula Suárez',
@@ -464,7 +472,8 @@ export class SeederService {
         ],
         availability: [EAvailability.THURSDAY, EAvailability.SUNDAY],
         verified: EPsychologistStatus.PENDING,
-        profile_picture: 'https://example.com/profile/paula-suarez.jpg',
+        profile_picture:
+          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755591733/default-female-psychologist-profile-picture_qyogmy.webp',
       },
       {
         name: 'Nicolás Herrera',
@@ -492,7 +501,8 @@ export class SeederService {
         therapy_approaches: [ETherapyApproach.GESTALT_THERAPY],
         availability: [EAvailability.WEDNESDAY, EAvailability.FRIDAY],
         verified: EPsychologistStatus.VALIDATED,
-        profile_picture: 'https://example.com/profile/nicolas-herrera.jpg',
+        profile_picture:
+          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755591732/default-male-psychologist-profile-picture_sqyd1d.webp',
       },
       {
         name: 'Mariana López',
@@ -522,7 +532,8 @@ export class SeederService {
         ],
         availability: [EAvailability.TUESDAY, EAvailability.SATURDAY],
         verified: EPsychologistStatus.PENDING,
-        profile_picture: 'https://example.com/profile/mariana-lopez.jpg',
+        profile_picture:
+          'https://res.cloudinary.com/dibnkd72j/image/upload/v1755591733/default-female-psychologist-profile-picture_qyogmy.webp',
       },
     ];
 

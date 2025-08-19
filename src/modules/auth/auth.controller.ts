@@ -104,6 +104,8 @@ export class AuthController {
       sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-    return res.redirect('http://localhost:3000/dashboard/user');
+    return res.redirect(
+      'https://psymatch-frontend.onrender.com/dashboard/user',
+    );
   }
 }
