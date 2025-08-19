@@ -35,7 +35,24 @@ const oauth = {
   },
 };
 
-const config = { server, typeorm, cloudinary, jwt, oauth };
+const mercadopago = {
+  accessToken: process.env.MP_ACCESS_TOKEN ?? 'your_mercadopago_access_token',
+};
+
+const deployed_urls = {
+  backend: process.env.BACKEND_URL ?? 'http://localhost:8080',
+  frontend: process.env.FRONTEND_URL ?? 'http://localhost:3000',
+};
+
+const config = {
+  server,
+  typeorm,
+  cloudinary,
+  jwt,
+  oauth,
+  mercadopago,
+  deployed_urls,
+};
 
 export const envs = config;
 
