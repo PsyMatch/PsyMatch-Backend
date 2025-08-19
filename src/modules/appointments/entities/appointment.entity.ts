@@ -17,7 +17,7 @@ export class Appointment {
   @Column({ type: 'varchar', length: 5 })
   hour: string; // "HH:mm"
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'int', nullable: true, default: 45 })
   duration: number;
 
   @Column({ type: 'text', nullable: true })

@@ -9,7 +9,6 @@ import {
   IsDateString,
   IsEnum,
   IsEmail,
-  IsPhoneNumber,
   IsStrongPassword,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
@@ -64,14 +63,10 @@ export class UpdateUserDto {
   })
   @IsOptional()
   @Transform(({ value }) => cleanEmpty(value))
-  @IsPhoneNumber(undefined, {
-    message: 'El teléfono debe ser un número válido.',
-  })
-  @Matches(/^(\+?[1-9]\d{1,14})$/, {
+  @Matches(/^\+?\d{8,15}$/, {
     message:
-      'El teléfono debe ser un número válido en formato internacional (ej: +5411123456789 o 1123456789)',
+      'El teléfono debe ser un número válido (8 a 15 dígitos, puede iniciar con +).',
   })
-  @Length(8, 15, { message: 'El teléfono debe tener entre 8 y 15 dígitos.' })
   phone?: string;
 
   @ApiPropertyOptional({

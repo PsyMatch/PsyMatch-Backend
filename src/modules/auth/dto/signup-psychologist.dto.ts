@@ -51,14 +51,6 @@ export class SignUpPsychologistDto {
   @IsNotEmpty()
   name: string;
 
-  @ApiPropertyOptional({
-    description: 'Alias del psicólogo',
-    example: 'Licenciado Pablo Suárez',
-  })
-  @IsString()
-  @IsNotEmpty()
-  alias?: string;
-
   @ApiProperty({
     description: 'DNI (Documento Nacional de Identidad)',
     example: 34567890,

@@ -13,8 +13,6 @@ import { User } from '../users/entities/user.entity';
 import { Psychologist } from '../psychologist/entities/psychologist.entity';
 import { AppointmentStatus } from './enums/appointment-status.enum';
 import { ERole } from '../../common/enums/role.enum';
-import { ESessionType } from '../psychologist/enums/session-types.enum';
-import { ETherapyApproach } from '../psychologist/enums/therapy-approaches.enum';
 import { EInsurance } from '../users/enums/insurances.enum';
 import { IAuthRequest } from '../auth/interfaces/auth-request.interface';
 
@@ -95,20 +93,20 @@ export class AppointmentsService {
 
     const [hh, mm] = dto.hour.split(':').map(Number);
 
-    if (
-      dto.duration === undefined ||
-      Number.isNaN(hh) ||
-      Number.isNaN(mm) ||
-      mm % dto.duration !== 0
-    ) {
+    if (Number.isNaN(hh) || Number.isNaN(mm)) {
+      throw new BadRequestException('Formato de hora inválido');
+    }
+
+    if (mm !== 0) {
       throw new BadRequestException(
-        'Hora inválida para la duración seleccionada',
+        'Las citas solo pueden agendarse en horas exactas (:00)',
       );
     }
 
-    if (hh < 9 || hh > 17) {
+    const validHours = [9, 10, 11, 14, 15, 16];
+    if (!validHours.includes(hh)) {
       throw new BadRequestException(
-        'Hora fuera del horario permitido (09:00-17:59)',
+        'Horarios disponibles: 09:00, 10:00, 11:00, 14:00, 15:00, 16:00',
       );
     }
 
@@ -124,7 +122,7 @@ export class AppointmentsService {
     if (
       dto.session_type &&
       psychologist.session_types?.length &&
-      !psychologist.session_types.includes(dto.session_type as ESessionType)
+      !psychologist.session_types.includes(dto.session_type)
     ) {
       throw new BadRequestException(
         'session_type no disponible para este psicólogo',
@@ -133,9 +131,7 @@ export class AppointmentsService {
     if (
       dto.therapy_approach &&
       psychologist.therapy_approaches?.length &&
-      !psychologist.therapy_approaches.includes(
-        dto.therapy_approach as ETherapyApproach,
-      )
+      !psychologist.therapy_approaches.includes(dto.therapy_approach)
     ) {
       throw new BadRequestException(
         'therapy_approach no ofrecido por este psicólogo',
@@ -161,7 +157,7 @@ export class AppointmentsService {
       date: when,
       patient,
       psychologist,
-      status: dto.status ?? AppointmentStatus.PENDING,
+      status: AppointmentStatus.PENDING,
     });
 
     const saved = await this.appointmentRepository.save(appointment);
@@ -169,7 +165,7 @@ export class AppointmentsService {
     return {
       id: saved.id,
       date: saved.date,
-      duration: saved.duration,
+      duration: 45,
       notes: saved.notes,
       status: saved.status,
       modality: saved.modality,
@@ -273,7 +269,6 @@ export class AppointmentsService {
       if (dto.hour) a.hour = dto.hour;
     }
 
-    if (dto.duration !== undefined) a.duration = dto.duration;
     if (dto.notes !== undefined) a.notes = dto.notes;
     if (dto.status !== undefined) a.status = dto.status;
     if (dto.modality !== undefined) a.modality = dto.modality;
