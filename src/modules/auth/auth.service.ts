@@ -265,6 +265,12 @@ export class AuthService {
       throw new BadRequestException('Email o contraseña inválidos');
     }
 
+    if (!user.password || typeof user.password !== 'string') {
+      throw new BadRequestException(
+        'Este usuario debe iniciar sesión con Google o el método de autenticación correspondiente.',
+      );
+    }
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
