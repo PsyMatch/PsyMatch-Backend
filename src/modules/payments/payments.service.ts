@@ -1,9 +1,20 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Payment, PayStatus } from './entities/payment.entity';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
+import { MercadoPagoConfig, Preference } from 'mercadopago';
+import { envs } from 'src/configs/envs.config';
+
+// Define interfaces for MercadoPago types
+interface MPPreferenceResult {
+  init_point?: string;
+}
 
 @Injectable()
 export class PaymentsService {
@@ -58,6 +69,67 @@ export class PaymentsService {
 
     if (result.affected === 0) {
       throw new NotFoundException(`Payment with ID ${id} not found`);
+    }
+  }
+
+  async createMercadoPagoPreference(): Promise<{ init_point: string }> {
+    // Safe environment variable access with validation
+    const accessToken = envs.mercadopago.accessToken;
+    const frontendUrl = envs.deployed_urls.frontend;
+
+    if (!accessToken) {
+      throw new BadRequestException(
+        'MercadoPago access token is not configured',
+      );
+    }
+
+    if (!frontendUrl) {
+      throw new BadRequestException('Frontend URL is not configured');
+    }
+
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+      const client = new MercadoPagoConfig({
+        accessToken,
+      });
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+      const preference = new Preference(client);
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      const result: MPPreferenceResult = await preference.create({
+        body: {
+          items: [
+            {
+              id: 'therapy_session',
+              title: 'Pago Unico',
+              quantity: 1,
+              unit_price: 55,
+              currency_id: 'ARS',
+            },
+          ],
+          back_urls: {
+            success: `${frontendUrl}/dashboard/user`,
+            failure: `${frontendUrl}/failure`,
+            pending: `${frontendUrl}/pending`,
+          },
+          auto_return: 'approved',
+        },
+      });
+
+      // Safe access to result with validation
+      if (!result?.init_point) {
+        throw new BadRequestException(
+          'Failed to create MercadoPago preference - invalid response',
+        );
+      }
+
+      return { init_point: result.init_point };
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new BadRequestException('Failed to create MercadoPago preference');
     }
   }
 }

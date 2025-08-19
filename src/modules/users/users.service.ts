@@ -311,13 +311,28 @@ export class UsersService {
         }
       }
 
+      // ESTE CODIGO COMENTADO ELIMINA LA FOTO DEL PERFIL DEL USUARIO CUANDO  NO AGREGAN UNA PARA REEMPLAZARLA
+
+      // } else if (
+      //   'profile_picture' in userData &&
+      //   (userData.profile_picture === '' ||
+      //     userData.profile_picture === null ||
+      //     userData.profile_picture === undefined)
+      // ) {
+      //   if (user.profile_picture !== DEFAULT_PROFILE_URL) {
+      //     newProfilePictureUrl = DEFAULT_PROFILE_URL;
+      //     profilePictureChanged = true;
+      //   }
+      // }
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
       if (!hasDataChanges && !profilePictureChanged) {
         throw new ConflictException('No se actualizaron campos');
       }
 
       const updatedUser = userRepo.create({
         ...user,
-        ...userData,
+        ...lodash.omit(userData, ['profile_picture']),
         profile_picture: newProfilePictureUrl ?? user.profile_picture,
       });
       await userRepo.save(updatedUser);
