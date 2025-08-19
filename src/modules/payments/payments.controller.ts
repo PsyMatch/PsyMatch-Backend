@@ -32,6 +32,35 @@ import { CombinedAuthGuard } from '../auth/guards/combined-auth.guard';
 export class PaymentsController {
   constructor(private readonly service: PaymentsService) {}
 
+  @Post('mercadopago-preference')
+  @Roles([ERole.PATIENT, ERole.ADMIN])
+  @ApiOperation({
+    summary: 'Crear preferencia de pago de Mercado Pago',
+    description:
+      'Generar una preferencia de pago para Mercado Pago y devolver el init_point para redirección.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Preferencia creada exitosamente',
+    schema: {
+      type: 'object',
+      properties: {
+        init_point: {
+          type: 'string',
+          example:
+            'https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=123',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Error al crear la preferencia de pago',
+  })
+  async createMercadoPagoPreference() {
+    return this.service.createMercadoPagoPreference();
+  }
+
   @Post()
   @Roles([ERole.PATIENT, ERole.ADMIN])
   @ApiOperation({
