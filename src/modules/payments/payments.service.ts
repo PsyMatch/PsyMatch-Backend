@@ -9,6 +9,7 @@ import { Payment, PayStatus } from './entities/payment.entity';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { MercadoPagoConfig, Preference } from 'mercadopago';
+import { envs } from 'src/configs/envs.config';
 
 // Define interfaces for MercadoPago types
 interface MPPreferenceResult {
@@ -73,8 +74,8 @@ export class PaymentsService {
 
   async createMercadoPagoPreference(): Promise<{ init_point: string }> {
     // Safe environment variable access with validation
-    const accessToken = process.env.MP_ACCESS_TOKEN;
-    const frontendUrl = process.env.FRONTEND_URL;
+    const accessToken = envs.mercadopago.accessToken;
+    const frontendUrl = envs.deployed_urls.frontend;
 
     if (!accessToken) {
       throw new BadRequestException(
