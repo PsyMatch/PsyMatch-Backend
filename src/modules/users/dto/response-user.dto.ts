@@ -29,28 +29,24 @@ const formatDateTime = (value: unknown): string => {
 export class ResponseUserDto {
   @ApiProperty({
     description: 'Identificador único del usuario',
-    example: '4fc84832-3908-4639-8222-ecd5096120a2',
   })
   @Expose()
   id: string;
 
   @ApiProperty({
     description: 'Nombre del usuario',
-    example: 'Juan Pérez',
   })
   @Expose()
   name: string;
 
   @ApiPropertyOptional({
     description: 'Alias del usuario',
-    example: 'juanito',
   })
   @Expose()
   alias?: string;
 
   @ApiPropertyOptional({
     description: 'Fecha de nacimiento del usuario',
-    example: '2025-07-31',
     type: 'string',
     format: 'date',
   })
@@ -59,49 +55,42 @@ export class ResponseUserDto {
 
   @ApiPropertyOptional({
     description: 'Número de teléfono del usuario',
-    example: '+5411123456789',
   })
   @Expose()
   phone?: string;
 
   @ApiPropertyOptional({
     description: 'DNI (Documento Nacional de Identidad)',
-    example: 12345678,
   })
   @Expose()
   dni?: number;
 
   @ApiPropertyOptional({
     description: 'Dirección del usuario',
-    example: 'Av. Siempre Viva 742',
   })
   @Expose()
   address?: string;
 
   @ApiPropertyOptional({
     description: 'Dirección del consultorio (solo para psicólogos)',
-    example: 'Av. Corrientes 1234, Oficina 302, Buenos Aires',
   })
   @Expose()
   office_address?: string;
 
   @ApiPropertyOptional({
     description: 'Latitud de ubicación del usuario',
-    example: -34.6037,
   })
   @Exclude()
   latitude?: number;
 
   @ApiPropertyOptional({
     description: 'Longitud de ubicación del usuario',
-    example: -58.3816,
   })
   @Exclude()
   longitude?: number;
 
   @ApiProperty({
     description: 'Dirección de correo electrónico del usuario',
-    example: 'juan.perez@ejemplo.com',
   })
   @Expose()
   email: string;
@@ -109,14 +98,12 @@ export class ResponseUserDto {
   @ApiPropertyOptional({
     description: 'Proveedor de obra social',
     enum: EInsurance,
-    example: EInsurance.OSDE,
   })
   @Expose()
   health_insurance?: EInsurance;
 
   @ApiPropertyOptional({
     description: 'Información de contacto de emergencia',
-    example: 'María Pérez - +5411987654321 - Madre',
   })
   @Expose()
   emergency_contact?: string;
@@ -133,29 +120,24 @@ export class ResponseUserDto {
 
   @ApiPropertyOptional({
     description: 'Título profesional (solo para psicólogos)',
-    example: 'Psicólogo Clínico',
   })
   @Expose()
   professional_title?: string;
 
   @ApiPropertyOptional({
     description: 'Número de matrícula profesional (solo para psicólogos)',
-    example: 123456,
   })
   @Expose()
   license_number?: number;
 
   @ApiPropertyOptional({
     description: 'Biografía personal (solo para psicólogos)',
-    example:
-      'Psicólogo especializado en terapia cognitivo conductual con 10 años de experiencia.',
   })
   @Expose()
   personal_biography?: string;
 
   @ApiPropertyOptional({
     description: 'Años de experiencia profesional (solo para psicólogos)',
-    example: 5,
   })
   @Expose()
   professional_experience?: number;
@@ -164,7 +146,6 @@ export class ResponseUserDto {
     description: 'Idiomas hablados (solo para psicólogos)',
     enum: ELanguage,
     isArray: true,
-    example: ['spanish', 'english'],
   })
   @Expose()
   languages?: ELanguage[];
@@ -173,7 +154,6 @@ export class ResponseUserDto {
     description: 'Enfoques terapéuticos (solo para psicólogos)',
     enum: ETherapyApproach,
     isArray: true,
-    example: ['cognitive_behavioral_therapy', 'psychodynamic_therapy'],
   })
   @Expose()
   therapy_approaches?: ETherapyApproach[];
@@ -182,7 +162,6 @@ export class ResponseUserDto {
     description: 'Tipos de sesión ofrecidos (solo para psicólogos)',
     enum: ESessionType,
     isArray: true,
-    example: ['individual', 'couple'],
   })
   @Expose()
   session_types?: string[];
@@ -190,7 +169,6 @@ export class ResponseUserDto {
   @ApiPropertyOptional({
     description: 'Modalidad de consulta (solo para psicólogos)',
     enum: EModality,
-    example: 'in_person',
   })
   @Expose()
   modality?: string;
@@ -199,10 +177,6 @@ export class ResponseUserDto {
     description: 'Especialidades (solo para psicólogos)',
     enum: EPsychologistSpecialty,
     isArray: true,
-    example: [
-      EPsychologistSpecialty.BIPOLAR_DISORDER,
-      EPsychologistSpecialty.DEPRESSION,
-    ],
   })
   @Expose()
   specialities?: EPsychologistSpecialty[];
@@ -211,7 +185,6 @@ export class ResponseUserDto {
     description: 'Proveedores de seguros aceptados (solo para psicólogos)',
     enum: EInsurance,
     isArray: true,
-    example: [EInsurance.OSDE, EInsurance.SWISS_MEDICAL, EInsurance.IOMA],
   })
   @Expose()
   insurance_accepted?: EInsurance[];
@@ -220,15 +193,19 @@ export class ResponseUserDto {
     description: 'Disponibilidad (solo para psicólogos)',
     enum: EAvailability,
     isArray: true,
-    example: ['monday', 'wednesday', 'friday'],
   })
   @Expose()
   availability?: EAvailability[];
 
   @ApiPropertyOptional({
+    description: 'Precio de la consulta (solo para psicólogos)',
+  })
+  @Expose()
+  consultation_fee?: number;
+
+  @ApiPropertyOptional({
     description: 'Estado de verificación (solo para psicólogos)',
     enum: EPsychologistStatus,
-    example: EPsychologistStatus.VALIDATED,
   })
   @Expose()
   verified?: EPsychologistStatus;
@@ -246,21 +223,18 @@ export class ResponseUserDto {
   @ApiProperty({
     description: 'Rol del usuario',
     enum: ERole,
-    example: ERole.PATIENT,
   })
   @Expose()
   role: ERole;
 
   @ApiPropertyOptional({
     description: 'URL de la foto de perfil del usuario',
-    example: 'https://ejemplo.com/perfil.jpg',
   })
   @Expose()
   profile_picture?: string;
 
   @ApiProperty({
     description: 'Fecha de creación del usuario',
-    example: 'domingo, 17/08/2025, 21:59',
     type: 'string',
   })
   @Transform(({ value }) => formatDateTime(value))
@@ -269,7 +243,6 @@ export class ResponseUserDto {
 
   @ApiProperty({
     description: 'Fecha de último inicio de sesión del usuario',
-    example: 'domingo, 17/08/2025, 21:59',
     type: 'string',
   })
   @Transform(({ value }) => formatDateTime(value))
@@ -278,7 +251,6 @@ export class ResponseUserDto {
 
   @ApiProperty({
     description: 'Fecha de actualización del usuario',
-    example: 'domingo, 17/08/2025, 21:59',
     type: 'string',
   })
   @Transform(({ value }) => formatDateTime(value))

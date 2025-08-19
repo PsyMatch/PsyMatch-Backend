@@ -170,12 +170,11 @@ export class SignUpPsychologistDto {
   @ApiProperty({
     type: 'string',
     format: 'binary',
-    required: false,
-    description: 'Imagen de perfil',
+    required: true,
+    description: 'Imagen de perfil (obligatoria)',
     example: 'https://example.com/profile/pablo-suarez.jpg',
   })
   @IsOptional()
-  @IsString({ message: 'La URL de la foto de perfil debe ser un string.' })
   profile_picture?: string;
 
   @ApiProperty({
