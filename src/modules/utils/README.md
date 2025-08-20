@@ -42,18 +42,15 @@ utils/
 │   └── matchPassword.helper.ts        # Validador de confirmación de contraseñas
 └── scripts/
     └── fix-imports.script.ts          # Script para arreglar imports relativos
-
-common/ (servicios compartidos)
-├── services/
-│   └── pagination.service.ts          # Servicio de paginación
-├── interceptors/
-│   ├── logging.interceptor.ts         # Interceptor de logging HTTP
-│   └── transform-response.interceptor.ts # Transformador de respuestas
-├── decorators/
-│   └── response-type.decorator.ts     # Decorador para tipado de respuestas
-└── dto/
-    └── pagination.dto.ts              # DTOs para paginación
 ```
+
+│ └── transform-response.interceptor.ts # Transformador de respuestas
+├── decorators/
+│ └── response-type.decorator.ts # Decorador para tipado de respuestas
+└── dto/
+└── pagination.dto.ts # DTOs para paginación
+
+````
 
 ## Servicios y Helpers
 
@@ -90,7 +87,7 @@ export class QueryHelper {
     }
   }
 }
-```
+````
 
 #### Ejemplo de Uso en Servicios
 

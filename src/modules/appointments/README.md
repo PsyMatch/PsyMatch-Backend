@@ -2,14 +2,14 @@
 
 ## Descripción General
 
-El módulo de **Appointments** es el núcleo del sistema de gestión de citas de PsyMatch. Este módulo maneja todas las operaciones relacionadas con la programación, modificación y seguimiento de citas entre pacientes y psicólogos.
+El módulo de **Appointments** es el núcleo del sistema de gestión de citas de PsyMatch. Este módulo maneja todas las operaciones relacionadas con la programación, modificación y seguimiento de citas entre pacientes y psicólogos, con horarios específicos y validaciones estrictas.
 
 ## Funcionalidades Principales
 
 ### 📅 Gestión de Citas
 
-- **Crear citas**: Programación de nuevas sesiones
-- **Consultar citas**: Obtener listado completo o citas específicas
+- **Crear citas**: Programación de nuevas sesiones con horarios específicos
+- **Consultar citas**: Obtener listado filtrado según el rol del usuario
 - **Actualizar citas**: Modificar detalles como fecha, duración o estado
 - **Eliminar citas**: Cancelación y eliminación de citas
 
@@ -24,7 +24,13 @@ El módulo de **Appointments** es el núcleo del sistema de gestión de citas de
 
 - `IN_PERSON`: Presencial
 - `ONLINE`: En línea (videoconferencia)
-- `HYBRID`: Híbrido
+- `PHONE`: Telefónica
+
+### ⏰ Horarios Disponibles
+
+- **Horarios fijos**: 09:00, 10:00, 11:00, 14:00, 15:00, 16:00
+- **Duración estándar**: 45 minutos por sesión
+- **Validación estricta**: Solo horarios específicos permitidos
 
 ## Estructura del Módulo
 
@@ -33,6 +39,8 @@ appointments/
 ├── appointments.controller.ts    # Controlador REST API
 ├── appointments.service.ts       # Lógica de negocio
 ├── appointments.module.ts        # Configuración del módulo
+├── documentation/
+│   └── createApppointment.documentation.ts # Documentación Swagger
 ├── dto/
 │   ├── create-appointment.dto.ts # DTO para crear citas
 │   └── update-appointment.dto.ts # DTO para actualizar citas
@@ -52,13 +60,15 @@ appointments/
 
 ```json
 {
-  "date": "2024-03-15T10:00:00Z",
-  "duration": 60,
-  "notes": "Primera consulta",
-  "user_id": "uuid-del-paciente",
+  "date": "2025-08-15",
+  "hour": "14:00",
+  "notes": "Primera consulta - ansiedad generalizada",
   "psychologist_id": "uuid-del-psicologo",
-  "status": "pending",
-  "modality": "En línea"
+  "modality": "ONLINE",
+  "session_type": "INDIVIDUAL",
+  "therapy_approach": "COGNITIVE_BEHAVIORAL",
+  "specialty": "ANXIETY_DISORDERS",
+  "amount": 5000
 }
 ```
 
@@ -67,27 +77,38 @@ appointments/
 ```json
 {
   "id": "appointment-uuid",
-  "date": "2024-03-15T10:00:00Z",
-  "duration": 60,
-  "notes": "Primera consulta",
-  "status": "pending",
-  "modality": "En línea",
+  "date": "2025-08-15T14:00:00Z",
+  "hour": "14:00",
+  "duration": 45,
+  "notes": "Primera consulta - ansiedad generalizada",
+  "status": "PENDING",
+  "modality": "ONLINE",
+  "session_type": "INDIVIDUAL",
+  "therapy_approach": "COGNITIVE_BEHAVIORAL",
+  "specialty": "ANXIETY_DISORDERS",
+  "amount": 5000,
   "patient": {
     "id": "patient-uuid",
-    "name": "Juan Pérez",
+    "name": "Juan",
+    "last_name": "Pérez",
     "email": "juan@email.com"
   },
   "psychologist": {
     "id": "psychologist-uuid",
-    "name": "Dr. Ana García",
-    "email": "ana@psycologo.com"
+    "name": "Ana",
+    "last_name": "García",
+    "email": "ana@psicologo.com"
   }
 }
 ```
 
-### 🔹 GET `/appointments` - Obtener Todas las Citas
+### 🔹 GET `/appointments` - Obtener Citas
 
-**Descripción**: Recupera todas las citas del sistema con información de pacientes y psicólogos.
+**Descripción**: Recupera las citas según el rol del usuario:
+
+- **Administradores**: Ven todas las citas del sistema
+- **Psicólogos**: Solo sus propias citas
+- **Pacientes**: Solo sus propias citas
 
 **Response**:
 
@@ -95,9 +116,10 @@ appointments/
 [
   {
     "id": "appointment-uuid",
-    "date": "2024-03-15T10:00:00Z",
-    "duration": 60,
-    "status": "confirmed",
+    "date": "2025-08-15T14:00:00Z",
+    "hour": "14:00",
+    "duration": 45,
+    "status": "CONFIRMED",
     "modality": "En línea",
     "patient": {
       "id": "patient-uuid",
