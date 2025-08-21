@@ -99,13 +99,39 @@ export class AuthController {
     );
 
     res.cookie('auth_token', jwt, {
-      httpOnly: true,
+      httpOnly: false,
       secure: envs.server.environment === 'production',
-      sameSite: 'lax',
+      sameSite: envs.server.environment === 'production' ? 'none' : 'lax',
+      domain:
+        envs.server.environment === 'production' ? '.onrender.com' : undefined,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
+    //PRODUCTION RETURN
     return res.redirect(
       'https://psymatch-frontend-app.onrender.com/dashboard/user',
     );
+
+    //DEVELOPMENT RETURN
+    // return res.redirect('http://localhost:3000/dashboard/user');
+  }
+
+  @Get('me')
+  @UseGuards(AuthGuard('jwt'))
+  getCurrentUser(@Req() req: Request): {
+    message: string;
+    data: User;
+  } {
+    return {
+      message: 'Usuario autorizado',
+      data: req.user as User,
+    };
+  }
+
+  @Post('logout')
+  logout(@Res() res: Response): void {
+    res.clearCookie('auth_token');
+    res.json({
+      message: 'Usuario desautorizado',
+    });
   }
 }

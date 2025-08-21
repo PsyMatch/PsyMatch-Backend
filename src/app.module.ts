@@ -8,6 +8,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { AppointmentsModule } from './modules/appointments/appointments.module';
 import { UtilsModule } from './modules/utils/utils.module';
 import { SeederModule } from './modules/seeder/seeder.module';
+import { AdminDashboardModule } from './modules/admin/adminDashboard.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { SeederModule } from './modules/seeder/seeder.module';
     PaymentsModule,
     AppointmentsModule,
     SeederModule,
+    AdminDashboardModule,
   ],
   controllers: [],
   providers: [],

@@ -88,15 +88,12 @@ export class PaymentsService {
     }
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
       const client = new MercadoPagoConfig({
         accessToken,
       });
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
       const preference = new Preference(client);
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       const result: MPPreferenceResult = await preference.create({
         body: {
           items: [

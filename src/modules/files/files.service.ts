@@ -40,14 +40,20 @@ export class FilesService {
     const base64String = Buffer.from(file.buffer).toString('base64');
     const uploadString = `data:${file.mimetype};base64,${base64String}`;
 
+    //LINEA AGREGADA PARA SOLUCIONAR LA ACTUALIZACION DE LA IMAGEN//
+    const timestamp = Date.now();
+    ////////////////////////////////////////////////////////////////
     const publicId = documentType
-      ? `${documentType}_user_${userId}`
-      : `user_${userId}`;
+      ? `${documentType}_user_${userId}_${timestamp}`
+      : `user_${userId}_${timestamp}`;
 
     const result = await this.cloudinary.uploader.upload(uploadString, {
       folder: `PsyMatch/${folder}`,
       public_id: publicId,
       overwrite: true,
+      //LINEA AGREGADA PARA SOLUCIONAR LA ACTUALIZACION DE LA IMAGEN//
+      invalidate: true,
+      ////////////////////////////////////////////////////////////////
     });
 
     if (!result) {
@@ -61,6 +67,9 @@ export class FilesService {
         fetch_format: 'auto',
         quality: '90',
         flags: 'progressive',
+        //LINEA AGREGADA PARA SOLUCIONAR LA ACTUALIZACION DE LA IMAGEN//
+        version: result.version,
+        ////////////////////////////////////////////////////////////////
       });
     }
 
@@ -71,6 +80,9 @@ export class FilesService {
       gravity: 'auto',
       width: 400,
       height: 400,
+      //LINEA AGREGADA PARA SOLUCIONAR LA ACTUALIZACION DE LA IMAGEN//
+      version: result.version,
+      ////////////////////////////////////////////////////////////////
     });
   }
 }
