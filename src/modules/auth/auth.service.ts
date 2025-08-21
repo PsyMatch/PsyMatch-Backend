@@ -2,6 +2,8 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../users/entities/user.entity';
@@ -19,6 +21,7 @@ import { EPsychologistStatus } from '../psychologist/enums/verified.enum';
 import { Profile } from 'passport';
 import { UsersService } from '../users/users.service';
 import { Repository } from 'typeorm';
+import { IJwtPayload } from './interfaces/jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
@@ -342,5 +345,46 @@ export class AuthService {
     };
 
     return this.jwtService.sign(payload);
+  }
+  async forgotPassword(email: string) {
+    const user = await this.userRepository.findOne({ where: { email } });
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    // Token válido por 15 minutos
+    const payload = { sub: user.id, email: user.email };
+    const token = await this.jwtService.signAsync(payload, {
+      expiresIn: '15m',
+    });
+
+    // 👉 Acá deberías enviar un mail real con el token o link
+    console.log(
+      `Reset link: http://localhost:3000/reset-password?token=${token}`,
+    );
+
+    return {
+      message:
+        'Se envió un correo con instrucciones para reestablecer la contraseña',
+    };
+  }
+
+  async resetPassword(token: string, newPassword: string) {
+    try {
+      const payload = await this.jwtService.verifyAsync<IJwtPayload>(token);
+
+      const user = await this.userRepository.findOne({
+        where: { id: payload.id },
+      });
+
+      if (!user) {
+        throw new NotFoundException('Usuario no encontrado');
+      }
+
+      user.password = await bcrypt.hash(newPassword, 10);
+      await this.userRepository.save(user);
+    } catch {
+      throw new UnauthorizedException('Token inválido o expirado');
+    }
   }
 }

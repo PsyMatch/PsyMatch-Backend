@@ -26,6 +26,8 @@ import { ApiTags, ApiExcludeEndpoint } from '@nestjs/swagger';
 import { SignUpPsychologistSwaggerDoc } from './documentation/signup-psychologist.doc';
 import { SignUpSwaggerDoc } from './documentation/signup.doc';
 import { SignInSwaggerDoc } from './documentation/signin.doc';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -133,5 +135,15 @@ export class AuthController {
     res.json({
       message: 'Usuario desautorizado',
     });
+  }
+
+  @Post('forgot-password')
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(dto.email);
+  }
+
+  @Post('reset-password')
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto.token, dto.newPassword);
   }
 }
