@@ -305,10 +305,12 @@ export class SignUpPsychologistDto {
   @IsEnum(EAvailability, { each: true })
   availability: EAvailability[];
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'Precio de la consulta (solo para psicólogos)',
     example: 100,
   })
-  @IsOptional()
-  consultation_fee?: number;
+  @Transform(({ value }) => transformToNumber(value))
+  @IsNumber({}, { message: 'El precio de la consulta debe ser un número.' })
+  @IsNotEmpty({ message: 'El precio de la consulta es obligatorio.' })
+  consultation_fee: number;
 }
