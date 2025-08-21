@@ -160,4 +160,18 @@ export class ResponsePublicUserDto {
   })
   @Expose()
   office_address?: string;
+
+  @ApiPropertyOptional({
+    description: 'Tarifa de consulta (solo para psicólogos)',
+    example: 5000,
+  })
+  @Expose()
+  consultation_fee?: number;
+
+  @ApiProperty({
+    description: 'Correo electrónico del usuario',
+    example: 'usuario@ejemplo.com',
+  })
+  @Expose()
+  email: string;
 }

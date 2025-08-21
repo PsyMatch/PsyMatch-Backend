@@ -15,4 +15,5 @@ export enum EInsurance {
   OSPAT = 'OSPAT',
   SENACIONAL = 'ASE Nacional',
   OSPIP = 'OSPIP',
+  NINGUNA = 'Ninguna',
 }
