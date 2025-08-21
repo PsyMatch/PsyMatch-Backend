@@ -8,17 +8,19 @@ El módulo de **Payments** gestiona todo el procesamiento de pagos y facturació
 
 ### 💳 Procesamiento de Pagos
 
+- **Integración MercadoPago**: Procesamiento seguro de pagos en línea
 - **Múltiples métodos**: Tarjetas de crédito, débito, PayPal, transferencias
-- **Gestión de estados**: Pendiente, completado, fallido, reembolsado
+- **Gestión de estados**: Pendiente, completado, fallido
 - **Validación de transacciones**: Verificación de datos y montos
 - **Historial completo**: Registro detallado de todas las transacciones
 
 ### 💰 Gestión Financiera
 
 - **Facturación automática**: Generación de facturas por citas
-- **Reembolsos**: Sistema de devoluciones con tracking
-- **Monedas múltiples**: Soporte USD y otras monedas
+- **Webhooks MercadoPago**: Notificaciones automáticas de estado de pago
+- **Monedas múltiples**: Soporte para ARS y otras monedas
 - **Comisiones**: Cálculo automático de comisiones por plataforma
+- **Reembolsos**: Sistema de devoluciones con tracking (futuro)
 
 ### 🔒 Seguridad y Cumplimiento
 
@@ -37,9 +39,24 @@ payments/
 ├── dto/
 │   ├── create-payment.dto.ts   # DTO para crear pagos
 │   └── update-payment.dto.ts   # DTO para actualizar pagos
-└── entities/
-    └── payment.entity.ts       # Entidad de base de datos
+├── entities/
+│   └── payment.entity.ts       # Entidad de base de datos
+└── interfaces/
+    └── mercadopago.interface.ts # Interfaces para MercadoPago (futuro)
 ```
+
+## Estados de Pago
+
+- **PENDING**: Pago iniciado pero no confirmado
+- **COMPLETED**: Pago procesado exitosamente
+- **FAILED**: Pago rechazado o falló
+
+## Métodos de Pago Soportados
+
+- **CREDIT_CARD**: Tarjetas de crédito
+- **DEBIT_CARD**: Tarjetas de débito
+- **PAYPAL**: Pagos mediante PayPal
+- **BANK_TRANSFER**: Transferencias bancarias
 
 ## Entidad Payment
 

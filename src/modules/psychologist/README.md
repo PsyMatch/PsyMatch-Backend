@@ -22,10 +22,19 @@ El módulo de **Psychologist** gestiona toda la funcionalidad relacionada con lo
 
 ### 📊 Dashboard Profesional
 
-- **Gestión de pacientes**: Lista y seguimiento de pacientes activos
-- **Administración de citas**: Control completo del calendario profesional
-- **Gestión financiera**: Seguimiento de pagos y facturación
-- **Reseñas y calificaciones**: Monitoreo de feedback de pacientes
+- **Gestión de pacientes**: Lista y seguimiento de pacientes activos a través de `patientsOfProfessional/`
+- **Administración de citas**: Control completo del calendario profesional mediante `appointmentsOfProfessional/`
+- **Gestión financiera**: Seguimiento de pagos y facturación con `paymentsOfProfessionals/`
+- **Reseñas y calificaciones**: Monitoreo de feedback de pacientes a través de `reviewsOfProfessionals/`
+- **Perfil público**: Gestión de información visible para pacientes mediante `publicPsychologist/`
+
+### 🎯 Especialidades y Modalidades
+
+- **Especialidades múltiples**: Soporte para diversas áreas como ansiedad, depresión, trauma, etc.
+- **Enfoques terapéuticos**: Cognitivo-conductual, psicodinámico, humanístico, etc.
+- **Modalidades flexibles**: Presencial, virtual y telefónica
+- **Tipos de sesión**: Individual, familiar, grupal
+- **Habilidades blandas**: Comunicación asertiva, escucha activa, empatía
 
 ## Estructura del Módulo
 
@@ -35,24 +44,33 @@ psychologist/
 │   └── psychologist.entity.ts          # Entidad principal del psicólogo
 ├── dto/
 │   ├── update-psychologist.dto.ts      # DTO para actualizar perfil
-│   └── response-pending-psychologist.dto.ts  # DTO para respuestas
+│   └── response-professional.dto.ts    # DTO para respuestas de API
 ├── enums/
+│   ├── availability.enum.ts            # Horarios de disponibilidad
+│   ├── languages.enum.ts               # Idiomas disponibles
+│   ├── modality.enum.ts                # Modalidades (presencial/virtual/telefónica)
+│   ├── session-types.enum.ts           # Tipos de sesión
+│   ├── soft-skills.enum.ts             # Habilidades blandas
 │   ├── specialities.enum.ts            # Especialidades psicológicas
 │   ├── therapy-approaches.enum.ts      # Enfoques terapéuticos
-│   ├── session-types.enum.ts          # Tipos de sesión
-│   ├── modality.enum.ts               # Modalidades (presencial/virtual)
-│   ├── languages.enum.ts              # Idiomas disponibles
-│   ├── availability.enum.ts           # Horarios de disponibilidad
-│   └── verified.enum.ts               # Estados de verificación
+│   └── verified.enum.ts                # Estados de verificación
 └── logic/
     ├── psychologist.module.ts          # Configuración del módulo
-    ├── profileManagement/              # Gestión de perfiles
-    ├── verificationOfProfessionals/    # Verificación de profesionales
+    ├── appointmentsOfProfessional/     # Gestión de citas del profesional
+    ├── patientsOfProfessional/         # Gestión de pacientes del profesional
+    ├── paymentsOfProfessionals/        # Gestión de pagos del profesional
+    ├── profileManagement/              # Gestión de perfiles profesionales
+    ├── publicPsychologist/             # Información pública de psicólogos
+    ├── reviewsOfProfessionals/         # Gestión de reseñas del profesional
+    └── verificationOfProfessionals/    # Verificación de profesionales
+```
+
     ├── reviewsOfProfessionals/         # Gestión de reseñas
     ├── paymentsOfProfessionals/        # Gestión financiera
     ├── patientsOfProfessional/         # Gestión de pacientes
     └── appointmentsOfProfessional/     # Gestión de citas
-```
+
+````
 
 ## Entidad Psychologist
 
@@ -80,7 +98,7 @@ CREATE TABLE users (
     insurance_accepted insurance_enum[] NOT NULL,
     availability availability_enum[] NOT NULL
 );
-```
+````
 
 ### 📊 Enums del Sistema
 
