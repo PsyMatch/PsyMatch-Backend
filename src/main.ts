@@ -5,6 +5,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { setupSwagger } from './configs/swagger.config';
 import { TransformResponseInterceptor } from './common/interceptors/transform-response.interceptor';
 import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   try {
@@ -30,6 +31,8 @@ async function bootstrap() {
         transform: true,
       }),
     );
+
+    app.use(cookieParser());
 
     app.use(bodyParser.json({ limit: '10mb' }));
 
