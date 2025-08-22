@@ -40,7 +40,6 @@ import { GetMyPaymentsSwaggerDoc } from './documentation/get-my-payments.doc';
 import { GetMyPsychologistsSwaggerDoc } from './documentation/get-my-psichologists.doc';
 import { UpdateSwaggerDoc } from './documentation/update.doc';
 import { GetMyDataSwaggerDoc } from './documentation/get-my-data.doc';
-import { UpdateUserResponseDto } from './dto/update-user-response.dto';
 import { ResponsePublicUserDto } from './dto/response-public-user.dto';
 import { FindPublicByIdSwaggerDoc } from './documentation/find-public-id.doc';
 import { CombinedAuthGuard } from '../auth/guards/combined-auth.guard';
@@ -97,7 +96,7 @@ export class UsersController {
 
   @Put('me')
   @UseGuards(CombinedAuthGuard)
-  @ResponseType(UpdateUserResponseDto)
+  @ResponseType(ResponseUserDto)
   @UseInterceptors(FileInterceptor('profile_picture'))
   @UpdateSwaggerDoc()
   async updateMe(
@@ -105,7 +104,7 @@ export class UsersController {
     @Body() userData: UpdateUserDto,
     @UploadedFile(new FileValidationPipe({ isOptional: true }))
     profilePicture?: Express.Multer.File,
-  ): Promise<{ message: string; data: UpdateUserResponseDto }> {
+  ): Promise<{ message: string; data: Omit<User, 'password'> }> {
     const requester = req.user.id;
     const userRole = req.user.role;
     const updatedFields = await this.usersService.update(
@@ -223,7 +222,7 @@ export class UsersController {
     @Body() userData: UpdateUserDto,
     @UploadedFile(new FileValidationPipe({ isOptional: true }))
     profilePicture?: Express.Multer.File,
-  ): Promise<{ message: string; data: UpdateUserResponseDto }> {
+  ): Promise<{ message: string; data: Omit<User, 'password'> }> {
     const updatedUser = await this.usersService.update(
       id,
       userData,

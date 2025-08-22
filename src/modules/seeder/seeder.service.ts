@@ -42,7 +42,7 @@ export class SeederService {
 
     await this.adminRepository.upsert(adminUser, ['email']);
     if (envs.server.environment !== 'production') {
-      console.log('✅ Admin seeded successfully');
+      console.log('✅ Admin precargado exitosamente');
     }
 
     const patients = [
@@ -229,7 +229,7 @@ export class SeederService {
 
     await this.patientRepository.upsert(patients, ['email']);
     if (envs.server.environment !== 'production') {
-      console.log('✅ Patients seeded successfully');
+      console.log('✅ Pacientes precargados exitosamente');
     }
 
     const psychologists = [
@@ -271,6 +271,7 @@ export class SeederService {
           EAvailability.THURSDAY,
           EAvailability.FRIDAY,
         ],
+        consultation_fee: 20000,
         verified: EPsychologistStatus.VALIDATED,
         profile_picture:
           'https://res.cloudinary.com/dibnkd72j/image/upload/v1755591733/default-female-psychologist-profile-picture_qyogmy.webp',
@@ -312,6 +313,7 @@ export class SeederService {
           EAvailability.FRIDAY,
           EAvailability.SATURDAY,
         ],
+        consultation_fee: 22000,
         verified: EPsychologistStatus.VALIDATED,
         profile_picture:
           'https://res.cloudinary.com/dibnkd72j/image/upload/v1755591732/default-male-psychologist-profile-picture_sqyd1d.webp',
@@ -352,6 +354,7 @@ export class SeederService {
           EAvailability.THURSDAY,
           EAvailability.SUNDAY,
         ],
+        consultation_fee: 26000,
         verified: EPsychologistStatus.VALIDATED,
         profile_picture:
           'https://res.cloudinary.com/dibnkd72j/image/upload/v1755591733/default-female-psychologist-profile-picture_qyogmy.webp',
@@ -412,6 +415,7 @@ export class SeederService {
           ETherapyApproach.GROUP_THERAPY,
         ],
         availability: [EAvailability.WEDNESDAY, EAvailability.FRIDAY],
+        consultation_fee: 24500,
         verified: EPsychologistStatus.VALIDATED,
         profile_picture:
           'https://res.cloudinary.com/dibnkd72j/image/upload/v1755591733/default-female-psychologist-profile-picture_qyogmy.webp',
@@ -440,6 +444,7 @@ export class SeederService {
         session_types: [ESessionType.INDIVIDUAL, ESessionType.FAMILY],
         therapy_approaches: [ETherapyApproach.HUMANISTIC_CENTRED_THERAPY],
         availability: [EAvailability.TUESDAY, EAvailability.SATURDAY],
+        consultation_fee: 25000,
         verified: EPsychologistStatus.VALIDATED,
         profile_picture:
           'https://res.cloudinary.com/dibnkd72j/image/upload/v1755591732/default-male-psychologist-profile-picture_sqyd1d.webp',
@@ -472,6 +477,7 @@ export class SeederService {
         ],
         availability: [EAvailability.THURSDAY, EAvailability.SUNDAY],
         verified: EPsychologistStatus.VALIDATED,
+        consultation_fee: 30000,
         profile_picture:
           'https://res.cloudinary.com/dibnkd72j/image/upload/v1755591733/default-female-psychologist-profile-picture_qyogmy.webp',
       },
@@ -501,6 +507,7 @@ export class SeederService {
         therapy_approaches: [ETherapyApproach.GESTALT_THERAPY],
         availability: [EAvailability.WEDNESDAY, EAvailability.FRIDAY],
         verified: EPsychologistStatus.VALIDATED,
+        consultation_fee: 28000,
         profile_picture:
           'https://res.cloudinary.com/dibnkd72j/image/upload/v1755591732/default-male-psychologist-profile-picture_sqyd1d.webp',
       },
@@ -531,6 +538,7 @@ export class SeederService {
           ETherapyApproach.EYE_MOVEMENT_DESENSITIZATION_REPROCESSING,
         ],
         availability: [EAvailability.TUESDAY, EAvailability.SATURDAY],
+        consultation_fee: 24800,
         verified: EPsychologistStatus.VALIDATED,
         profile_picture:
           'https://res.cloudinary.com/dibnkd72j/image/upload/v1755591733/default-female-psychologist-profile-picture_qyogmy.webp',
@@ -539,7 +547,7 @@ export class SeederService {
 
     await this.psychologistRepository.upsert(psychologists, ['email']);
     if (envs.server.environment !== 'production') {
-      console.log('✅ Psychologists seeded successfully');
+      console.log('✅ Psicólogos precargados exitosamente');
     }
   }
 }

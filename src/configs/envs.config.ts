@@ -39,6 +39,14 @@ const mercadopago = {
   accessToken: process.env.MP_ACCESS_TOKEN ?? 'your_mercadopago_access_token',
 };
 
+const nodemailer = {
+  host: process.env.EMAIL_HOST ?? 'smtp.mailtrap.io',
+  port: parseInt(String(process.env.EMAIL_PORT ?? 2525), 10),
+  user: process.env.EMAIL_USER ?? 'your_mailtrap_username',
+  pass: process.env.EMAIL_PASS ?? 'your_mailtrap_password',
+  from: process.env.EMAIL_FROM ?? 'your_mailtrap_from',
+};
+
 const deployed_urls = {
   backend: process.env.BACKEND_URL ?? 'http://localhost:8080',
   frontend: process.env.FRONTEND_URL ?? 'http://localhost:3000',
@@ -51,6 +59,7 @@ const config = {
   jwt,
   oauth,
   mercadopago,
+  nodemailer,
   deployed_urls,
 };
 
