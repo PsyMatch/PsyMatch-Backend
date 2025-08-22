@@ -352,13 +352,11 @@ export class AuthService {
       throw new NotFoundException('Usuario no encontrado');
     }
 
-    // Token válido por 15 minutos
     const payload = { sub: user.id, email: user.email };
     const token = await this.jwtService.signAsync(payload, {
       expiresIn: '15m',
     });
 
-    // 👉 Acá deberías enviar un mail real con el token o link
     console.log(
       `Reset link: http://localhost:3000/reset-password?token=${token}`,
     );

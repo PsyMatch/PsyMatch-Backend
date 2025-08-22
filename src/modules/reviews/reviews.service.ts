@@ -23,31 +23,36 @@ export class ReviewsService {
     createReviewData: CreateReviewDto,
     userId: string,
   ): Promise<{ message: string; review: Reviews }> {
-    const foundReview = await this.reviewsRepository.findOne({
-      where: { comment: createReviewData.comment },
+    const { psychologistId, rating, comment } = createReviewData;
+
+    const psychologist = await this.psychologistRepository.findOne({
+      where: { id: psychologistId },
     });
 
-    const completedAppointment = await this.appointmentRepository.findOne({
+    if (!psychologist) {
+      throw new BadRequestException('Psicólogo no encontrado');
+    }
+
+    const pastAppointments = await this.appointmentRepository.find({
       where: {
+        psychologist: { id: psychologistId },
         patient: { id: userId },
-        psychologist: { id: createReviewData.psychologistId },
         status: AppointmentStatus.COMPLETED,
       },
-      relations: ['patient', 'psychologist'],
     });
 
-    if (!completedAppointment) {
+    if (pastAppointments.length === 0) {
       throw new BadRequestException(
-        'Solo puede dejar una reseña después de completar una cita con el profesional',
+        'No puedes dejar una reseña sin haber tenido una cita con este psicólogo',
       );
     }
-
-    if (foundReview) {
-      throw new BadRequestException('La reseña ya existe');
-    }
-
-    const newReview = this.reviewsRepository.create(createReviewData);
-
+    const newReview = this.reviewsRepository.create({
+      rating,
+      comment,
+      userId: userId,
+      psychologist: { id: psychologistId },
+      review_date: new Date(),
+    });
     await this.reviewsRepository.save(newReview);
 
     return { message: 'Reseña creada exitosamente', review: newReview };
@@ -75,5 +80,13 @@ export class ReviewsService {
   async removeReviewByIdService(id: string): Promise<{ message: string }> {
     await this.reviewsRepository.delete(id);
     return { message: 'Reseña eliminada exitosamente' };
+  }
+
+  async getMyReviewsService(userId: string): Promise<Reviews[]> {
+    const myReviews = await this.reviewsRepository.find({
+      where: { userId: userId },
+      relations: ['psychologist'],
+    });
+    return myReviews;
   }
 }

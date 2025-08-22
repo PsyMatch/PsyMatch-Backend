@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { Patient } from '../users/entities/patient.entity';
 import { Admin } from '../users/entities/admin.entity';
 import { Psychologist } from '../psychologist/entities/psychologist.entity';
+import { Reviews } from '../reviews/entities/reviews.entity';
 import { ERole } from '../../common/enums/role.enum';
 import { EPsychologistSpecialty } from '../psychologist/enums/specialities.enum';
 import { EPsychologistStatus } from '../psychologist/enums/verified.enum';
@@ -25,6 +26,8 @@ export class SeederService {
     private readonly adminRepository: Repository<Admin>,
     @InjectRepository(Psychologist)
     private readonly psychologistRepository: Repository<Psychologist>,
+    @InjectRepository(Reviews)
+    private readonly reviewsRepository: Repository<Reviews>,
   ) {}
 
   async seedUsers() {
@@ -540,6 +543,154 @@ export class SeederService {
     await this.psychologistRepository.upsert(psychologists, ['email']);
     if (envs.server.environment !== 'production') {
       console.log('✅ Psychologists seeded successfully');
+    }
+  }
+
+  async seedReviews() {
+    // Primero obtenemos todos los psicólogos para asignarles reviews
+    const psychologists = await this.psychologistRepository.find();
+
+    // También necesitamos obtener pacientes para asignar como autores de las reviews
+    const patients = await this.patientRepository.find();
+
+    if (psychologists.length === 0) {
+      console.log(
+        '⚠️ No psychologists found. Please seed psychologists first.',
+      );
+      return;
+    }
+
+    if (patients.length === 0) {
+      console.log('⚠️ No patients found. Please seed patients first.');
+      return;
+    }
+
+    const reviews = [
+      {
+        rating: 5,
+        comment:
+          '¡Excelente psicólogo! Muy profesional y comprensivo. La sesión fue muy útil y me sentí cómodo durante todo el tiempo. Definitivamente lo recomiendo.',
+        review_date: new Date('2024-01-15'),
+        userId: patients[0].id,
+        psychologist: psychologists[0],
+      },
+      {
+        rating: 4,
+        comment:
+          'Muy buena experiencia. El psicólogo es muy empático y me ayudó mucho con mis problemas de ansiedad. Las técnicas que me enseñó han sido muy efectivas.',
+        review_date: new Date('2024-01-20'),
+        userId: patients[1].id,
+        psychologist: psychologists[0],
+      },
+      {
+        rating: 5,
+        comment:
+          'Increíble profesional. Su enfoque cognitivo-conductual me ha cambiado la vida. Altamente recomendado para cualquier persona que busque ayuda profesional.',
+        review_date: new Date('2024-02-01'),
+        userId: patients[2].id,
+        psychologist: psychologists[1],
+      },
+      {
+        rating: 4,
+        comment:
+          'Muy profesional y paciente. Me ayudó a superar momentos difíciles con técnicas muy efectivas. El ambiente de la consulta es muy cómodo y relajante.',
+        review_date: new Date('2024-02-10'),
+        userId: patients[3].id,
+        psychologist: psychologists[1],
+      },
+      {
+        rating: 5,
+        comment:
+          'Excelente terapeuta especializada en terapia familiar. Nos ayudó mucho como pareja y ahora tenemos herramientas para comunicarnos mejor.',
+        review_date: new Date('2024-02-15'),
+        userId: patients[4].id,
+        psychologist: psychologists[2],
+      },
+      {
+        rating: 3,
+        comment:
+          'Buena experiencia en general. El psicólogo es conocedor, aunque a veces siento que las sesiones son un poco cortas. Aún así, me ha ayudado.',
+        review_date: new Date('2024-02-20'),
+        userId: patients[5].id,
+        psychologist: psychologists[2],
+      },
+      {
+        rating: 5,
+        comment:
+          'Fantástica experiencia con terapia EMDR. Me ayudó a procesar traumas pasados de manera muy efectiva. Totalmente recomendado para trauma.',
+        review_date: new Date('2024-03-01'),
+        userId: patients[6 % patients.length].id,
+        psychologist: psychologists[3],
+      },
+      {
+        rating: 4,
+        comment:
+          'Muy buena psicóloga especializada en adolescentes. Mi hija se sintió muy cómoda y ha mostrado mucha mejoría en sus problemas de autoestima.',
+        review_date: new Date('2024-03-05'),
+        userId: patients[7 % patients.length].id,
+        psychologist: psychologists[3],
+      },
+      {
+        rating: 5,
+        comment:
+          'Excelente profesional en terapia cognitivo-conductual. Sus técnicas para manejar la depresión han sido fundamentales en mi recuperación.',
+        review_date: new Date('2024-03-10'),
+        userId: patients[8 % patients.length].id,
+        psychologist: psychologists[4] || psychologists[0],
+      },
+      {
+        rating: 4,
+        comment:
+          'Muy recomendado. Buen manejo de la terapia humanística. Me ayudó a encontrar mi propósito y a desarrollar mayor autoconocimiento.',
+        review_date: new Date('2024-03-15'),
+        userId: patients[9 % patients.length].id,
+        psychologist: psychologists[4] || psychologists[1],
+      },
+      {
+        rating: 5,
+        comment:
+          'Increíble experiencia con terapia de pareja. Nos dio herramientas muy valiosas para mejorar nuestra relación y comunicación.',
+        review_date: new Date('2024-03-20'),
+        userId: patients[10 % patients.length].id,
+        psychologist: psychologists[0],
+      },
+      {
+        rating: 4,
+        comment:
+          'Muy profesional y empático. Me ayudó a superar mi fobia social con técnicas de exposición gradual. Muy recomendado.',
+        review_date: new Date('2024-03-25'),
+        userId: patients[11 % patients.length].id,
+        psychologist: psychologists[1],
+      },
+      {
+        rating: 5,
+        comment:
+          'Excelente terapeuta para niños. Mi hijo de 8 años se siente muy cómodo con ella y ha mejorado mucho su comportamiento en casa y en el colegio.',
+        review_date: new Date('2024-04-01'),
+        userId: patients[0].id,
+        psychologist: psychologists[2],
+      },
+      {
+        rating: 3,
+        comment:
+          'Experiencia positiva. El psicólogo es muy preparado académicamente, aunque a veces me gustaría más práctica y menos teoría en las sesiones.',
+        review_date: new Date('2024-04-05'),
+        userId: patients[1].id,
+        psychologist: psychologists[3],
+      },
+      {
+        rating: 5,
+        comment:
+          'Fantástico profesional. Su enfoque en mindfulness y técnicas de relajación me han ayudado enormemente con mi estrés laboral.',
+        review_date: new Date('2024-04-10'),
+        userId: patients[2].id,
+        psychologist: psychologists[0],
+      },
+    ];
+
+    await this.reviewsRepository.save(reviews);
+    if (envs.server.environment !== 'production') {
+      console.log('✅ Reviews seeded successfully');
     }
   }
 }

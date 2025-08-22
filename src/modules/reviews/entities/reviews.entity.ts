@@ -6,7 +6,7 @@ export class Reviews {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
+  @Column({ type: 'int', nullable: false })
   rating: number;
 
   @Column({ type: 'text', nullable: false })
@@ -15,6 +15,8 @@ export class Reviews {
   @Column({ type: 'date', nullable: false })
   review_date: Date;
 
+  @Column({ type: 'uuid', nullable: false })
+  userId: string;
   @ManyToOne(() => Psychologist, (psychologist) => psychologist.reviews)
   psychologist: Psychologist;
 }

@@ -35,14 +35,11 @@ import { CombinedAuthGuard } from '../auth/guards/combined-auth.guard';
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
-  @Post()
-  @UseGuards(RolesGuard)
-  @Roles([ERole.PATIENT, ERole.ADMIN])
   @ApiConsumes('multipart/form-data')
   @ApiOperation({
     summary: 'Crear una nueva reseña',
     description:
-      'Crear una reseña para un psicólogo. Puede ser realizada por pacientes que han tenido sesiones con el psicólogo.',
+    'Crear una reseña para un psicólogo. Puede ser realizada por pacientes que han tenido sesiones con el psicólogo.',
   })
   @ApiBody({
     schema: {
@@ -101,6 +98,9 @@ export class ReviewsController {
     status: 403,
     description: 'Acceso denegado - Permisos insuficientes',
   })
+  @Post()
+  @UseGuards(RolesGuard)
+  @Roles([ERole.PATIENT, ERole.ADMIN])
   createNewReviewController(
     @Req() req: IAuthRequest,
     @Body() createReviewData: CreateReviewDto,
@@ -109,13 +109,10 @@ export class ReviewsController {
     return this.reviewsService.createNewReviewService(createReviewData, userId);
   }
 
-  @Get(':id')
-  @UseGuards(RolesGuard)
-  @Roles([ERole.PATIENT, ERole.ADMIN, ERole.PSYCHOLOGIST])
   @ApiOperation({
     summary: 'Obtener reseñas por ID de psicólogo',
     description:
-      'Recuperar todas las reseñas de un psicólogo específico con calificación promedio y número de reseñas.',
+    'Recuperar todas las reseñas de un psicólogo específico con calificación promedio y número de reseñas.',
   })
   @ApiParam({
     name: 'id',
@@ -185,19 +182,19 @@ export class ReviewsController {
     status: 404,
     description: 'Psicólogo no encontrado o no hay reseñas disponibles',
   })
+  @Get(':id')
+  @UseGuards(RolesGuard)
+  @Roles([ERole.PATIENT, ERole.ADMIN, ERole.PSYCHOLOGIST])
   findOneByPsychologistIdController(
     @Param('id') id: string,
   ): Promise<reviewResponseDto> {
     return this.reviewsService.findOneByPsychologistIdService(id);
   }
 
-  @Delete(':id')
-  @UseGuards(RolesGuard)
-  @Roles([ERole.ADMIN])
   @ApiOperation({
     summary: 'Eliminar una reseña por ID (Solo administradores)',
     description:
-      'Eliminar permanentemente una reseña del sistema. Solo los administradores pueden realizar esta acción.',
+    'Eliminar permanentemente una reseña del sistema. Solo los administradores pueden realizar esta acción.',
   })
   @ApiParam({
     name: 'id',
@@ -229,9 +226,37 @@ export class ReviewsController {
     status: 404,
     description: 'Reseña no encontrada',
   })
+  @Delete(':id')
+  @UseGuards(RolesGuard)
+  @Roles([ERole.ADMIN])
   removeReviewByIdController(
     @Param('id') id: string,
   ): Promise<{ message: string }> {
     return this.reviewsService.removeReviewByIdService(id);
+  }
+
+  @ApiOperation({
+    summary: 'Obtener mis reseñas',
+    description: 'Recuperar todas las reseñas creadas por el usuario autenticado.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Reseñas del usuario recuperadas exitosamente',
+    type: [Reviews],
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Token inválido o expirado',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Acceso denegado - Permisos insuficientes',
+  })
+  @Get('me')
+  @UseGuards(RolesGuard)
+  @Roles([ERole.PATIENT, ERole.ADMIN])
+  getMyReviewsController(@Req() req: IAuthRequest): Promise<Reviews[]> {
+    const userId = req.user.id;
+    return this.reviewsService.getMyReviewsService(userId);
   }
 }

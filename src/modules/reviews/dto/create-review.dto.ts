@@ -42,12 +42,4 @@ export class CreateReviewDto {
   })
   @IsUUID('4', { message: 'El ID del psicólogo debe ser un UUID válido.' })
   psychologistId: string;
-
-  @ApiProperty({
-    description: 'UUID del usuario que deja la reseña',
-    example: '987fcdeb-51a2-43d1-b234-567890abcdef',
-    format: 'uuid',
-  })
-  @IsUUID('4', { message: 'El ID del usuario debe ser un UUID válido.' })
-  userId: string;
 }
