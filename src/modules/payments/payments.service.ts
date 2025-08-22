@@ -9,7 +9,7 @@ import { Payment, PayStatus } from './entities/payment.entity';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { MercadoPagoConfig, Preference } from 'mercadopago';
-import { envs } from 'src/configs/envs.config';
+import { envs } from '../../configs/envs.config';
 
 // Define interfaces for MercadoPago types
 interface MPPreferenceResult {

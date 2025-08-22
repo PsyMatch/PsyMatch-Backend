@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Psychologist } from '../psychologist/entities/psychologist.entity';
 import { Patient } from '../users/entities/patient.entity';
 import { Admin } from '../users/entities/admin.entity';
-import { envs } from 'src/configs/envs.config';
+import { envs } from '../../configs/envs.config';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Patient, Admin, Psychologist])],

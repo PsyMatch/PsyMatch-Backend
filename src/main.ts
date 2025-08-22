@@ -45,11 +45,11 @@ async function bootstrap() {
 
     if (envs.server.environment !== 'production') {
       console.log(
-        `🌱 Environment: ${envs.server.environment}, 🚀 App running on http://${envs.server.host}:${envs.server.port}/api`,
+        `🌱 Entorno: ${envs.server.environment}, 🚀 Aplicación corriendo en http://${envs.server.host}:${envs.server.port}/api`,
       );
     }
-  } catch (err) {
-    console.error('❌ Error during bootstrap:', err);
+  } catch (error) {
+    console.error('❌ Error durante el arranque', error);
     process.exit(1);
   }
 }
