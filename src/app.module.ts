@@ -9,6 +9,7 @@ import { AppointmentsModule } from './modules/appointments/appointments.module';
 import { UtilsModule } from './modules/utils/utils.module';
 import { SeederModule } from './modules/seeder/seeder.module';
 import { AdminDashboardModule } from './modules/admin/adminDashboard.module';
+import { EmailsModule } from './modules/emails/emails.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { AdminDashboardModule } from './modules/admin/adminDashboard.module';
     AppointmentsModule,
     SeederModule,
     AdminDashboardModule,
+    EmailsModule,
   ],
   controllers: [],
   providers: [],

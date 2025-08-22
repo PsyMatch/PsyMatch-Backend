@@ -28,15 +28,18 @@ export class LoggingInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const response = context.switchToHttp().getResponse<Response>();
+
     const method = request.method;
     const url = request.url;
     const now = Date.now();
+    let ip = request.ip;
+    if (ip === '::1') ip = '127.0.0.1';
 
     if (this.shouldIgnoreRequest(url)) {
       return next.handle();
     }
 
-    this.logger.log(`→ ${method} ${url} - IP: ${request.ip}`);
+    this.logger.log(`→ ${method} ${url} - IP: ${ip}`);
 
     return next.handle().pipe(
       tap({
