@@ -108,17 +108,19 @@ export class AuthController {
         envs.server.environment === 'production' ? '.onrender.com' : undefined,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-    //PRODUCTION RETURN
-    // return res.redirect(
-    //   'https://psymatch-frontend-app.onrender.com/dashboard/user',
-    // );
 
-    //DEVELOPMENT RETURN
+    if (envs.server.environment === 'production') {
+      return res.redirect(
+        'https://psymatch-frontend-app.onrender.com/dashboard/user',
+      );
+    }
+
     return res.redirect('http://localhost:3000/dashboard/user');
   }
 
   @Get('me')
   @UseGuards(AuthGuard('jwt'))
+  @ApiExcludeEndpoint()
   getCurrentUser(@Req() req: Request): {
     message: string;
     data: User;
@@ -130,6 +132,7 @@ export class AuthController {
   }
 
   @Post('logout')
+  @ApiExcludeEndpoint()
   logout(@Res() res: Response): void {
     res.clearCookie('auth_token');
     res.json({

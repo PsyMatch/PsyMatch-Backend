@@ -77,18 +77,6 @@ export class ResponseUserDto {
   @Expose()
   office_address?: string;
 
-  @ApiPropertyOptional({
-    description: 'Latitud de ubicación del usuario',
-  })
-  @Exclude()
-  latitude?: number;
-
-  @ApiPropertyOptional({
-    description: 'Longitud de ubicación del usuario',
-  })
-  @Exclude()
-  longitude?: number;
-
   @ApiProperty({
     description: 'Dirección de correo electrónico del usuario',
   })

@@ -44,6 +44,13 @@ export class ResponsePublicUserDto {
   )
   phone?: string;
 
+  @ApiProperty({
+    description: 'Correo electrónico del usuario',
+    example: 'usuario@ejemplo.com',
+  })
+  @Expose()
+  email: string;
+
   @ApiPropertyOptional({
     description: 'URL de la foto de perfil del usuario',
     example: 'https://ejemplo.com/perfil.jpg',
@@ -147,6 +154,13 @@ export class ResponsePublicUserDto {
   availability?: EAvailability[];
 
   @ApiPropertyOptional({
+    description: 'Tarifa de consulta (solo para psicólogos)',
+    example: 5000,
+  })
+  @Expose()
+  consultation_fee?: number;
+
+  @ApiPropertyOptional({
     description: 'Estado de verificación (solo para psicólogos)',
     enum: EPsychologistStatus,
     example: EPsychologistStatus.VALIDATED,
@@ -160,18 +174,4 @@ export class ResponsePublicUserDto {
   })
   @Expose()
   office_address?: string;
-
-  @ApiPropertyOptional({
-    description: 'Tarifa de consulta (solo para psicólogos)',
-    example: 5000,
-  })
-  @Expose()
-  consultation_fee?: number;
-
-  @ApiProperty({
-    description: 'Correo electrónico del usuario',
-    example: 'usuario@ejemplo.com',
-  })
-  @Expose()
-  email: string;
 }
