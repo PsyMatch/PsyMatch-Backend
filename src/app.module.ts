@@ -8,9 +8,9 @@ import { AuthModule } from './modules/auth/auth.module';
 import { AppointmentsModule } from './modules/appointments/appointments.module';
 import { UtilsModule } from './modules/utils/utils.module';
 import { SeederModule } from './modules/seeder/seeder.module';
-import { AdminDashboardModule } from './modules/admin/adminDashboard.module';
 import { EmailsModule } from './modules/emails/emails.module';
 import { MapsModule } from './modules/maps/maps.module';
+import { AdminModule } from './modules/admin/logic/admin.module';
 
 @Module({
   imports: [
@@ -25,7 +25,7 @@ import { MapsModule } from './modules/maps/maps.module';
     PaymentsModule,
     ReviewsModule,
     EmailsModule,
-    AdminDashboardModule,
+    AdminModule,
   ],
   controllers: [],
   providers: [],

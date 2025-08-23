@@ -282,6 +282,7 @@ export class ReviewsController {
     summary: 'Eliminar una reseña por ID (Solo administradores)',
     description:
       'Eliminar permanentemente una reseña del sistema. Solo los administradores pueden realizar esta acción.',
+      'Eliminar permanentemente una reseña del sistema. Solo los administradores pueden realizar esta acción.',
   })
   @ApiParam({
     name: 'id',

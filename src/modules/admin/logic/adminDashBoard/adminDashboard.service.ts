@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../users/entities/user.entity';
-import { ERole } from '../../common/enums/role.enum';
-import { Appointment } from '../appointments/entities/appointment.entity';
-import { Reviews } from '../reviews/entities/reviews.entity';
-import { Payment } from '../payments/entities/payment.entity';
+import { User } from '../../../users/entities/user.entity';
+import { ERole } from '../../../../common/enums/role.enum';
+import { Appointment } from '../../../appointments/entities/appointment.entity';
+import { Reviews } from '../../../reviews/entities/reviews.entity';
+import { Payment } from '../../../payments/entities/payment.entity';
 
 @Injectable()
 export class AdminDashboardService {
