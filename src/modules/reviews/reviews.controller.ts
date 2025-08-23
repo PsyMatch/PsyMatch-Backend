@@ -35,20 +35,33 @@ import { CombinedAuthGuard } from '../auth/guards/combined-auth.guard';
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
-  @ApiConsumes('multipart/form-data')
+  @ApiConsumes('application/json')
   @ApiOperation({
     summary: 'Crear una nueva reseña',
     description:
-    'Crear una reseña para un psicólogo. Puede ser realizada por pacientes que han tenido sesiones con el psicólogo.',
+      'Crear una reseña para un psicólogo. Solo puede ser realizada por pacientes que han tenido al menos una cita completada con el psicólogo. No se permite más de una reseña por paciente por psicólogo.',
   })
   @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        psychologist_id: { type: 'string', example: 'psychologist-uuid' },
-        rating: { type: 'string', example: '5' },
-        comment: { type: 'string', example: 'Excelente servicio profesional' },
-        session_date: { type: 'string', example: '2024-03-15T10:00:00Z' },
+    type: CreateReviewDto,
+    description: 'Datos necesarios para crear una reseña',
+    examples: {
+      'reseña-positiva': {
+        summary: 'Reseña positiva',
+        value: {
+          psychologistId: '123e4567-e89b-12d3-a456-426614174000',
+          rating: 5,
+          comment:
+            'Excelente profesional, muy empático y efectivo en sus técnicas terapéuticas.',
+        },
+      },
+      'reseña-regular': {
+        summary: 'Reseña regular',
+        value: {
+          psychologistId: '123e4567-e89b-12d3-a456-426614174000',
+          rating: 3,
+          comment:
+            'Buena atención pero esperaba un poco más de seguimiento personalizado.',
+        },
       },
     },
   })
@@ -68,15 +81,15 @@ export class ReviewsController {
             id: { type: 'string', example: 'review-uuid' },
             comment: {
               type: 'string',
-              example: 'Excelente psicólogo, muy profesional.',
+              example: 'Excelente psicólogo, muy profesional y empático.',
             },
             rating: { type: 'number', example: 5 },
-            psychologist_id: {
+            psychologistId: {
               type: 'string',
               example: 'psychologist-uuid',
             },
-            user_id: { type: 'string', example: 'user-uuid' },
-            created_at: {
+            userId: { type: 'string', example: 'user-uuid' },
+            createdAt: {
               type: 'string',
               format: 'date-time',
               example: '2024-03-15T10:00:00Z',
@@ -88,7 +101,22 @@ export class ReviewsController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Solicitud incorrecta - La reseña ya existe o datos inválidos',
+    description: 'Solicitud incorrecta',
+    schema: {
+      type: 'object',
+      properties: {
+        message: {
+          type: 'string',
+          examples: [
+            'Psicólogo no encontrado',
+            'No puedes dejar una reseña sin haber tenido una cita completada con este psicólogo',
+            'Ya has dejado una reseña para este psicólogo',
+          ],
+        },
+        error: { type: 'string', example: 'Bad Request' },
+        statusCode: { type: 'number', example: 400 },
+      },
+    },
   })
   @ApiResponse({
     status: 401,
@@ -108,12 +136,70 @@ export class ReviewsController {
     const userId = req.user.id;
     return this.reviewsService.createNewReviewService(createReviewData, userId);
   }
+  @ApiOperation({
+    summary: 'Obtener mis reseñas',
+    description:
+    'Recuperar todas las reseñas que el usuario autenticado ha escrito, incluyendo información del psicólogo asociado.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Reseñas del usuario recuperadas exitosamente',
+    schema: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', example: 'review-uuid' },
+          comment: {
+            type: 'string',
+            example: 'Excelente psicólogo, muy profesional.',
+          },
+          rating: { type: 'number', example: 5 },
+          userId: { type: 'string', example: 'user-uuid' },
+          review_date: {
+            type: 'string',
+            format: 'date-time',
+            example: '2024-03-15T10:00:00Z',
+          },
+          psychologist: {
+            type: 'object',
+            properties: {
+              id: { type: 'string', example: 'psychologist-uuid' },
+              first_name: { type: 'string', example: 'Ana' },
+              last_name: { type: 'string', example: 'García' },
+              specialization: { type: 'string', example: 'Psicología Clínica' },
+              profile_picture: {
+                type: 'string',
+                example: 'https://example.com/profile.jpg',
+                nullable: true,
+              },
+            },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Token inválido o expirado',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Acceso denegado - Permisos insuficientes',
+  })
+  @Get('my-reviews')
+  @UseGuards(RolesGuard)
+  @Roles([ERole.PSYCHOLOGIST, ERole.ADMIN])
+  getMyReviewsController(@Req() req: IAuthRequest): Promise<Reviews[]> {
+    const userId = req.user.id;
+    return this.reviewsService.getMyReviewsService(userId);
+  }
 
   @ApiOperation({
     summary: 'Obtener reseñas por ID de psicólogo',
     description:
-    'Recuperar todas las reseñas de un psicólogo específico con calificación promedio y número de reseñas.',
-  })
+      'Recuperar todas las reseñas de un psicólogo específico con calificación promedio y número de reseñas.',
+    })
   @ApiParam({
     name: 'id',
     description: 'UUID del psicólogo',
@@ -191,10 +277,11 @@ export class ReviewsController {
     return this.reviewsService.findOneByPsychologistIdService(id);
   }
 
+
   @ApiOperation({
     summary: 'Eliminar una reseña por ID (Solo administradores)',
     description:
-    'Eliminar permanentemente una reseña del sistema. Solo los administradores pueden realizar esta acción.',
+      'Eliminar permanentemente una reseña del sistema. Solo los administradores pueden realizar esta acción.',
   })
   @ApiParam({
     name: 'id',
@@ -233,30 +320,5 @@ export class ReviewsController {
     @Param('id') id: string,
   ): Promise<{ message: string }> {
     return this.reviewsService.removeReviewByIdService(id);
-  }
-
-  @ApiOperation({
-    summary: 'Obtener mis reseñas',
-    description: 'Recuperar todas las reseñas creadas por el usuario autenticado.',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Reseñas del usuario recuperadas exitosamente',
-    type: [Reviews],
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Token inválido o expirado',
-  })
-  @ApiResponse({
-    status: 403,
-    description: 'Acceso denegado - Permisos insuficientes',
-  })
-  @Get('me')
-  @UseGuards(RolesGuard)
-  @Roles([ERole.PATIENT, ERole.ADMIN])
-  getMyReviewsController(@Req() req: IAuthRequest): Promise<Reviews[]> {
-    const userId = req.user.id;
-    return this.reviewsService.getMyReviewsService(userId);
   }
 }
