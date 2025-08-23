@@ -39,7 +39,7 @@ export class ReviewsController {
   @ApiOperation({
     summary: 'Crear una nueva reseña',
     description:
-    'Crear una reseña para un psicólogo. Puede ser realizada por pacientes que han tenido sesiones con el psicólogo.',
+      'Crear una reseña para un psicólogo. Puede ser realizada por pacientes que han tenido sesiones con el psicólogo.',
   })
   @ApiBody({
     schema: {
@@ -112,7 +112,7 @@ export class ReviewsController {
   @ApiOperation({
     summary: 'Obtener reseñas por ID de psicólogo',
     description:
-    'Recuperar todas las reseñas de un psicólogo específico con calificación promedio y número de reseñas.',
+      'Recuperar todas las reseñas de un psicólogo específico con calificación promedio y número de reseñas.',
   })
   @ApiParam({
     name: 'id',
@@ -194,7 +194,7 @@ export class ReviewsController {
   @ApiOperation({
     summary: 'Eliminar una reseña por ID (Solo administradores)',
     description:
-    'Eliminar permanentemente una reseña del sistema. Solo los administradores pueden realizar esta acción.',
+      'Eliminar permanentemente una reseña del sistema. Solo los administradores pueden realizar esta acción.',
   })
   @ApiParam({
     name: 'id',
@@ -237,7 +237,8 @@ export class ReviewsController {
 
   @ApiOperation({
     summary: 'Obtener mis reseñas',
-    description: 'Recuperar todas las reseñas creadas por el usuario autenticado.',
+    description:
+      'Recuperar todas las reseñas creadas por el usuario autenticado.',
   })
   @ApiResponse({
     status: 200,
