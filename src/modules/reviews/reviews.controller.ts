@@ -5,11 +5,13 @@ import {
   Body,
   Param,
   Delete,
+  Patch,
   UseGuards,
   Req,
 } from '@nestjs/common';
 import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './dto/create-review.dto';
+import { UpdateReviewRequest } from './dto/update-review.dto';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { ERole } from '../../common/enums/role.enum';
 import { Roles } from '../auth/decorators/role.decorator';
@@ -189,7 +191,7 @@ export class ReviewsController {
   })
   @Get('my-reviews')
   @UseGuards(RolesGuard)
-  @Roles([ERole.PSYCHOLOGIST, ERole.ADMIN])
+  @Roles([ERole.PSYCHOLOGIST, ERole.ADMIN, ERole.PATIENT])
   getMyReviewsController(@Req() req: IAuthRequest): Promise<Reviews[]> {
     const userId = req.user.id;
     return this.reviewsService.getMyReviewsService(userId);
@@ -319,5 +321,97 @@ export class ReviewsController {
     @Param('id') id: string,
   ): Promise<{ message: string }> {
     return this.reviewsService.removeReviewByIdService(id);
+  }
+
+  @ApiOperation({
+    summary: 'Actualizar una reseña',
+    description:
+      'Actualizar el rating y comentario de una reseña existente. Solo puede ser realizada por el autor de la reseña o administradores.',
+  })
+  @ApiBody({
+    type: UpdateReviewRequest,
+    description: 'Datos necesarios para actualizar una reseña',
+    examples: {
+      'actualizar-reseña': {
+        summary: 'Actualizar reseña',
+        value: {
+          id: '123e4567-e89b-12d3-a456-426614174000',
+          rating: 4,
+          comment:
+            'Actualicé mi opinión después de más sesiones. Muy buen profesional.',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Reseña actualizada exitosamente',
+    schema: {
+      type: 'object',
+      properties: {
+        message: {
+          type: 'string',
+          example: 'Reseña actualizada exitosamente',
+        },
+        review: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', example: 'review-uuid' },
+            comment: {
+              type: 'string',
+              example: 'Comentario actualizado sobre el psicólogo.',
+            },
+            rating: { type: 'number', example: 4 },
+            psychologistId: {
+              type: 'string',
+              example: 'psychologist-uuid',
+            },
+            userId: { type: 'string', example: 'user-uuid' },
+            review_date: {
+              type: 'string',
+              format: 'date-time',
+              example: '2024-03-15T10:00:00Z',
+            },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Solicitud incorrecta',
+    schema: {
+      type: 'object',
+      properties: {
+        message: {
+          type: 'string',
+          example: 'Reseña no encontrada',
+        },
+        error: { type: 'string', example: 'Bad Request' },
+        statusCode: { type: 'number', example: 400 },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Token inválido o expirado',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Acceso denegado - Permisos insuficientes',
+  })
+  @Patch('update')
+  @UseGuards(RolesGuard)
+  @Roles([ERole.PATIENT, ERole.ADMIN])
+  async updateReviewController(
+    @Req() req: IAuthRequest,
+    @Body() updateReviewData: UpdateReviewRequest,
+  ): Promise<{ message: string; review: Reviews }> {
+    const userId = req.user.id;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
+    return await this.reviewsService.updateReviewByIdService(
+      updateReviewData,
+      userId,
+    );
   }
 }
