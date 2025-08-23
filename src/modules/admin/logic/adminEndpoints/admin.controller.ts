@@ -20,12 +20,11 @@ import { ResponseUserDto } from 'src/modules/users/dto/response-user.dto';
 
 @Controller('admin')
 @ApiTags('Administrador')
-@ApiBearerAuth('JWT-auth')
-@UseGuards(CombinedAuthGuard, RolesGuard)
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
   @Get()
+  @UseGuards(CombinedAuthGuard, RolesGuard)
   @Roles([ERole.ADMIN])
   @ApiOperation({
     summary:
@@ -104,8 +103,8 @@ export class AdminController {
   }
 
   @Put(':id/verify')
+  @UseGuards(CombinedAuthGuard, RolesGuard)
   @Roles([ERole.ADMIN])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Verificar un psicólogo por ID (Solo administradores)',
     description:
@@ -152,8 +151,8 @@ export class AdminController {
   }
 
   @Put(':id/reject')
+  @UseGuards(CombinedAuthGuard, RolesGuard)
   @Roles([ERole.ADMIN])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Rechazar un psicólogo por ID (Solo administradores)',
     description:
@@ -200,8 +199,8 @@ export class AdminController {
   }
 
   @Put(':id/promote')
+  @UseGuards(CombinedAuthGuard, RolesGuard)
   @Roles([ERole.ADMIN])
-  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Promover un usuario a un rol superior (Solo administradores)',
     description:
@@ -245,5 +244,105 @@ export class AdminController {
     data: ResponseUserDto;
   }> {
     return this.adminService.promoteUserById(id);
+  }
+
+  @Put(':id/ban')
+  @UseGuards(CombinedAuthGuard, RolesGuard)
+  @Roles([ERole.ADMIN])
+  @ApiOperation({
+    summary: 'Banear un usuario por ID (Solo administradores)',
+    description:
+      'Banear un usuario del sistema. Desactiva la cuenta del usuario estableciendo is_active a false.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Usuario baneado exitosamente',
+    schema: {
+      type: 'object',
+      properties: {
+        message: {
+          type: 'string',
+          example: 'Usuario baneado exitosamente',
+        },
+        data: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', example: 'user-uuid' },
+            name: { type: 'string', example: 'Juan Pérez' },
+            email: { type: 'string', example: 'juan.perez@email.com' },
+            is_active: { type: 'boolean', example: false },
+            role: { type: 'string', example: 'USER' },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Acceso denegado - Se requiere rol de administrador',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Token inválido o expirado',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Usuario no encontrado',
+  })
+  banUserById(@Param('id') id: string): Promise<{
+    message: string;
+    data: ResponseUserDto;
+  }> {
+    return this.adminService.banUserById(id);
+  }
+
+  @Put(':id/unban')
+  @UseGuards(CombinedAuthGuard, RolesGuard)
+  @Roles([ERole.ADMIN])
+  @ApiOperation({
+    summary: 'Desbanear un usuario por ID (Solo administradores)',
+    description:
+      'Desbanear un usuario del sistema. Reactiva la cuenta del usuario estableciendo is_active a true.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Usuario desbaneado exitosamente',
+    schema: {
+      type: 'object',
+      properties: {
+        message: {
+          type: 'string',
+          example: 'Usuario desbaneado exitosamente',
+        },
+        data: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', example: 'user-uuid' },
+            name: { type: 'string', example: 'Juan Pérez' },
+            email: { type: 'string', example: 'juan.perez@email.com' },
+            is_active: { type: 'boolean', example: true },
+            role: { type: 'string', example: 'USER' },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Acceso denegado - Se requiere rol de administrador',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Token inválido o expirado',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Usuario no encontrado',
+  })
+  unbanUserById(@Param('id') id: string): Promise<{
+    message: string;
+    data: ResponseUserDto;
+  }> {
+    return this.adminService.unbanUserById(id);
   }
 }

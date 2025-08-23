@@ -139,7 +139,7 @@ export class ReviewsController {
   @ApiOperation({
     summary: 'Obtener mis reseñas',
     description:
-    'Recuperar todas las reseñas que el usuario autenticado ha escrito, incluyendo información del psicólogo asociado.',
+      'Recuperar todas las reseñas que el usuario autenticado ha escrito, incluyendo información del psicólogo asociado.',
   })
   @ApiResponse({
     status: 200,
@@ -199,7 +199,7 @@ export class ReviewsController {
     summary: 'Obtener reseñas por ID de psicólogo',
     description:
       'Recuperar todas las reseñas de un psicólogo específico con calificación promedio y número de reseñas.',
-    })
+  })
   @ApiParam({
     name: 'id',
     description: 'UUID del psicólogo',
@@ -276,7 +276,6 @@ export class ReviewsController {
   ): Promise<reviewResponseDto> {
     return this.reviewsService.findOneByPsychologistIdService(id);
   }
-
 
   @ApiOperation({
     summary: 'Eliminar una reseña por ID (Solo administradores)',

@@ -97,9 +97,10 @@ export class ReviewsService {
 
   async getMyReviewsService(userId: string): Promise<Reviews[]> {
     const myReviews = await this.reviewsRepository.find({
-      where: { userId: userId },
+      where: { psychologist: { id: userId } },
       relations: ['psychologist'],
     });
+    console.log(myReviews)
     return myReviews;
   }
 }
