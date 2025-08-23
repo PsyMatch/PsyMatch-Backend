@@ -154,8 +154,43 @@ export class AdminService {
     if (!user) {
       throw new NotFoundException('No se encontró el usuario');
     }
+    if (user.role === ERole.ADMIN) {
+      throw new NotFoundException('El usuario ya es un administrador');
+    }
+    
+    await this.userRepository
+      .createQueryBuilder()
+      .update(User)
+      .set({ role: ERole.ADMIN })
+      .where('id = :id', { id })
+      .execute();
 
-    user.role = ERole.ADMIN;
+    const updatedUser = await this.userRepository.findOne({
+      where: { id },
+    });
+
+    const transformedUser = plainToInstance(ResponseUserDto, updatedUser, {
+      excludeExtraneousValues: true,
+    });
+
+    return {
+      message: 'Usuario promovido exitosamente',
+      data: transformedUser,
+    };
+  }
+
+  async banUserById(
+    id: string,
+  ): Promise<{ message: string; data: ResponseUserDto }> {
+    const user = await this.userRepository.findOne({
+      where: { id, is_active: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException('No se encontró el usuario');
+    }
+
+    user.is_active = false;
     const savedUser = await this.userRepository.save(user);
 
     const transformedUser = plainToInstance(ResponseUserDto, savedUser, {
@@ -163,7 +198,31 @@ export class AdminService {
     });
 
     return {
-      message: 'Usuario promovido exitosamente',
+      message: 'Usuario baneado exitosamente',
+      data: transformedUser,
+    };
+  }
+
+  async unbanUserById(
+    id: string,
+  ): Promise<{ message: string; data: ResponseUserDto }> {
+    const user = await this.userRepository.findOne({
+      where: { id, is_active: false },
+    });
+
+    if (!user) {
+      throw new NotFoundException('No se encontró el usuario');
+    }
+
+    user.is_active = true;
+    const savedUser = await this.userRepository.save(user);
+
+    const transformedUser = plainToInstance(ResponseUserDto, savedUser, {
+      excludeExtraneousValues: true,
+    });
+
+    return {
+      message: 'Usuario desbaneado exitosamente',
       data: transformedUser,
     };
   }

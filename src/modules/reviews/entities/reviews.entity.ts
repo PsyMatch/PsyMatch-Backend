@@ -17,6 +17,7 @@ export class Reviews {
 
   @Column({ type: 'uuid', nullable: false })
   userId: string;
+  
   @ManyToOne(() => Psychologist, (psychologist) => psychologist.reviews)
   psychologist: Psychologist;
 }
