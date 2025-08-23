@@ -11,6 +11,7 @@ import { SendPasswordChangedEmailSwaggerDoc } from './documentation/password-cha
 import { SendPromotedEmailSwaggerDoc } from './documentation/promoted.doc';
 import { SendPsychologistVerifiedEmailSwaggerDoc } from './documentation/psychologist-verified.doc';
 import { SendWelcomeEmailSwaggerDoc } from './documentation/welcome.doc';
+import { SendEmailChangePasswordDto } from './dto/send-email-change-password.dto';
 
 @ApiTags('Emails')
 @Controller('emails')
@@ -28,8 +29,8 @@ export class EmailsController {
 
   @Post('new-password')
   @SendNewPasswordEmailSwaggerDoc()
-  async sendNewPasswordEmail(@Body() body: SendEmailDto) {
-    await this.emailsService.sendNewPasswordEmail(body.email);
+  async sendNewPasswordEmail(@Body() body: SendEmailChangePasswordDto) {
+    await this.emailsService.sendNewPasswordEmail(body.email, body.token);
     return {
       message: `📨 Email de notificación de nueva contraseña enviado a ${body.email}`,
     };

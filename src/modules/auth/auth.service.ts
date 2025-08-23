@@ -22,6 +22,7 @@ import { Profile } from 'passport';
 import { UsersService } from '../users/users.service';
 import { Repository } from 'typeorm';
 import { IJwtPayload } from './interfaces/jwt-payload.interface';
+import { EmailsService } from '../emails/emails.service';
 
 @Injectable()
 export class AuthService {
@@ -32,6 +33,7 @@ export class AuthService {
     private readonly queryHelper: QueryHelper,
     private readonly filesService: FilesService,
     private readonly userService: UsersService,
+    private readonly emailsService: EmailsService,
   ) {}
 
   async signUpService(
@@ -283,6 +285,7 @@ export class AuthService {
 
     return this.jwtService.sign(payload);
   }
+
   async forgotPassword(email: string) {
     const user = await this.userRepository.findOne({ where: { email } });
     if (!user) {
@@ -294,9 +297,7 @@ export class AuthService {
       expiresIn: '15m',
     });
 
-    console.log(
-      `Reset link: http://localhost:3000/reset-password?token=${token}`,
-    );
+    await this.emailsService.sendNewPasswordEmail(email, token);
 
     return {
       message:
@@ -318,6 +319,10 @@ export class AuthService {
 
       user.password = await bcrypt.hash(newPassword, 10);
       await this.userRepository.save(user);
+
+      await this.emailsService.sendPasswordChangedEmail(user.email);
+
+      return { message: 'Contraseña modificada exitosamente' };
     } catch {
       throw new UnauthorizedException('Token inválido o expirado');
     }

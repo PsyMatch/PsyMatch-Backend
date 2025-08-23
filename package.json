@@ -34,6 +34,7 @@
     "@nestjs/mapped-types": "*",
     "@nestjs/passport": "^10.0.0",
     "@nestjs/platform-express": "^10.2.5",
+    "@nestjs/schedule": "^6.0.0",
     "@nestjs/throttler": "^5.2.0",
     "bcryptjs": "^3.0.2",
     "class-transformer": "^0.5.1",

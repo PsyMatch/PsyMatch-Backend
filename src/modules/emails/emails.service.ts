@@ -7,6 +7,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { QueryHelper } from '../utils/helpers/query.helper';
 import { User } from '../users/entities/user.entity';
 import { ERole } from '../../common/enums/role.enum';
+import { envs } from 'src/configs/envs.config';
 
 @Injectable()
 export class EmailsService {
@@ -64,7 +65,7 @@ export class EmailsService {
     });
   }
 
-  async sendNewPasswordEmail(to: string) {
+  async sendNewPasswordEmail(to: string, resetToken: string) {
     return this.queryHelper.runInTransaction(async (queryRunner) => {
       const userRepo = queryRunner.manager.getRepository(User);
       const user = await userRepo.findOne({
@@ -75,11 +76,20 @@ export class EmailsService {
           `No se encontró el usuario con email ${to}`,
         );
       }
+
+      // NECESARIO PARA LA RECUPERACIÓN DE CONTRASEÑA////////////////////
+      const resetLink =
+        envs.server.environment === 'production'
+          ? `https://psymatch.com/reset-password?token=${resetToken}`
+          : `http://localhost:3000/reset-password?token=${resetToken}`;
+      ///////////////////////////////////////////////////////////////////
+
       await this.mailerService.sendMail({
         to,
         subject: 'Genera una nueva contraseña',
         template: 'new-password',
         context: {
+          resetLink,
           date: new Date().toLocaleString('es-ES', {
             day: 'numeric',
             month: 'long',
