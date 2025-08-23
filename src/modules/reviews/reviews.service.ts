@@ -28,12 +28,11 @@ export class ReviewsService {
     const psychologist = await this.psychologistRepository.findOne({
       where: { id: psychologistId },
     });
-
     if (!psychologist) {
       throw new BadRequestException('Psicólogo no encontrado');
     }
 
-    const pastAppointments = await this.appointmentRepository.find({
+    const appointment = await this.appointmentRepository.findOne({
       where: {
         psychologist: { id: psychologistId },
         patient: { id: userId },
@@ -41,18 +40,32 @@ export class ReviewsService {
       },
     });
 
-    if (pastAppointments.length === 0) {
+    if (!appointment) {
       throw new BadRequestException(
-        'No puedes dejar una reseña sin haber tenido una cita con este psicólogo',
+        'No puedes dejar una reseña sin haber tenido una cita completada con este psicólogo',
+      );
+    }
+
+    const existingReview = await this.reviewsRepository.findOne({
+      where: {
+        psychologist: { id: psychologistId },
+        userId: userId,
+      },
+    });
+
+    if (existingReview) {
+      throw new BadRequestException(
+        'Ya has dejado una reseña para este psicólogo',
       );
     }
     const newReview = this.reviewsRepository.create({
+      psychologist: psychologist,
+      userId: userId,
       rating,
       comment,
-      userId: userId,
-      psychologist: { id: psychologistId },
       review_date: new Date(),
     });
+
     await this.reviewsRepository.save(newReview);
 
     return { message: 'Reseña creada exitosamente', review: newReview };
