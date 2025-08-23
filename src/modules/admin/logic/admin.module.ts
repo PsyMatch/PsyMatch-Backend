@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Appointment } from 'src/modules/appointments/entities/appointment.entity';
 import { Payment } from 'src/modules/payments/entities/payment.entity';
 import { Reviews } from 'src/modules/reviews/entities/reviews.entity';
@@ -10,6 +12,7 @@ import { AdminDashboardController } from './adminDashBoard/adminDashboard.contro
 import { AdminDashboardService } from './adminDashBoard/adminDashboard.service';
 import { AdminController } from './adminEndpoints/admin.controller';
 import { AdminService } from './adminEndpoints/admin.service';
+import { AuthModule } from 'src/modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -20,6 +23,7 @@ import { AdminService } from './adminEndpoints/admin.service';
       Payment,
       Psychologist,
     ]),
+    AuthModule,
   ],
   controllers: [AdminDashboardController, AdminController],
   providers: [AdminDashboardService, AdminService, PaginationService],
