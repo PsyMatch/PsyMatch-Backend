@@ -17,7 +17,6 @@ import { Appointment } from '../appointments/entities/appointment.entity';
       User,
       Patient,
       Psychologist,
-      //CODIGO DE PEDRO//
       Appointment,
       Payment,
     ]),

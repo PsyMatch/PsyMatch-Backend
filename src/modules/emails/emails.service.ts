@@ -6,7 +6,7 @@ import {
 import { MailerService } from '@nestjs-modules/mailer';
 import { QueryHelper } from '../utils/helpers/query.helper';
 import { User } from '../users/entities/user.entity';
-import { ERole } from 'src/common/enums/role.enum';
+import { ERole } from '../../common/enums/role.enum';
 
 @Injectable()
 export class EmailsService {
@@ -15,7 +15,7 @@ export class EmailsService {
     private readonly queryHelper: QueryHelper,
   ) {}
 
-  async sendWelcomeEmail(to: string, name: string) {
+  async sendWelcomeEmail(to: string) {
     return this.queryHelper.runInTransaction(async (queryRunner) => {
       const userRepo = queryRunner.manager.getRepository(User);
       const user = await userRepo.findOne({
@@ -32,7 +32,6 @@ export class EmailsService {
           subject: '¡Bienvenido a nuestra plataforma!',
           template: 'welcome-patient',
           context: {
-            name,
             date: new Date().toLocaleDateString('es-ES', {
               day: 'numeric',
               month: 'long',
@@ -48,7 +47,6 @@ export class EmailsService {
           subject: '¡Bienvenido a nuestra plataforma!',
           template: 'welcome-psychologist',
           context: {
-            name,
             date: new Date().toLocaleDateString('es-ES', {
               day: 'numeric',
               month: 'long',
@@ -66,7 +64,7 @@ export class EmailsService {
     });
   }
 
-  async sendNewPasswordEmail(to: string, name: string) {
+  async sendNewPasswordEmail(to: string) {
     return this.queryHelper.runInTransaction(async (queryRunner) => {
       const userRepo = queryRunner.manager.getRepository(User);
       const user = await userRepo.findOne({
@@ -82,7 +80,6 @@ export class EmailsService {
         subject: 'Genera una nueva contraseña',
         template: 'new-password',
         context: {
-          name,
           date: new Date().toLocaleString('es-ES', {
             day: 'numeric',
             month: 'long',
@@ -95,7 +92,7 @@ export class EmailsService {
     });
   }
 
-  async sendPasswordChangedEmail(to: string, name: string) {
+  async sendPasswordChangedEmail(to: string) {
     return this.queryHelper.runInTransaction(async (queryRunner) => {
       const userRepo = queryRunner.manager.getRepository(User);
       const user = await userRepo.findOne({
@@ -111,7 +108,6 @@ export class EmailsService {
         subject: 'Contraseña modificada exitosamente',
         template: 'password-changed',
         context: {
-          name,
           date: new Date().toLocaleString('es-ES', {
             day: 'numeric',
             month: 'long',
@@ -124,7 +120,7 @@ export class EmailsService {
     });
   }
 
-  async sendPsychologistVerifiedEmail(to: string, name: string) {
+  async sendPsychologistVerifiedEmail(to: string) {
     return this.queryHelper.runInTransaction(async (queryRunner) => {
       const userRepo = queryRunner.manager.getRepository(User);
       const user = await userRepo.findOne({
@@ -145,7 +141,6 @@ export class EmailsService {
         subject: '¡Ahora formas parte de nuestra red de profesionales!',
         template: 'psychologist-verified',
         context: {
-          name,
           date: new Date().toLocaleString('es-ES', {
             day: 'numeric',
             month: 'long',
@@ -158,7 +153,7 @@ export class EmailsService {
     });
   }
 
-  async sendAppointmentConfirmedEmail(to: string, name: string) {
+  async sendAppointmentConfirmedEmail(to: string) {
     return this.queryHelper.runInTransaction(async (queryRunner) => {
       const userRepo = queryRunner.manager.getRepository(User);
       const user = await userRepo.findOne({
@@ -174,7 +169,6 @@ export class EmailsService {
         subject: 'Cita confirmada',
         template: 'appointment-confirmed',
         context: {
-          name,
           date: new Date().toLocaleString('es-ES', {
             day: 'numeric',
             month: 'long',
@@ -187,7 +181,7 @@ export class EmailsService {
     });
   }
 
-  async sendAppointmentReminderEmail(to: string, name: string) {
+  async sendAppointmentReminderEmail(to: string) {
     return this.queryHelper.runInTransaction(async (queryRunner) => {
       const userRepo = queryRunner.manager.getRepository(User);
       const user = await userRepo.findOne({
@@ -203,7 +197,6 @@ export class EmailsService {
         subject: 'Recordatorio de cita',
         template: 'appointment-reminder',
         context: {
-          name,
           date: new Date().toLocaleString('es-ES', {
             day: 'numeric',
             month: 'long',
@@ -216,7 +209,7 @@ export class EmailsService {
     });
   }
 
-  async sendLeaveReviewEmail(to: string, name: string) {
+  async sendLeaveReviewEmail(to: string) {
     return this.queryHelper.runInTransaction(async (queryRunner) => {
       const userRepo = queryRunner.manager.getRepository(User);
       const user = await userRepo.findOne({
@@ -232,7 +225,6 @@ export class EmailsService {
         subject: 'Solicitud de reseña',
         template: 'leave-review',
         context: {
-          name,
           date: new Date().toLocaleString('es-ES', {
             day: 'numeric',
             month: 'long',
@@ -245,7 +237,7 @@ export class EmailsService {
     });
   }
 
-  async sendPromotedEmail(to: string, name: string) {
+  async sendPromotedEmail(to: string) {
     return this.queryHelper.runInTransaction(async (queryRunner) => {
       const userRepo = queryRunner.manager.getRepository(User);
       const user = await userRepo.findOne({
@@ -261,7 +253,6 @@ export class EmailsService {
         subject: '¡Felicidades por tu promoción a Administrador!',
         template: 'promoted',
         context: {
-          name,
           date: new Date().toLocaleString('es-ES', {
             day: 'numeric',
             month: 'long',
@@ -274,7 +265,7 @@ export class EmailsService {
     });
   }
 
-  async sendBannedEmail(to: string, name: string) {
+  async sendBannedEmail(to: string) {
     return this.queryHelper.runInTransaction(async (queryRunner) => {
       const userRepo = queryRunner.manager.getRepository(User);
       const user = await userRepo.findOne({
@@ -290,7 +281,6 @@ export class EmailsService {
         subject: 'Has sido baneado de la plataforma',
         template: 'banned',
         context: {
-          name,
           date: new Date().toLocaleString('es-ES', {
             day: 'numeric',
             month: 'long',

@@ -11,7 +11,6 @@ import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { MercadoPagoConfig, Preference } from 'mercadopago';
 import { envs } from '../../configs/envs.config';
 
-// Define interfaces for MercadoPago types
 interface MPPreferenceResult {
   init_point?: string;
 }
@@ -44,7 +43,7 @@ export class PaymentsService {
     });
 
     if (!payment) {
-      throw new NotFoundException(`Payment with ID ${id} not found`);
+      throw new NotFoundException(`Pago con ID ${id} no encontrado`);
     }
 
     return payment;
@@ -68,23 +67,22 @@ export class PaymentsService {
     const result = await this.paymentsRepository.delete({ payment_id: id });
 
     if (result.affected === 0) {
-      throw new NotFoundException(`Payment with ID ${id} not found`);
+      throw new NotFoundException(`Pago con ID ${id} no encontrado`);
     }
   }
 
   async createMercadoPagoPreference(): Promise<{ init_point: string }> {
-    // Safe environment variable access with validation
     const accessToken = envs.mercadopago.accessToken;
-    const frontendUrl = envs.deployed_urls.frontend;
+    const frontendUrl = envs.deployed_urls.frontend || 'http://localhost:3000';
 
     if (!accessToken) {
       throw new BadRequestException(
-        'MercadoPago access token is not configured',
+        'El token de acceso de MercadoPago no está configurado',
       );
     }
 
     if (!frontendUrl) {
-      throw new BadRequestException('Frontend URL is not configured');
+      throw new BadRequestException('La URL del frontend no está configurada');
     }
 
     try {
@@ -114,10 +112,9 @@ export class PaymentsService {
         },
       });
 
-      // Safe access to result with validation
       if (!result?.init_point) {
         throw new BadRequestException(
-          'Failed to create MercadoPago preference - invalid response',
+          'Fallo al crear la preferencia de MercadoPago',
         );
       }
 
@@ -126,7 +123,9 @@ export class PaymentsService {
       if (error instanceof BadRequestException) {
         throw error;
       }
-      throw new BadRequestException('Failed to create MercadoPago preference');
+      throw new BadRequestException(
+        'Fallo al crear la preferencia de MercadoPago',
+      );
     }
   }
 }

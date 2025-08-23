@@ -63,23 +63,6 @@ export class ResponseProfessionalDto {
   @Expose()
   office_address?: string;
 
-  //===============================
-  // DESCOMENTAR CUANDO USEMOS MAPS
-  //===============================
-  // @ApiPropertyOptional({
-  //   description: 'Latitud de ubicación del usuario',
-  //   example: -34.6037,
-  // })
-  // @Expose()
-  // latitude?: number;
-
-  // @ApiPropertyOptional({
-  //   description: 'Longitud de ubicación del usuario',
-  //   example: -58.3816,
-  // })
-  // @Expose()
-  // longitude?: number;
-
   @ApiProperty({
     description: 'Dirección de correo electrónico del usuario',
     example: 'juan.perez@ejemplo.com',
@@ -207,6 +190,13 @@ export class ResponseProfessionalDto {
   availability?: EAvailability[];
 
   @ApiPropertyOptional({
+    description: 'Precio de la consulta (solo para psicólogos)',
+    example: 100,
+  })
+  @Expose()
+  consultation_fee?: number;
+
+  @ApiPropertyOptional({
     description: 'Estado de verificación (solo para psicólogos)',
     enum: EPsychologistStatus,
     example: EPsychologistStatus.VALIDATED,
@@ -238,11 +228,4 @@ export class ResponseProfessionalDto {
   })
   @Expose()
   profile_picture?: string;
-
-  @ApiPropertyOptional({
-    description: 'Precio de la consulta (solo para psicólogos)',
-    example: 100,
-  })
-  @Expose()
-  consultation_fee?: number;
 }
