@@ -8,7 +8,7 @@ export const SignInSwaggerDoc = () =>
       description:
         'Inicia sesión con las credenciales del paciente y obtiene un JWT token para acceder a rutas protegidas.',
     }),
-    ApiConsumes('multipart/form-data'),
+    ApiConsumes('application/x-www-form-urlencoded'),
     ApiResponse({
       status: 201,
       description:

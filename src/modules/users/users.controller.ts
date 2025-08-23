@@ -32,8 +32,11 @@ import { User } from './entities/user.entity';
 import { Appointment } from '../appointments/entities/appointment.entity';
 import { Psychologist } from '../psychologist/entities/psychologist.entity';
 import { DeleteSwaggerDoc } from './documentation/delete.doc';
-import { FindAllPatientsSwaggerDoc } from './documentation/find-all-patients.doc';
-import { FindAllSwaggerDoc } from './documentation/find-all.doc';
+import {
+  FindAllSwaggerDoc,
+  FindAllPatientsSwaggerDoc,
+  FindAllPsychologistsSwaggerDoc,
+} from './documentation/find-all.doc';
 import { FindByIdSwaggerDoc } from './documentation/find-by-id.doc';
 import { GetMyAppointmentsSwaggerDoc } from './documentation/get-my-appointments.doc';
 import { GetMyPaymentsSwaggerDoc } from './documentation/get-my-payments.doc';
@@ -76,6 +79,21 @@ export class UsersController {
     return {
       message: 'Todos los pacientes recuperados exitosamente',
       data: patients,
+    };
+  }
+
+  @Get('psychologists')
+  @UseGuards(CombinedAuthGuard)
+  @FindAllPsychologistsSwaggerDoc()
+  async findAllPsychologists(@Query() paginationDto: PaginationDto): Promise<{
+    message: string;
+    data: PaginatedResponse<Omit<User, 'password'>>;
+  }> {
+    const psychologists =
+      await this.usersService.findAllPsychologists(paginationDto);
+    return {
+      message: 'Lista de psicólogos recuperada exitosamente',
+      data: psychologists,
     };
   }
 

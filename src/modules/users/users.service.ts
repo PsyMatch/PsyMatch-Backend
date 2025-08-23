@@ -23,6 +23,7 @@ import { FilesService } from '../files/files.service';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import lodash from 'lodash';
+import { EPsychologistStatus } from '../psychologist/enums/verified.enum';
 
 @Injectable()
 export class UsersService {
@@ -76,6 +77,33 @@ export class UsersService {
 
     if (!paginatedResult.data.length) {
       throw new NotFoundException('No se encontraron pacientes activos');
+    }
+
+    paginatedResult.data = paginatedResult.data.map(
+      ({ password: _password, ...rest }) => rest,
+    ) as Omit<User[], 'password'>;
+
+    return paginatedResult;
+  }
+
+  async findAllPsychologists(
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResponse<User>> {
+    const psychologists = this.usersRepository
+      .createQueryBuilder('user')
+      .where('user.role = :role', { role: ERole.PSYCHOLOGIST })
+      .andWhere('user.is_active = :isActive', { isActive: true })
+      .andWhere('user.verified = :isVerified', {
+        isVerified: EPsychologistStatus.VALIDATED,
+      });
+
+    const paginatedResult = await this.paginationService.paginate(
+      psychologists,
+      paginationDto,
+    );
+
+    if (!paginatedResult.data.length) {
+      throw new NotFoundException('No se encontraron psicólogos activos');
     }
 
     paginatedResult.data = paginatedResult.data.map(
@@ -256,11 +284,6 @@ export class UsersService {
         });
         if (existingUser && existingUser.id !== id)
           throw new ConflictException('El correo electrónico ya existe');
-      }
-
-      if (!userData.address) {
-        userData.latitude = undefined;
-        userData.longitude = undefined;
       }
 
       const filtered = lodash.pickBy(

@@ -4,7 +4,7 @@ import { ApiConsumes, ApiOperation, ApiResponse } from '@nestjs/swagger';
 export const CreateAppointmentDocumentation = () =>
   applyDecorators(
     ApiOperation({ summary: 'Crear nueva cita (usuario autenticado)' }),
-    ApiConsumes('multipart/form-data'),
+    ApiConsumes('application/x-www-form-urlencoded'),
     ApiResponse({
       status: 201,
       description: 'Cita creada exitosamente',
