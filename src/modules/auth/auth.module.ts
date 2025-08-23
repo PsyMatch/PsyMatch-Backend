@@ -17,6 +17,7 @@ import { UsersService } from '../users/users.service';
 import { PaginationService } from '../../common/services/pagination.service';
 import { Appointment } from '../appointments/entities/appointment.entity';
 import { Payment } from '../payments/entities/payment.entity';
+import { EmailsService } from '../emails/emails.service';
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import { Payment } from '../payments/entities/payment.entity';
     JwtStrategy,
     UsersService,
     PaginationService,
+    EmailsService,
   ],
   exports: [AuthService, JwtModule],
 })

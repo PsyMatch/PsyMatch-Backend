@@ -26,7 +26,7 @@ export class VerificationPsychologistController {
 
   @Get('verified')
   @ApiOperation({
-    summary: 'Obterner todos los profesionales verificados (SOLO ADMIN)',
+    summary: 'Obterner todos los profesionales verificados',
     description: 'Obtener una lista paginada de psicólogos verificados',
   })
   @ApiResponse({
