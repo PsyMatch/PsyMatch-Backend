@@ -157,7 +157,7 @@ export class AdminService {
     if (user.role === ERole.ADMIN) {
       throw new NotFoundException('El usuario ya es un administrador');
     }
-    
+
     await this.userRepository
       .createQueryBuilder()
       .update(User)
@@ -200,6 +200,31 @@ export class AdminService {
     return {
       message: 'Usuario baneado exitosamente',
       data: transformedUser,
+    };
+  }
+
+  async getBannedUsersService(
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResponse<ResponseUserDto>> {
+    const queryBuilder = this.userRepository.createQueryBuilder('user');
+    queryBuilder.where('user.is_active = :isActive', { isActive: false });
+
+    const paginatedResult = await this.paginationService.paginate(
+      queryBuilder,
+      paginationDto,
+    );
+
+    const transformedItems = plainToInstance(
+      ResponseUserDto,
+      paginatedResult.data,
+      {
+        excludeExtraneousValues: true,
+      },
+    );
+
+    return {
+      ...paginatedResult,
+      data: transformedItems,
     };
   }
 
