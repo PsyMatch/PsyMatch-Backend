@@ -7,6 +7,7 @@ import {
   Put,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -57,8 +58,16 @@ export class PaymentsController {
     status: 500,
     description: 'Error al crear la preferencia de pago',
   })
-  async createMercadoPagoPreference() {
-    return this.service.createMercadoPagoPreference();
+  async createMercadoPagoPreference(
+    @Query('userId') userId?: string,
+    @Query('appointmentId') appointmentId?: string,
+    @Query('amount') amount?: number,
+  ) {
+    return this.service.createMercadoPagoPreference(
+      userId,
+      appointmentId,
+      amount,
+    );
   }
 
   @Post()
@@ -389,5 +398,116 @@ export class PaymentsController {
   })
   remove(@Param('id') id: string) {
     return this.service.remove(id);
+  }
+
+  @Get('user/:userId')
+  @Roles([ERole.PATIENT, ERole.PSYCHOLOGIST, ERole.ADMIN])
+  @ApiOperation({
+    summary: 'Obtener pagos de un usuario específico',
+    description:
+      'Recuperar todos los pagos realizados por un usuario específico.',
+  })
+  @ApiParam({
+    name: 'userId',
+    description: 'UUID del usuario',
+    example: 'user-uuid',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Pagos del usuario recuperados exitosamente',
+    schema: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          payment_id: { type: 'string', example: 'payment-uuid' },
+          amount: { type: 'number', example: 150.0 },
+          currency: { type: 'string', example: 'ARS' },
+          pay_method: { type: 'string', example: 'MERCADO_PAGO' },
+          pay_status: { type: 'string', example: 'COMPLETED' },
+          mercado_pago_id: { type: 'string', example: 'mp-12345' },
+          payer_email: { type: 'string', example: 'user@example.com' },
+          notes: { type: 'string', example: 'Pago procesado via MercadoPago' },
+          created_at: {
+            type: 'string',
+            format: 'date-time',
+            example: '2024-03-15T10:00:00Z',
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Token inválido o expirado',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Acceso denegado',
+  })
+  findByUserId(@Param('userId') userId: string) {
+    return this.service.findByUserId(userId);
+  }
+
+  @Get('professional/:professionalId')
+  @Roles([ERole.PSYCHOLOGIST, ERole.ADMIN])
+  @ApiOperation({
+    summary: 'Obtener pagos recibidos por un profesional',
+    description:
+      'Recuperar todos los pagos recibidos por un psicólogo específico a través de citas.',
+  })
+  @ApiParam({
+    name: 'professionalId',
+    description: 'UUID del psicólogo',
+    example: 'professional-uuid',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Pagos del profesional recuperados exitosamente',
+    schema: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          payment_id: { type: 'string', example: 'payment-uuid' },
+          amount: { type: 'number', example: 150.0 },
+          currency: { type: 'string', example: 'ARS' },
+          pay_method: { type: 'string', example: 'MERCADO_PAGO' },
+          pay_status: { type: 'string', example: 'COMPLETED' },
+          mercado_pago_id: { type: 'string', example: 'mp-12345' },
+          payer_email: { type: 'string', example: 'user@example.com' },
+          notes: { type: 'string', example: 'Pago procesado via MercadoPago' },
+          created_at: {
+            type: 'string',
+            format: 'date-time',
+            example: '2024-03-15T10:00:00Z',
+          },
+          appointment: {
+            type: 'object',
+            properties: {
+              appointment_id: { type: 'string', example: 'appointment-uuid' },
+              user: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string', example: 'Juan Pérez' },
+                  email: { type: 'string', example: 'juan@example.com' },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Token inválido o expirado',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Acceso denegado - Solo psicólogos y administradores',
+  })
+  findByProfessionalId(@Param('professionalId') professionalId: string) {
+    return this.service.findByProfessionalId(professionalId);
   }
 }

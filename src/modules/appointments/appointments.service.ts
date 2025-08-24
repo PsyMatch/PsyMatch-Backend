@@ -206,7 +206,12 @@ export class AppointmentsService {
 
   async findAll(req: IAuthRequest) {
     if (isAdmin(req)) {
-      const all = await this.appointmentRepository.find();
+      const all = await this.appointmentRepository
+        .createQueryBuilder('a')
+        .leftJoinAndSelect('a.patient', 'patient')
+        .leftJoinAndSelect('a.psychologist', 'psychologist')
+        .orderBy('a.date', 'ASC')
+        .getMany();
       return all.map((a) => ({
         ...a,
         patient: sanitizeUser(a.patient),
