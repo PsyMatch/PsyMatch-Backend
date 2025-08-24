@@ -26,6 +26,7 @@ export class AdminController {
   @Get()
   @UseGuards(CombinedAuthGuard, RolesGuard)
   @Roles([ERole.ADMIN])
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary:
       '[Verificacion] Obtener todas las solicitudes de verificación pendientes (SOLO ADMIN)',
@@ -105,6 +106,7 @@ export class AdminController {
   @Put(':id/verify')
   @UseGuards(CombinedAuthGuard, RolesGuard)
   @Roles([ERole.ADMIN])
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Verificar un psicólogo por ID (Solo administradores)',
     description:
@@ -153,6 +155,7 @@ export class AdminController {
   @Put(':id/reject')
   @UseGuards(CombinedAuthGuard, RolesGuard)
   @Roles([ERole.ADMIN])
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Rechazar un psicólogo por ID (Solo administradores)',
     description:
@@ -201,6 +204,7 @@ export class AdminController {
   @Put(':id/promote')
   @UseGuards(CombinedAuthGuard, RolesGuard)
   @Roles([ERole.ADMIN])
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Promover un usuario a un rol superior (Solo administradores)',
     description:
@@ -249,6 +253,7 @@ export class AdminController {
   @Put(':id/ban')
   @UseGuards(CombinedAuthGuard, RolesGuard)
   @Roles([ERole.ADMIN])
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Banear un usuario por ID (Solo administradores)',
     description:
@@ -299,6 +304,7 @@ export class AdminController {
   @Put(':id/unban')
   @UseGuards(CombinedAuthGuard, RolesGuard)
   @Roles([ERole.ADMIN])
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Desbanear un usuario por ID (Solo administradores)',
     description:
