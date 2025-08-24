@@ -1,4 +1,5 @@
 import { Psychologist } from '../../psychologist/entities/psychologist.entity';
+import { User } from '../../users/entities/user.entity';
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 
 @Entity('reviews')
@@ -17,7 +18,9 @@ export class Reviews {
 
   @Column({ type: 'uuid', nullable: false })
   userId: string;
-  
+
+  @ManyToOne(() => User)
+  user: User;
   @ManyToOne(() => Psychologist, (psychologist) => psychologist.reviews)
   psychologist: Psychologist;
 }

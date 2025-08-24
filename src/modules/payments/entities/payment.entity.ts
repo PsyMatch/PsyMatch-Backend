@@ -11,12 +11,14 @@ export enum PayMethod {
   DEBIT_CARD = 'DEBIT_CARD',
   PAYPAL = 'PAYPAL',
   BANK_TRANSFER = 'BANK_TRANSFER',
+  MERCADO_PAGO = 'MERCADO_PAGO',
 }
 
 export enum PayStatus {
   PENDING = 'PENDING',
   COMPLETED = 'COMPLETED',
   FAILED = 'FAILED',
+  REFUNDED = 'REFUNDED',
 }
 
 @Entity('payments')
@@ -24,8 +26,11 @@ export class Payment {
   @PrimaryGeneratedColumn('uuid')
   payment_id: string;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', nullable: true })
   appointment_id: string;
+
+  @Column({ type: 'uuid', nullable: true })
+  user_id: string;
 
   // DESCOMENTAR CUANDO ESTE LA RELACION EN APPOINTMENTS
   // @ManyToOne(() => Appointment, (appointment) => appointment.payments, {
@@ -48,6 +53,16 @@ export class Payment {
 
   @Column({ type: 'decimal', nullable: true })
   refund_amount?: number;
+
+  // Campos específicos para MercadoPago
+  @Column({ nullable: true })
+  mercado_pago_id?: string;
+
+  @Column({ nullable: true })
+  preference_id?: string;
+
+  @Column({ nullable: true })
+  payer_email?: string;
 
   @Column({
     type: 'enum',
