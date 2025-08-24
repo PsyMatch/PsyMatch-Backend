@@ -207,6 +207,12 @@ export class AuthService {
       throw new BadRequestException('Email o contraseña inválidos');
     }
 
+    if (!user.is_active) {
+      throw new UnauthorizedException(
+        'Tu cuenta ha sido suspendida. Contacta al administrador.',
+      );
+    }
+
     if (!user.password || typeof user.password !== 'string') {
       throw new BadRequestException(
         'Este usuario debe iniciar sesión con Google o el método de autenticación correspondiente.',
@@ -272,6 +278,12 @@ export class AuthService {
         provider_id: oAuthUser.providerId,
         is_active: true,
       });
+    }
+
+    if (!user.is_active) {
+      throw new UnauthorizedException(
+        'Tu cuenta ha sido suspendida. Contacta al administrador.',
+      );
     }
 
     return user;

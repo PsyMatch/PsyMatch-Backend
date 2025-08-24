@@ -11,6 +11,8 @@ import { AdminDashboardService } from './adminDashBoard/adminDashboard.service';
 import { AdminController } from './adminEndpoints/admin.controller';
 import { AdminService } from './adminEndpoints/admin.service';
 import { AuthModule } from 'src/modules/auth/auth.module';
+import { ReportsService } from './reports/reports.service';
+import { ReportsController } from './reports/reports.controller';
 
 @Module({
   imports: [
@@ -23,7 +25,12 @@ import { AuthModule } from 'src/modules/auth/auth.module';
     ]),
     AuthModule,
   ],
-  controllers: [AdminDashboardController, AdminController],
-  providers: [AdminDashboardService, AdminService, PaginationService],
+  controllers: [AdminDashboardController, AdminController, ReportsController],
+  providers: [
+    AdminDashboardService,
+    AdminService,
+    PaginationService,
+    ReportsService,
+  ],
 })
 export class AdminModule {}

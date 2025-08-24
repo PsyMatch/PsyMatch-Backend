@@ -11,9 +11,11 @@ import { SeederModule } from './modules/seeder/seeder.module';
 import { EmailsModule } from './modules/emails/emails.module';
 import { MapsModule } from './modules/maps/maps.module';
 import { AdminModule } from './modules/admin/logic/admin.module';
+import { ScheduleModule } from '@nestjs/schedule/dist/schedule.module';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     DatabaseModule,
     UtilsModule,
     SeederModule,
