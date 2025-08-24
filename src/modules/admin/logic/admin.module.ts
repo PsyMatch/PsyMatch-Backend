@@ -1,7 +1,5 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Appointment } from 'src/modules/appointments/entities/appointment.entity';
 import { Payment } from 'src/modules/payments/entities/payment.entity';
 import { Reviews } from 'src/modules/reviews/entities/reviews.entity';
