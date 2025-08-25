@@ -330,6 +330,7 @@ export class AuthService {
       }
 
       user.password = await bcrypt.hash(newPassword, 10);
+
       await this.userRepository.save(user);
 
       await this.emailsService.sendPasswordChangedEmail(user.email);
