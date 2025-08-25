@@ -17,6 +17,7 @@ import { ESessionType } from '../enums/session-types.enum';
 import { EModality } from '../enums/modality.enum';
 import { EInsurance } from '../../users/enums/insurances.enum';
 import { EAvailability } from '../enums/availability.enum';
+import { ELanguage } from '../enums/languages.enum';
 
 export class UpdatePsychologistDto {
   @ApiPropertyOptional({
@@ -278,8 +279,45 @@ export class UpdatePsychologistDto {
   professional_title?: string;
 
   @ApiPropertyOptional({
+    description: 'Idiomas que maneja el psicólogo',
+    enum: ELanguage,
+    isArray: true,
+    example: [ELanguage.SPANISH, ELanguage.ENGLISH],
+  })
+  @Transform(({ value }): ELanguage[] | undefined => {
+    if (value === '' || value === null || value === undefined) {
+      return undefined;
+    }
+    if (typeof value === 'string') {
+      return value.split(',').map((item) => item.trim() as ELanguage);
+    }
+    return Array.isArray(value)
+      ? (value as ELanguage[])
+      : ([value] as ELanguage[]);
+  })
+  @IsOptional()
+  @IsArray({ message: 'Los idiomas deben ser un array' })
+  @IsEnum(ELanguage, {
+    each: true,
+    message: 'Cada idioma debe ser válido',
+  })
+  languages?: ELanguage[];
+
+  @ApiPropertyOptional({
     description: 'Precio de la consulta (solo para psicólogos)',
     example: 100,
+    minimum: 1,
   })
+  @Transform(({ value }): number | undefined => {
+    if (value === '' || value === null || value === undefined) {
+      return undefined;
+    }
+    const parsed =
+      typeof value === 'string' ? parseFloat(value) : Number(value);
+    return isNaN(parsed) ? undefined : parsed;
+  })
+  @IsOptional()
+  @IsNumber({}, { message: 'El precio de consulta debe ser un número' })
+  @Min(1, { message: 'El precio de consulta debe ser mayor a 0' })
   consultation_fee?: number;
 }

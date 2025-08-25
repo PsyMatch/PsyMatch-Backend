@@ -13,9 +13,9 @@ import {
 import { Transform } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { EModality } from '../../psychologist/enums/modality.enum';
-import { ESessionType } from 'src/modules/psychologist/enums/session-types.enum';
-import { ETherapyApproach } from 'src/modules/psychologist/enums/therapy-approaches.enum';
-import { EPsychologistSpecialty } from 'src/modules/psychologist/enums/specialities.enum';
+import { ESessionType } from '../../psychologist/enums/session-types.enum';
+import { ETherapyApproach } from '../../psychologist/enums/therapy-approaches.enum';
+import { EPsychologistSpecialty } from '../../psychologist/enums/specialities.enum';
 
 export class CreateAppointmentDto {
   @ApiProperty({

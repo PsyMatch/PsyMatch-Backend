@@ -29,6 +29,48 @@ El módulo de **Seeder** proporciona datos de prueba y configuración inicial pa
 
 ## Estructura del Módulo
 
+````
+## Uso del Seeder
+
+### 🚀 Ejecutar el Seeder
+
+```bash
+# En desarrollo - poblar base de datos
+npm run seed
+
+# O ejecutar directamente
+npx ts-node src/modules/seeder/seeder.service.ts
+````
+
+### ⚠️ Consideraciones Importantes
+
+- **Solo desarrollo**: El seeder debe usarse únicamente en entornos de desarrollo
+- **Limpieza previa**: Recomendable limpiar la BD antes de ejecutar
+- **Contraseñas**: Todas las contraseñas de prueba siguen el formato "Password123!"
+- **Datos realistas**: Los datos generados respetan las validaciones del sistema
+
+### � Credenciales de Prueba
+
+```typescript
+// Administrador
+email: 'admin@psymatch.com';
+password: 'Admin123!';
+
+// Psicólogos (ejemplos)
+email: 'ana.garcia@email.com';
+password: 'Password123!';
+
+email: 'carlos.lopez@email.com';
+password: 'Password123!';
+
+// Pacientes (ejemplos)
+email: 'juan.perez@email.com';
+password: 'Password123!';
+
+email: 'maria.gonzalez@email.com';
+password: 'Password123!';
+```
+
 ```
 seeder/
 ├── seeder.module.ts        # Configuración y auto-ejecución del módulo

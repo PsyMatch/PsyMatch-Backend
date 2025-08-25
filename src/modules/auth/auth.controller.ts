@@ -26,6 +26,8 @@ import { ApiTags, ApiExcludeEndpoint } from '@nestjs/swagger';
 import { SignUpPsychologistSwaggerDoc } from './documentation/signup-psychologist.doc';
 import { SignUpSwaggerDoc } from './documentation/signup.doc';
 import { SignInSwaggerDoc } from './documentation/signin.doc';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -99,13 +101,52 @@ export class AuthController {
     );
 
     res.cookie('auth_token', jwt, {
-      httpOnly: true,
+      httpOnly: false,
       secure: envs.server.environment === 'production',
-      sameSite: 'lax',
+      sameSite: envs.server.environment === 'production' ? 'none' : 'lax',
+      domain:
+        envs.server.environment === 'production' ? '.onrender.com' : undefined,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-    return res.redirect(
-      'https://psymatch-frontend-app.onrender.com/dashboard/user',
-    );
+
+    if (envs.server.environment === 'production') {
+      return res.redirect(
+        'https://psymatch-frontend-app.onrender.com/dashboard/user',
+      );
+    }
+
+    return res.redirect('http://localhost:3000/dashboard/user');
+  }
+
+  @Get('me')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiExcludeEndpoint()
+  getCurrentUser(@Req() req: Request): {
+    message: string;
+    data: User;
+  } {
+    return {
+      message: 'Usuario autorizado',
+      data: req.user as User,
+    };
+  }
+
+  @Post('logout')
+  @ApiExcludeEndpoint()
+  logout(@Res() res: Response): void {
+    res.clearCookie('auth_token');
+    res.json({
+      message: 'Usuario desautorizado',
+    });
+  }
+
+  @Post('forgot-password')
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(dto.email);
+  }
+
+  @Post('reset-password')
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto.token, dto.newPassword);
   }
 }

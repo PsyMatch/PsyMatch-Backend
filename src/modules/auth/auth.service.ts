@@ -2,6 +2,8 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../users/entities/user.entity';
@@ -19,6 +21,8 @@ import { EPsychologistStatus } from '../psychologist/enums/verified.enum';
 import { Profile } from 'passport';
 import { UsersService } from '../users/users.service';
 import { Repository } from 'typeorm';
+import { IJwtPayload } from './interfaces/jwt-payload.interface';
+import { EmailsService } from '../emails/emails.service';
 
 @Injectable()
 export class AuthService {
@@ -29,6 +33,7 @@ export class AuthService {
     private readonly queryHelper: QueryHelper,
     private readonly filesService: FilesService,
     private readonly userService: UsersService,
+    private readonly emailsService: EmailsService,
   ) {}
 
   async signUpService(
@@ -65,34 +70,6 @@ export class AuthService {
       }
 
       const hashedPassword = await bcrypt.hash(userData.password, 10);
-
-      //===============================
-      // DESCOMENTAR CUANDO USEMOS MAPS
-      //===============================
-      // const hasAddress = !!userData.address && userData.address.trim() !== '';
-      // const hasLatitude =
-      //   userData.latitude !== undefined;
-      // const hasLongitude =
-      //   userData.longitude !== undefined;
-
-      // if (hasAddress) {
-      //   if (!hasLatitude || !hasLongitude) {
-      //     throw new BadRequestException(
-      //       'Si se proporciona dirección de hogar, también deben proporcionarse latitud y longitud.',
-      //     );
-      //   }
-      // } else {
-      //   if (hasLatitude || hasLongitude) {
-      //     throw new BadRequestException(
-      //       'No se puede proporcionar latitud o longitud si no hay dirección de hogar.',
-      //     );
-      //   }
-      // }
-
-      if (!userData.address) {
-        userData.latitude = undefined;
-        userData.longitude = undefined;
-      }
 
       const newUser = patientRepo.create({
         ...userData,
@@ -178,41 +155,6 @@ export class AuthService {
 
       const hashedPassword = await bcrypt.hash(psychologistData.password, 10);
 
-      //===============================
-      // DESCOMENTAR CUANDO USEMOS MAPS
-      //===============================
-      // const hasOfficeAddress =
-      //   !!psychologistData.office_address &&
-      //   psychologistData.office_address.trim() !== '';
-      // const hasLatitude =
-      //   psychologistData.latitude !== undefined
-      // const hasLongitude =
-      //   psychologistData.longitude !== undefined
-
-      // if (hasOfficeAddress) {
-      //   if (!hasLatitude || !hasLongitude) {
-      //     throw new BadRequestException(
-      //       'Si se proporciona dirección de consultorio, también deben proporcionarse latitud y longitud.',
-      //     );
-      //   }
-      // } else {
-      //   if (hasLatitude || hasLongitude) {
-      //     throw new BadRequestException(
-      //       'No se puede proporcionar latitud o longitud si no hay dirección de consultorio.',
-      //     );
-      //   }
-      //   if (psychologistData.modality !== EModality.ONLINE) {
-      //     throw new BadRequestException(
-      //       'Si no se proporciona dirección de consultorio, la modalidad debe ser obligatoriamente online',
-      //     );
-      //   }
-      // }
-
-      if (!psychologistData.office_address) {
-        psychologistData.latitude = undefined;
-        psychologistData.longitude = undefined;
-      }
-
       const newPsychologist = psychologistRepo.create({
         ...psychologistData,
         password: hashedPassword,
@@ -263,6 +205,12 @@ export class AuthService {
 
     if (!user) {
       throw new BadRequestException('Email o contraseña inválidos');
+    }
+
+    if (!user.is_active) {
+      throw new UnauthorizedException(
+        'Tu cuenta ha sido suspendida. Contacta al administrador.',
+      );
     }
 
     if (!user.password || typeof user.password !== 'string') {
@@ -332,6 +280,12 @@ export class AuthService {
       });
     }
 
+    if (!user.is_active) {
+      throw new UnauthorizedException(
+        'Tu cuenta ha sido suspendida. Contacta al administrador.',
+      );
+    }
+
     return user;
   }
 
@@ -342,5 +296,48 @@ export class AuthService {
     };
 
     return this.jwtService.sign(payload);
+  }
+
+  async forgotPassword(email: string) {
+    const user = await this.userRepository.findOne({ where: { email } });
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    const payload = { sub: user.id, email: user.email };
+    const token = await this.jwtService.signAsync(payload, {
+      expiresIn: '15m',
+    });
+
+    await this.emailsService.sendNewPasswordEmail(email, token);
+
+    return {
+      message:
+        'Se envió un correo con instrucciones para reestablecer la contraseña',
+    };
+  }
+
+  async resetPassword(token: string, newPassword: string) {
+    try {
+      const payload = await this.jwtService.verifyAsync<IJwtPayload>(token);
+
+      const user = await this.userRepository.findOne({
+        where: { id: payload.id },
+      });
+
+      if (!user) {
+        throw new NotFoundException('Usuario no encontrado');
+      }
+
+      user.password = await bcrypt.hash(newPassword, 10);
+
+      await this.userRepository.save(user);
+
+      await this.emailsService.sendPasswordChangedEmail(user.email);
+
+      return { message: 'Contraseña modificada exitosamente' };
+    } catch {
+      throw new UnauthorizedException('Token inválido o expirado');
+    }
   }
 }

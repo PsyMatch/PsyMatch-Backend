@@ -49,5 +49,6 @@ import { PaginationService } from '../../../common/services/pagination.service';
     PatientsOfProfessionalService,
     AppointmentsOfProfessionalService,
   ],
+  exports: [VerificationPsychologistService],
 })
 export class PsychologistModule {}

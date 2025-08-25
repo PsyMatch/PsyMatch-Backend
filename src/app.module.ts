@@ -8,19 +8,26 @@ import { AuthModule } from './modules/auth/auth.module';
 import { AppointmentsModule } from './modules/appointments/appointments.module';
 import { UtilsModule } from './modules/utils/utils.module';
 import { SeederModule } from './modules/seeder/seeder.module';
+import { EmailsModule } from './modules/emails/emails.module';
+import { MapsModule } from './modules/maps/maps.module';
+import { AdminModule } from './modules/admin/logic/admin.module';
+import { ScheduleModule } from '@nestjs/schedule/dist/schedule.module';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     DatabaseModule,
     UtilsModule,
+    SeederModule,
     AuthModule,
     UsersModule,
-    ReviewsModule,
-    // RecordsModule, NO NECESARIO EN ESTE MOMENTO
     PsychologistModule,
-    PaymentsModule,
     AppointmentsModule,
-    SeederModule,
+    MapsModule,
+    PaymentsModule,
+    ReviewsModule,
+    EmailsModule,
+    AdminModule,
   ],
   controllers: [],
   providers: [],

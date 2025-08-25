@@ -1,10 +1,7 @@
 import {
   IsOptional,
   IsString,
-  IsNumber,
   Length,
-  Min,
-  Max,
   Matches,
   IsDateString,
   IsEnum,
@@ -14,13 +11,6 @@ import {
 import { Transform } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { EInsurance } from '../enums/insurances.enum';
-
-const transformToNumber = (value: unknown): number | undefined =>
-  typeof value === 'number'
-    ? value
-    : typeof value === 'string' && value.trim() !== ''
-      ? Number(value)
-      : undefined;
 
 const cleanEmpty = (value: unknown): string | undefined =>
   value === '' ? undefined : (value as string);
@@ -126,35 +116,6 @@ export class UpdateUserDto {
     },
   )
   email?: string;
-
-  @ApiPropertyOptional({
-    description:
-      'Latitud de la ubicación del usuario (debe estar entre -90 y 90)',
-    example: '',
-    minimum: -90,
-    maximum: 90,
-  })
-  @IsOptional()
-  @Transform(({ value }) => transformToNumber(value))
-  @IsNumber({}, { message: 'La latitud debe ser un número.' })
-  @Min(-90, { message: 'La latitud debe estar entre -90 y 90.' })
-  @Max(90, { message: 'La latitud debe estar entre -90 y 90.' })
-  latitude?: number;
-
-  @ApiPropertyOptional({
-    description:
-      'Longitud de la ubicación del usuario (debe estar entre -180 y 180)',
-    example: '',
-    minimum: -180,
-    maximum: 180,
-    required: false,
-  })
-  @IsOptional()
-  @Transform(({ value }) => transformToNumber(value))
-  @IsNumber({}, { message: 'La longitud debe ser un número.' })
-  @Min(-180, { message: 'La longitud debe estar entre -180 y 180.' })
-  @Max(180, { message: 'La longitud debe estar entre -180 y 180.' })
-  longitude?: number;
 
   @ApiPropertyOptional({
     description:

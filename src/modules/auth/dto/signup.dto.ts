@@ -17,7 +17,7 @@ import {
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { MatchPasswordHelper } from '../../utils/helpers/matchPassword.helper';
+import { MatchPasswordHelper } from '../../utils/helpers/match-password.helper';
 import { EInsurance } from '../../users/enums/insurances.enum';
 
 const transformToNumber = (value: unknown): number | undefined =>
@@ -73,11 +73,6 @@ export class SignUpDto {
       'El teléfono debe ser un número válido (8 a 15 dígitos, puede iniciar con +).',
   })
   phone?: string;
-  // @IsPhoneNumber(undefined, {
-  //   message: 'El teléfono debe ser un número válido.',
-  // })
-  // @Length(8, 15, { message: 'El teléfono debe tener entre 8 y 15 dígitos.' })
-  // phone: string;
 
   @ApiProperty({
     description: 'Fecha de nacimiento del usuario',
@@ -136,35 +131,6 @@ export class SignUpDto {
     message: 'El contacto de emergencia debe tener entre 1 y 255 caracteres.',
   })
   emergency_contact?: string;
-
-  @ApiPropertyOptional({
-    description:
-      'Latitud de la ubicación del usuario (debe estar entre -90 y 90)',
-    example: -32.9468,
-    minimum: -90,
-    maximum: 90,
-  })
-  @IsOptional()
-  @Transform(({ value }) => transformToNumber(value))
-  @IsNumber({}, { message: 'La latitud debe ser un número.' })
-  @Min(-90, { message: 'La latitud debe estar entre -90 y 90.' })
-  @Max(90, { message: 'La latitud debe estar entre -90 y 90.' })
-  latitude?: number;
-
-  @ApiPropertyOptional({
-    description:
-      'Longitud de la ubicación del usuario (debe estar entre -180 y 180)',
-    example: -60.6393,
-    minimum: -180,
-    maximum: 180,
-    required: false,
-  })
-  @IsOptional()
-  @Transform(({ value }) => transformToNumber(value))
-  @IsNumber({}, { message: 'La longitud debe ser un número.' })
-  @Min(-180, { message: 'La longitud debe estar entre -180 y 180.' })
-  @Max(180, { message: 'La longitud debe estar entre -180 y 180.' })
-  longitude?: number;
 
   @ApiProperty({
     description: 'Correo electrónico del usuario (debe ser único)',

@@ -9,7 +9,7 @@ import { RolesGuard } from '../../../auth/guards/roles.guard';
 import { IAuthRequest } from '../../../auth/interfaces/auth-request.interface';
 import { ReviewsProfessionalsService } from './reviewsOfProfessionals.service';
 import { Reviews } from '../../../reviews/entities/reviews.entity';
-import { CombinedAuthGuard } from 'src/modules/auth/guards/combined-auth.guard';
+import { CombinedAuthGuard } from '../../../auth/guards/combined-auth.guard';
 
 @Controller('psychologists/reviews')
 @ApiTags('Profesionales')

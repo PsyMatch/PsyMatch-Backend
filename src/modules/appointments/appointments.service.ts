@@ -33,6 +33,31 @@ function sanitizeUser(u?: User | null) {
   };
 }
 
+function sanitizePsychologist(p?: Psychologist | null | { name: string }) {
+  if (!p) return null;
+  const psychologist = p as Psychologist;
+  return {
+    id: psychologist.id,
+    name: psychologist.name,
+    email: psychologist.email,
+    personal_biography: psychologist.personal_biography,
+    languages: psychologist.languages,
+    professional_experience: psychologist.professional_experience,
+    professional_title: psychologist.professional_title,
+    license_number: psychologist.license_number,
+    verified: psychologist.verified,
+    office_address: psychologist.office_address,
+    specialities: psychologist.specialities,
+    therapy_approaches: psychologist.therapy_approaches,
+    session_types: psychologist.session_types,
+    modality: psychologist.modality,
+    insurance_accepted: psychologist.insurance_accepted,
+    availability: psychologist.availability,
+    consultation_fee: psychologist.consultation_fee,
+    profile_picture: psychologist.profile_picture,
+  };
+}
+
 function combineDateHour(dateISO: string, hourHHmm: string): Date {
   const datePart = dateISO.slice(0, 10);
   const [hh, mm] = hourHHmm.split(':').map(Number);
@@ -175,17 +200,22 @@ export class AppointmentsService {
       insurance: saved.insurance,
       price: saved.price,
       patient: sanitizeUser(saved.patient),
-      psychologist: sanitizeUser(saved.psychologist),
+      psychologist: sanitizePsychologist(saved.psychologist),
     };
   }
 
   async findAll(req: IAuthRequest) {
     if (isAdmin(req)) {
-      const all = await this.appointmentRepository.find();
+      const all = await this.appointmentRepository
+        .createQueryBuilder('a')
+        .leftJoinAndSelect('a.patient', 'patient')
+        .leftJoinAndSelect('a.psychologist', 'psychologist')
+        .orderBy('a.date', 'ASC')
+        .getMany();
       return all.map((a) => ({
         ...a,
         patient: sanitizeUser(a.patient),
-        psychologist: sanitizeUser(a.psychologist),
+        psychologist: sanitizePsychologist(a.psychologist),
       }));
     }
     return this.findMine(req);
@@ -206,7 +236,7 @@ export class AppointmentsService {
     return mine.map((a) => ({
       ...a,
       patient: sanitizeUser(a.patient),
-      psychologist: sanitizeUser(a.psychologist),
+      psychologist: sanitizePsychologist(a.psychologist),
     }));
   }
 
@@ -226,7 +256,7 @@ export class AppointmentsService {
     return {
       ...a,
       patient: sanitizeUser(a.patient),
-      psychologist: sanitizeUser(a.psychologist),
+      psychologist: sanitizePsychologist(a.psychologist),
     };
   }
 
@@ -283,7 +313,7 @@ export class AppointmentsService {
     return {
       ...saved,
       patient: sanitizeUser(saved.patient),
-      psychologist: sanitizeUser(saved.psychologist),
+      psychologist: sanitizePsychologist(saved.psychologist),
     };
   }
 

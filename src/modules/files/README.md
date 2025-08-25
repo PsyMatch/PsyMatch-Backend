@@ -15,10 +15,12 @@ El módulo de **Files** gestiona toda la subida, procesamiento y almacenamiento 
 
 ### 📄 Gestión de Documentos
 
-- **Documentos profesionales**: Certificados, matrículas, diplomas
+- **Documentos profesionales**: Certificados, matrículas, diplomas, otros
 - **Validación de tipos**: Control estricto de formatos permitidos
-- **Organización por carpetas**: Estructura jerárquica en Cloudinary
-- **Versionado**: Control de versiones de documentos
+- **Organización por carpetas**:
+  - `profile_pictures/` para fotos de perfil
+  - `professional_documents/` para documentos profesionales
+- **Versionado**: Control de versiones de documentos mediante Cloudinary
 
 ### 🛡️ Seguridad y Validación
 
@@ -40,29 +42,55 @@ files/
     └── file-validation.pipe.ts     # Pipe de validación de archivos
 ```
 
-## Configuración de Cloudinary
+## API Principal
 
-### 🔧 Setup de Cloudinary
+### � Métodos del Servicio
 
 ```typescript
-// src/configs/cloudinary.config.ts
-import { v2 } from 'cloudinary';
-import { envs } from './envs.config';
+// Subir foto de perfil
+uploadImageToCloudinary(file: Express.Multer.File, userId: string): Promise<string>
+
+// Subir documento profesional
+uploadDocumentToCloudinary(
+  file: Express.Multer.File,
+  userId: string,
+  documentType: 'certificate' | 'license' | 'diploma' | 'other'
+): Promise<string>
+
+// Eliminar archivo de Cloudinary
+deleteFileFromCloudinary(publicId: string): Promise<void>
+```
+
+### 📁 Estructura de Carpetas en Cloudinary
+
+```
+PsyMatch/
+├── profile_pictures/
+│   └── {userId}/
+│       └── foto_perfil
+└── professional_documents/
+    └── {userId}/
+        ├── certificate/
+        ├── license/
+        ├── diploma/
+        └── other/
+```
 
 const cloudinary = {
-  provide: 'CLOUDINARY',
-  useFactory: () => {
-    v2.config({
-      cloud_name: envs.cloudinary.cloudName,
-      api_key: envs.cloudinary.apiKey,
-      api_secret: envs.cloudinary.apiSecret,
-    });
-    return v2;
-  },
+provide: 'CLOUDINARY',
+useFactory: () => {
+v2.config({
+cloud_name: envs.cloudinary.cloudName,
+api_key: envs.cloudinary.apiKey,
+api_secret: envs.cloudinary.apiSecret,
+});
+return v2;
+},
 };
 
 export default cloudinary;
-```
+
+````
 
 ### 🌍 Variables de Entorno
 
@@ -71,7 +99,7 @@ export default cloudinary;
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
-```
+````
 
 ### 📁 Estructura de Carpetas en Cloudinary
 

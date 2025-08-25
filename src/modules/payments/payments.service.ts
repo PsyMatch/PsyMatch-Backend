@@ -5,15 +5,19 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Payment, PayStatus } from './entities/payment.entity';
+import { Payment, PayStatus, PayMethod } from './entities/payment.entity';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
-import { MercadoPagoConfig, Preference } from 'mercadopago';
-import { envs } from 'src/configs/envs.config';
+import {
+  MercadoPagoConfig,
+  Preference,
+  Payment as MPPayment,
+} from 'mercadopago';
+import { envs } from '../../configs/envs.config';
 
-// Define interfaces for MercadoPago types
 interface MPPreferenceResult {
   init_point?: string;
+  id?: string;
 }
 
 @Injectable()
@@ -44,7 +48,7 @@ export class PaymentsService {
     });
 
     if (!payment) {
-      throw new NotFoundException(`Payment with ID ${id} not found`);
+      throw new NotFoundException(`Pago con ID ${id} no encontrado`);
     }
 
     return payment;
@@ -68,68 +72,155 @@ export class PaymentsService {
     const result = await this.paymentsRepository.delete({ payment_id: id });
 
     if (result.affected === 0) {
-      throw new NotFoundException(`Payment with ID ${id} not found`);
+      throw new NotFoundException(`Pago con ID ${id} no encontrado`);
     }
   }
 
-  async createMercadoPagoPreference(): Promise<{ init_point: string }> {
-    // Safe environment variable access with validation
+  async createMercadoPagoPreference(
+    userId?: string,
+    appointmentId?: string,
+    amount?: number,
+  ): Promise<{ init_point: string; preference_id: string }> {
     const accessToken = envs.mercadopago.accessToken;
-    const frontendUrl = envs.deployed_urls.frontend;
+    const frontendUrl = envs.deployed_urls.frontend || 'http://localhost:3000';
+    const backendUrl = envs.deployed_urls.backend || 'http://localhost:8080';
 
     if (!accessToken) {
       throw new BadRequestException(
-        'MercadoPago access token is not configured',
+        'El token de acceso de MercadoPago no está configurado',
       );
     }
 
     if (!frontendUrl) {
-      throw new BadRequestException('Frontend URL is not configured');
+      throw new BadRequestException('La URL del frontend no está configurada');
     }
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
       const client = new MercadoPagoConfig({
         accessToken,
       });
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
       const preference = new Preference(client);
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      const metadata: Record<string, string> = {};
+      if (userId) metadata.user_id = userId;
+      if (appointmentId) metadata.appointment_id = appointmentId;
+
+      // Usar el monto proporcionado o un valor por defecto
+      const sessionPrice = amount || 5000; // Precio por defecto en centavos (50 ARS)
+
       const result: MPPreferenceResult = await preference.create({
         body: {
           items: [
             {
               id: 'therapy_session',
-              title: 'Pago Unico',
+              title: 'Sesión de Terapia',
               quantity: 1,
-              unit_price: 55,
+              unit_price: sessionPrice,
               currency_id: 'ARS',
             },
           ],
           back_urls: {
-            success: `${frontendUrl}/dashboard/user`,
-            failure: `${frontendUrl}/failure`,
-            pending: `${frontendUrl}/pending`,
+            success: `${frontendUrl}/payment/success`,
+            failure: `${frontendUrl}/payment/failure`,
+            pending: `${frontendUrl}/payment/pending`,
           },
           auto_return: 'approved',
+          metadata,
+          notification_url: `${backendUrl}/payments/webhook`,
         },
       });
 
-      // Safe access to result with validation
-      if (!result?.init_point) {
+      if (!result?.init_point || !result?.id) {
         throw new BadRequestException(
-          'Failed to create MercadoPago preference - invalid response',
+          'Fallo al crear la preferencia de MercadoPago',
         );
       }
 
-      return { init_point: result.init_point };
+      return { init_point: result.init_point, preference_id: result.id };
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw error;
       }
-      throw new BadRequestException('Failed to create MercadoPago preference');
+      throw new BadRequestException(
+        'Fallo al crear la preferencia de MercadoPago',
+      );
     }
+  }
+
+  async handleWebhook(webhookData: {
+    type?: string;
+    data?: { id?: string };
+  }): Promise<void> {
+    try {
+      if (webhookData.type === 'payment' && webhookData.data?.id) {
+        const paymentId = webhookData.data.id;
+        await this.processPaymentWebhook(paymentId);
+      }
+    } catch (error) {
+      console.error('Error processing webhook:', error);
+      throw new BadRequestException('Error processing webhook');
+    }
+  }
+
+  private async processPaymentWebhook(paymentId: string): Promise<void> {
+    try {
+      const accessToken = envs.mercadopago.accessToken;
+      const client = new MercadoPagoConfig({ accessToken });
+      const payment = new MPPayment(client);
+
+      const paymentData = await payment.get({ id: paymentId });
+
+      if (paymentData && paymentData.status === 'approved') {
+        // Buscar si ya existe un pago con este mercado_pago_id
+        let existingPayment = await this.paymentsRepository.findOne({
+          where: { mercado_pago_id: paymentId },
+        });
+
+        if (!existingPayment) {
+          // Crear nuevo pago
+          const preferenceId = (paymentData as { preference_id?: string })
+            .preference_id;
+          const userId =
+            paymentData.metadata && typeof paymentData.metadata === 'object'
+              ? (paymentData.metadata as { user_id?: string }).user_id
+              : undefined;
+
+          const newPayment = this.paymentsRepository.create({
+            amount: paymentData.transaction_amount || 0,
+            currency: paymentData.currency_id || 'ARS',
+            pay_method: PayMethod.MERCADO_PAGO,
+            pay_status: PayStatus.COMPLETED,
+            mercado_pago_id: paymentId,
+            preference_id: preferenceId,
+            payer_email: paymentData.payer?.email,
+            user_id: userId,
+            notes: 'Pago procesado via MercadoPago',
+          });
+
+          await this.paymentsRepository.save(newPayment);
+        } else {
+          // Actualizar pago existente
+          existingPayment.pay_status = PayStatus.COMPLETED;
+          await this.paymentsRepository.save(existingPayment);
+        }
+      }
+    } catch (error) {
+      console.error('Error processing payment webhook:', error);
+      throw error;
+    }
+  }
+
+  async findByUserId(userId: string): Promise<Payment[]> {
+    return this.paymentsRepository.find({
+      where: { user_id: userId },
+      order: { created_at: 'DESC' },
+    });
+  }
+
+  findByProfessionalId(_professionalId: string): Promise<Payment[]> {
+    // Por ahora retornamos una lista vacía hasta implementar la relación completa
+    // En producción, esto requeriría configurar las relaciones entre Payment y Appointment
+    return Promise.resolve([]);
   }
 }

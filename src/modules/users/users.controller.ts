@@ -32,15 +32,17 @@ import { User } from './entities/user.entity';
 import { Appointment } from '../appointments/entities/appointment.entity';
 import { Psychologist } from '../psychologist/entities/psychologist.entity';
 import { DeleteSwaggerDoc } from './documentation/delete.doc';
-import { FindAllPatientsSwaggerDoc } from './documentation/find-all-patients.doc';
-import { FindAllSwaggerDoc } from './documentation/find-all.doc';
+import {
+  FindAllSwaggerDoc,
+  FindAllPatientsSwaggerDoc,
+  FindAllPsychologistsSwaggerDoc,
+} from './documentation/find-all.doc';
 import { FindByIdSwaggerDoc } from './documentation/find-by-id.doc';
 import { GetMyAppointmentsSwaggerDoc } from './documentation/get-my-appointments.doc';
 import { GetMyPaymentsSwaggerDoc } from './documentation/get-my-payments.doc';
 import { GetMyPsychologistsSwaggerDoc } from './documentation/get-my-psichologists.doc';
 import { UpdateSwaggerDoc } from './documentation/update.doc';
 import { GetMyDataSwaggerDoc } from './documentation/get-my-data.doc';
-import { UpdateUserResponseDto } from './dto/update-user-response.dto';
 import { ResponsePublicUserDto } from './dto/response-public-user.dto';
 import { FindPublicByIdSwaggerDoc } from './documentation/find-public-id.doc';
 import { CombinedAuthGuard } from '../auth/guards/combined-auth.guard';
@@ -80,6 +82,21 @@ export class UsersController {
     };
   }
 
+  @Get('psychologists')
+  @UseGuards(CombinedAuthGuard)
+  @FindAllPsychologistsSwaggerDoc()
+  async findAllPsychologists(@Query() paginationDto: PaginationDto): Promise<{
+    message: string;
+    data: PaginatedResponse<Omit<User, 'password'>>;
+  }> {
+    const psychologists =
+      await this.usersService.findAllPsychologists(paginationDto);
+    return {
+      message: 'Lista de psicólogos recuperada exitosamente',
+      data: psychologists,
+    };
+  }
+
   @Get('me')
   @UseGuards(CombinedAuthGuard)
   @ResponseType(ResponseUserDto)
@@ -97,7 +114,7 @@ export class UsersController {
 
   @Put('me')
   @UseGuards(CombinedAuthGuard)
-  @ResponseType(UpdateUserResponseDto)
+  @ResponseType(ResponseUserDto)
   @UseInterceptors(FileInterceptor('profile_picture'))
   @UpdateSwaggerDoc()
   async updateMe(
@@ -105,7 +122,7 @@ export class UsersController {
     @Body() userData: UpdateUserDto,
     @UploadedFile(new FileValidationPipe({ isOptional: true }))
     profilePicture?: Express.Multer.File,
-  ): Promise<{ message: string; data: UpdateUserResponseDto }> {
+  ): Promise<{ message: string; data: Omit<User, 'password'> }> {
     const requester = req.user.id;
     const userRole = req.user.role;
     const updatedFields = await this.usersService.update(
@@ -223,7 +240,7 @@ export class UsersController {
     @Body() userData: UpdateUserDto,
     @UploadedFile(new FileValidationPipe({ isOptional: true }))
     profilePicture?: Express.Multer.File,
-  ): Promise<{ message: string; data: UpdateUserResponseDto }> {
+  ): Promise<{ message: string; data: Omit<User, 'password'> }> {
     const updatedUser = await this.usersService.update(
       id,
       userData,

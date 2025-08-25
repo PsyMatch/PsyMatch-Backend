@@ -34,6 +34,10 @@ auth/
 ├── auth.controller.ts           # Controlador REST API
 ├── auth.service.ts             # Lógica de negocio y autenticación
 ├── auth.module.ts              # Configuración del módulo
+├── documentation/
+│   ├── signin.doc.ts           # Documentación Swagger signin
+│   ├── signup.doc.ts           # Documentación Swagger signup pacientes
+│   └── signup-psychologist.doc.ts # Documentación Swagger signup psicólogos
 ├── dto/
 │   ├── signin.dto.ts           # DTO para inicio de sesión
 │   ├── signup.dto.ts           # DTO para registro de pacientes
@@ -41,17 +45,22 @@ auth/
 ├── decorators/
 │   └── role.decorator.ts       # Decorador para control de roles
 ├── guards/
-│   ├── auth.guard.ts           # Guard de autenticación JWT
-│   ├── combined-auth.guard.ts  # Guard combinado
-│   ├── roles.guard.ts          # Guard de autorización por roles
-│   └── same-user.guard.ts      # Guard para verificar mismo usuario
+│   ├── combined-auth.guard.ts  # Guard combinado JWT/Google
+│   └── roles.guard.ts          # Guard de autorización por roles
 ├── interfaces/
 │   ├── auth-request.interface.ts    # Interface para request autenticado
 │   ├── google-required-data.interface.ts # Interface para Google OAuth
 │   └── jwt-payload.interface.ts     # Interface para payload JWT
 └── strategies/
-    └── google.strategy.ts      # Estrategia de autenticación Google
+    ├── google.strategy.ts      # Estrategia Google OAuth2
+    └── jwt.strategy.ts         # Estrategia JWT
 ```
+
+│ └── jwt-payload.interface.ts # Interface para payload JWT
+└── strategies/
+└── google.strategy.ts # Estrategia de autenticación Google
+
+````
 
 ## API Endpoints
 
@@ -79,7 +88,7 @@ auth/
   "emergency_contact": "María Pérez - +5411987654321 - Madre",
   "profile_picture": "(archivo JPG/PNG/WEBP - máx 2MB)"
 }
-```
+````
 
 **Response** (201):
 

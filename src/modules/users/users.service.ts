@@ -20,9 +20,10 @@ import { Payment } from '../payments/entities/payment.entity';
 import { Appointment } from '../appointments/entities/appointment.entity';
 import { Psychologist } from '../psychologist/entities/psychologist.entity';
 import { FilesService } from '../files/files.service';
+import * as bcrypt from 'bcryptjs';
+import * as crypto from 'crypto';
 import lodash from 'lodash';
-import crypto from 'crypto';
-import { UpdateUserResponseDto } from './dto/update-user-response.dto';
+import { EPsychologistStatus } from '../psychologist/enums/verified.enum';
 
 @Injectable()
 export class UsersService {
@@ -76,6 +77,33 @@ export class UsersService {
 
     if (!paginatedResult.data.length) {
       throw new NotFoundException('No se encontraron pacientes activos');
+    }
+
+    paginatedResult.data = paginatedResult.data.map(
+      ({ password: _password, ...rest }) => rest,
+    ) as Omit<User[], 'password'>;
+
+    return paginatedResult;
+  }
+
+  async findAllPsychologists(
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResponse<User>> {
+    const psychologists = this.usersRepository
+      .createQueryBuilder('user')
+      .where('user.role = :role', { role: ERole.PSYCHOLOGIST })
+      .andWhere('user.is_active = :isActive', { isActive: true })
+      .andWhere('user.verified = :isVerified', {
+        isVerified: EPsychologistStatus.VALIDATED,
+      });
+
+    const paginatedResult = await this.paginationService.paginate(
+      psychologists,
+      paginationDto,
+    );
+
+    if (!paginatedResult.data.length) {
+      throw new NotFoundException('No se encontraron psicólogos activos');
     }
 
     paginatedResult.data = paginatedResult.data.map(
@@ -216,7 +244,7 @@ export class UsersService {
     userIdFromToken: string,
     userRole: ERole,
     profilePicture?: Express.Multer.File,
-  ): Promise<UpdateUserResponseDto> {
+  ): Promise<Omit<User, 'password'>> {
     const DEFAULT_PROFILE_URL =
       'https://res.cloudinary.com/dibnkd72j/image/upload/v1755495603/default-pacient-profile-picture_kqpobf.webp';
     return this.queryHelper.runInTransaction(async (queryRunner) => {
@@ -256,11 +284,6 @@ export class UsersService {
         });
         if (existingUser && existingUser.id !== id)
           throw new ConflictException('El correo electrónico ya existe');
-      }
-
-      if (!userData.address) {
-        userData.latitude = undefined;
-        userData.longitude = undefined;
       }
 
       const filtered = lodash.pickBy(
@@ -309,45 +332,43 @@ export class UsersService {
             await this.filesService.uploadImageToCloudinary(profilePicture, id);
           profilePictureChanged = true;
         }
+      } else if (
+        'profile_picture' in userData &&
+        (userData.profile_picture === '' ||
+          userData.profile_picture === null ||
+          userData.profile_picture === undefined)
+      ) {
+        if (user.profile_picture !== DEFAULT_PROFILE_URL) {
+          newProfilePictureUrl = DEFAULT_PROFILE_URL;
+          profilePictureChanged = true;
+        }
       }
-
-      // ESTE CODIGO COMENTADO ELIMINA LA FOTO DEL PERFIL DEL USUARIO CUANDO  NO AGREGAN UNA PARA REEMPLAZARLA
-
-      // } else if (
-      //   'profile_picture' in userData &&
-      //   (userData.profile_picture === '' ||
-      //     userData.profile_picture === null ||
-      //     userData.profile_picture === undefined)
-      // ) {
-      //   if (user.profile_picture !== DEFAULT_PROFILE_URL) {
-      //     newProfilePictureUrl = DEFAULT_PROFILE_URL;
-      //     profilePictureChanged = true;
-      //   }
-      // }
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
       if (!hasDataChanges && !profilePictureChanged) {
         throw new ConflictException('No se actualizaron campos');
       }
 
+      let userDataToSave = { ...lodash.omit(userData, ['profile_picture']) };
+
+      if (userData.password) {
+        userDataToSave.password = await bcrypt.hash(userData.password, 10);
+      }
+
       const updatedUser = userRepo.create({
         ...user,
-        ...lodash.omit(userData, ['profile_picture']),
+        ...userDataToSave,
         profile_picture: newProfilePictureUrl ?? user.profile_picture,
       });
       await userRepo.save(updatedUser);
 
-      const updatedFields: Record<string, unknown> = { id };
-      Object.entries(userData).forEach(([key, value]) => {
-        if (value !== undefined && user[key] !== value) {
-          updatedFields[key] = value;
-        }
+      const userUpdated = await userRepo.findOne({
+        where: { id, is_active: true },
       });
+      if (!userUpdated)
+        throw new NotFoundException('No se encontró usuario actualizado');
 
-      if (profilePictureChanged) {
-        updatedFields.profile_picture = newProfilePictureUrl;
-      }
-      return updatedFields as UpdateUserResponseDto;
+      const { password: _password, ...userWithoutPassword } = userUpdated;
+      return userWithoutPassword;
     });
   }
 

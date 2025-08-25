@@ -5,6 +5,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { setupSwagger } from './configs/swagger.config';
 import { TransformResponseInterceptor } from './common/interceptors/transform-response.interceptor';
 import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   try {
@@ -31,6 +32,8 @@ async function bootstrap() {
       }),
     );
 
+    app.use(cookieParser());
+
     app.use(bodyParser.json({ limit: '10mb' }));
 
     const reflector = app.get(Reflector);
@@ -42,11 +45,11 @@ async function bootstrap() {
 
     if (envs.server.environment !== 'production') {
       console.log(
-        `🌱 Environment: ${envs.server.environment}, 🚀 App running on http://${envs.server.host}:${envs.server.port}/api`,
+        `🌱 Entorno: ${envs.server.environment}, 🚀 Aplicación corriendo en http://${envs.server.host}:${envs.server.port}/api`,
       );
     }
-  } catch (err) {
-    console.error('❌ Error during bootstrap:', err);
+  } catch (error) {
+    console.error('❌ Error durante el arranque', error);
     process.exit(1);
   }
 }

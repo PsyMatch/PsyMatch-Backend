@@ -23,7 +23,7 @@ import { ESessionType } from '../../psychologist/enums/session-types.enum';
 import { EModality } from '../../psychologist/enums/modality.enum';
 import { ELanguage } from '../../psychologist/enums/languages.enum';
 import { EAvailability } from '../../psychologist/enums/availability.enum';
-import { MatchPasswordHelper } from '../../utils/helpers/matchPassword.helper';
+import { MatchPasswordHelper } from '../../utils/helpers/match-password.helper';
 
 const transformToNumber = (value: unknown): number | undefined =>
   typeof value === 'number'
@@ -125,24 +125,6 @@ export class SignUpPsychologistDto {
       'El teléfono debe ser un número válido en formato internacional (ej: +5411123456789 o 1123456789)',
   })
   phone?: string;
-
-  @ApiProperty({
-    description: 'Coordenada de latitud',
-    example: -33.1234,
-    required: false,
-  })
-  @Transform(({ value }) => transformToNumber(value))
-  @IsOptional()
-  latitude?: number;
-
-  @ApiProperty({
-    description: 'Coordenada de longitud',
-    example: -61.4321,
-    required: false,
-  })
-  @IsOptional()
-  @Transform(({ value }) => transformToNumber(value))
-  longitude?: number;
 
   @ApiPropertyOptional({
     description: 'Dirección del consultorio para consultas',
@@ -305,10 +287,12 @@ export class SignUpPsychologistDto {
   @IsEnum(EAvailability, { each: true })
   availability: EAvailability[];
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'Precio de la consulta (solo para psicólogos)',
     example: 100,
   })
-  @IsOptional()
-  consultation_fee?: number;
+  @Transform(({ value }) => transformToNumber(value))
+  @IsNumber({}, { message: 'El precio de la consulta debe ser un número.' })
+  @IsNotEmpty({ message: 'El precio de la consulta es obligatorio.' })
+  consultation_fee: number;
 }

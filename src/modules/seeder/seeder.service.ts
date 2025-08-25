@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { Patient } from '../users/entities/patient.entity';
 import { Admin } from '../users/entities/admin.entity';
 import { Psychologist } from '../psychologist/entities/psychologist.entity';
+import { Reviews } from '../reviews/entities/reviews.entity';
 import { ERole } from '../../common/enums/role.enum';
 import { EPsychologistSpecialty } from '../psychologist/enums/specialities.enum';
 import { EPsychologistStatus } from '../psychologist/enums/verified.enum';
@@ -25,6 +26,8 @@ export class SeederService {
     private readonly adminRepository: Repository<Admin>,
     @InjectRepository(Psychologist)
     private readonly psychologistRepository: Repository<Psychologist>,
+    @InjectRepository(Reviews)
+    private readonly reviewsRepository: Repository<Reviews>,
   ) {}
 
   async seedUsers() {
@@ -42,7 +45,7 @@ export class SeederService {
 
     await this.adminRepository.upsert(adminUser, ['email']);
     if (envs.server.environment !== 'production') {
-      console.log('✅ Admin seeded successfully');
+      console.log('✅ Admin precargado exitosamente');
     }
 
     const patients = [
@@ -52,14 +55,12 @@ export class SeederService {
         email: 'juan.perez@email.com',
         password: await hashPassword('SecurePass123!'),
         dni: 12345679,
-        address: 'Av. Corrientes 1234, Buenos Aires',
+        address: 'Av. Corrientes 1234, Buenos Aires, Argentina',
         phone: '+5411123456789',
         birthdate: '1990-05-15',
         health_insurance: EInsurance.SWISS_MEDICAL,
         role: ERole.PATIENT,
         emergency_contact: 'María Pérez - +5411987654321 - Madre',
-        latitude: -34.6037,
-        longitude: -58.3816,
         profile_picture:
           'https://res.cloudinary.com/dibnkd72j/image/upload/v1755495603/default-pacient-profile-picture_kqpobf.webp',
       },
@@ -69,7 +70,7 @@ export class SeederService {
         email: 'maria.gonzalez@email.com',
         password: await hashPassword('SecurePass123!'),
         dni: 12345680,
-        address: 'Calle Falsa 123, Rosario',
+        address: 'Av. Florida 500, Buenos Aires, Argentina',
         phone: '+5411987654321',
         birthdate: '1985-08-22',
         health_insurance: EInsurance.IOMA,
@@ -84,13 +85,11 @@ export class SeederService {
         email: 'pedro.rodriguez@email.com',
         password: await hashPassword('SecurePass123!'),
         dni: 12345681,
-        address: 'San Martín 456, Córdoba',
+        address: 'Av. San Martín 456, Buenos Aires, Argentina',
         phone: '+5411777555333',
         birthdate: '1992-12-10',
         health_insurance: EInsurance.PAMI,
         role: ERole.PATIENT,
-        latitude: -31.4167,
-        longitude: -64.1833,
         profile_picture:
           'https://res.cloudinary.com/dibnkd72j/image/upload/v1755495603/default-pacient-profile-picture_kqpobf.webp',
       },
@@ -100,7 +99,7 @@ export class SeederService {
         email: 'ana.lopez@email.com',
         password: await hashPassword('SecurePass123!'),
         dni: 12345682,
-        address: 'Rivadavia 789, La Plata',
+        address: 'Av. Rivadavia 789, Buenos Aires, Argentina',
         phone: '+5411444555666',
         birthdate: '1988-07-03',
         health_insurance: EInsurance.OSDE,
@@ -114,7 +113,7 @@ export class SeederService {
         email: 'carlos.martinez@email.com',
         password: await hashPassword('SecurePass123!'),
         dni: 12345683,
-        address: 'Belgrano 321, Mendoza',
+        address: 'Av. Belgrano 321, Buenos Aires, Argentina',
         phone: '+5411333444555',
         birthdate: '1995-03-28',
         health_insurance: EInsurance.SANCOR_SALUD,
@@ -129,7 +128,7 @@ export class SeederService {
         email: 'laura.fernandez@email.com',
         password: await hashPassword('SecurePass123!'),
         dni: 12345684,
-        address: 'Mitre 654, Tucumán',
+        address: 'Av. Mitre 654, Buenos Aires, Argentina',
         phone: '+5411888999000',
         birthdate: '1987-11-17',
         health_insurance: EInsurance.UNION_PERSONAL,
@@ -143,7 +142,7 @@ export class SeederService {
         email: 'sofia.ramirez@email.com',
         password: await hashPassword('SecurePass123!'),
         dni: 12345685,
-        address: 'Av. Santa Fe 123, Buenos Aires',
+        address: 'Av. Santa Fe 123, Buenos Aires, Argentina',
         phone: '+5411122334455',
         birthdate: '1993-04-12',
         health_insurance: EInsurance.OSDEPYM,
@@ -157,7 +156,7 @@ export class SeederService {
         email: 'martin.castro@email.com',
         password: await hashPassword('SecurePass123!'),
         dni: 12345686,
-        address: 'Calle 9 de Julio 456, Salta',
+        address: 'Av. 9 de Julio 456, Buenos Aires, Argentina',
         phone: '+541155667788',
         birthdate: '1991-09-30',
         health_insurance: EInsurance.LUIS_PASTEUR,
@@ -172,7 +171,7 @@ export class SeederService {
         email: 'valentina.torres@email.com',
         password: await hashPassword('SecurePass123!'),
         dni: 12345687,
-        address: 'Av. Libertador 789, San Juan',
+        address: 'Av. Libertador 789, Buenos Aires, Argentina',
         phone: '+541166778899',
         birthdate: '1996-02-18',
         health_insurance: EInsurance.JERARQUICOS_SALUD,
@@ -186,13 +185,11 @@ export class SeederService {
         email: 'federico.gomez@email.com',
         password: await hashPassword('SecurePass123!'),
         dni: 12345688,
-        address: 'Calle Moreno 321, Córdoba',
+        address: 'Av. Moreno 321, Buenos Aires, Argentina',
         phone: '+541177788899',
         birthdate: '1989-06-25',
         health_insurance: EInsurance.OSECAC,
         role: ERole.PATIENT,
-        latitude: -31.4167,
-        longitude: -64.1833,
         profile_picture:
           'https://res.cloudinary.com/dibnkd72j/image/upload/v1755495603/default-pacient-profile-picture_kqpobf.webp',
       },
@@ -202,7 +199,7 @@ export class SeederService {
         email: 'camila.herrera@email.com',
         password: await hashPassword('SecurePass123!'),
         dni: 12345689,
-        address: 'Av. San Martín 654, Mar del Plata',
+        address: 'Av. San Martín 654, Buenos Aires, Argentina',
         phone: '+541144455577',
         birthdate: '1994-11-05',
         health_insurance: EInsurance.OSMECON_SALUD,
@@ -216,7 +213,7 @@ export class SeederService {
         email: 'luciano.diaz@email.com',
         password: await hashPassword('SecurePass123!'),
         dni: 12345690,
-        address: 'Calle Sarmiento 987, Neuquén',
+        address: 'Av. Sarmiento 987, Buenos Aires, Argentina',
         phone: '+541188899911',
         birthdate: '1997-08-14',
         health_insurance: EInsurance.APROSS,
@@ -229,7 +226,7 @@ export class SeederService {
 
     await this.patientRepository.upsert(patients, ['email']);
     if (envs.server.environment !== 'production') {
-      console.log('✅ Patients seeded successfully');
+      console.log('✅ Pacientes precargados exitosamente');
     }
 
     const psychologists = [
@@ -238,7 +235,6 @@ export class SeederService {
         email: 'ana.garcia@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654321,
-        address: 'Av. Callao 1000, Buenos Aires',
         phone: '+5411777888999',
         birthdate: '1980-10-10',
         role: ERole.PSYCHOLOGIST,
@@ -247,7 +243,7 @@ export class SeederService {
         professional_title: 'Licenciada en Psicología',
         professional_experience: 15,
         languages: [ELanguage.SPANISH, ELanguage.ENGLISH],
-        office_address: 'Consultorio en Av. Callao 1000, Piso 5',
+        office_address: 'Av. Callao 1000, Buenos Aires, Argentina',
         modality: EModality.IN_PERSON,
         license_number: 123456,
         specialities: [
@@ -271,6 +267,7 @@ export class SeederService {
           EAvailability.THURSDAY,
           EAvailability.FRIDAY,
         ],
+        consultation_fee: 20000,
         verified: EPsychologistStatus.VALIDATED,
         profile_picture:
           'https://res.cloudinary.com/dibnkd72j/image/upload/v1755591733/default-female-psychologist-profile-picture_qyogmy.webp',
@@ -280,7 +277,6 @@ export class SeederService {
         email: 'roberto.silva@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654322,
-        address: 'Santa Fe 2000, Buenos Aires',
         phone: '+5411666777888',
         birthdate: '1975-03-15',
         role: ERole.PSYCHOLOGIST,
@@ -289,7 +285,7 @@ export class SeederService {
         professional_title: 'Doctor en Psicología Clínica',
         professional_experience: 20,
         languages: [ELanguage.SPANISH],
-        office_address: 'Consultorio en Santa Fe 2000, Oficina 203',
+        office_address: 'Av. Santa Fe 2000, Buenos Aires, Argentina',
         modality: EModality.HYBRID,
         license_number: 234567,
         specialities: [
@@ -312,6 +308,7 @@ export class SeederService {
           EAvailability.FRIDAY,
           EAvailability.SATURDAY,
         ],
+        consultation_fee: 22000,
         verified: EPsychologistStatus.VALIDATED,
         profile_picture:
           'https://res.cloudinary.com/dibnkd72j/image/upload/v1755591732/default-male-psychologist-profile-picture_sqyd1d.webp',
@@ -321,7 +318,6 @@ export class SeederService {
         email: 'carmen.ruiz@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654323,
-        address: 'Pueyrredón 1500, Buenos Aires',
         phone: '+5411555666777',
         birthdate: '1982-07-22',
         role: ERole.PSYCHOLOGIST,
@@ -330,7 +326,7 @@ export class SeederService {
         professional_title: 'Especialista en Psicología Infantil',
         professional_experience: 8,
         languages: [ELanguage.SPANISH, ELanguage.PORTUGUESE],
-        office_address: 'Consultorio virtual - Modalidad Online',
+        office_address: 'Av. Pueyrredón 1500, Buenos Aires, Argentina',
         modality: EModality.ONLINE,
         license_number: 345678,
         specialities: [
@@ -352,6 +348,7 @@ export class SeederService {
           EAvailability.THURSDAY,
           EAvailability.SUNDAY,
         ],
+        consultation_fee: 26000,
         verified: EPsychologistStatus.VALIDATED,
         profile_picture:
           'https://res.cloudinary.com/dibnkd72j/image/upload/v1755591733/default-female-psychologist-profile-picture_qyogmy.webp',
@@ -361,7 +358,6 @@ export class SeederService {
         email: 'pablo.mendez@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654324,
-        address: 'Av. Rivadavia 200, Buenos Aires',
         phone: '+541133344455',
         birthdate: '1985-01-20',
         role: ERole.PSYCHOLOGIST,
@@ -370,7 +366,7 @@ export class SeederService {
         professional_title: 'Magíster en Psicología Educacional',
         professional_experience: 12,
         languages: [ELanguage.SPANISH],
-        office_address: 'Consultorio en Av. Rivadavia 200',
+        office_address: 'Av. Rivadavia 200, Buenos Aires, Argentina',
         modality: EModality.IN_PERSON,
         license_number: 456789,
         specialities: [
@@ -390,7 +386,6 @@ export class SeederService {
         email: 'lucia.benitez@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654325,
-        address: 'Calle San Juan 300, Rosario',
         phone: '+541155556677',
         birthdate: '1990-05-10',
         role: ERole.PSYCHOLOGIST,
@@ -398,7 +393,7 @@ export class SeederService {
         professional_title: 'Especialista en Psicotrauma',
         professional_experience: 10,
         languages: [ELanguage.SPANISH, ELanguage.ENGLISH],
-        office_address: 'Consultorio virtual',
+        office_address: 'Av. San Juan 300, Buenos Aires, Argentina',
         modality: EModality.ONLINE,
         license_number: 567890,
         specialities: [
@@ -412,6 +407,7 @@ export class SeederService {
           ETherapyApproach.GROUP_THERAPY,
         ],
         availability: [EAvailability.WEDNESDAY, EAvailability.FRIDAY],
+        consultation_fee: 24500,
         verified: EPsychologistStatus.VALIDATED,
         profile_picture:
           'https://res.cloudinary.com/dibnkd72j/image/upload/v1755591733/default-female-psychologist-profile-picture_qyogmy.webp',
@@ -421,7 +417,6 @@ export class SeederService {
         email: 'esteban.morales@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654326,
-        address: 'Av. Belgrano 400, Mendoza',
         phone: '+541144445566',
         birthdate: '1978-12-05',
         role: ERole.PSYCHOLOGIST,
@@ -429,7 +424,7 @@ export class SeederService {
         professional_title: 'Licenciado en Psicología y Adicciones',
         professional_experience: 18,
         languages: [ELanguage.SPANISH],
-        office_address: 'Consultorio en Av. Belgrano 400',
+        office_address: 'Av. Belgrano 400, Buenos Aires, Argentina',
         modality: EModality.HYBRID,
         license_number: 678901,
         specialities: [
@@ -440,6 +435,7 @@ export class SeederService {
         session_types: [ESessionType.INDIVIDUAL, ESessionType.FAMILY],
         therapy_approaches: [ETherapyApproach.HUMANISTIC_CENTRED_THERAPY],
         availability: [EAvailability.TUESDAY, EAvailability.SATURDAY],
+        consultation_fee: 25000,
         verified: EPsychologistStatus.VALIDATED,
         profile_picture:
           'https://res.cloudinary.com/dibnkd72j/image/upload/v1755591732/default-male-psychologist-profile-picture_sqyd1d.webp',
@@ -449,7 +445,6 @@ export class SeederService {
         email: 'paula.suarez@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654327,
-        address: 'Calle Mitre 500, Tucumán',
         phone: '+541188899900',
         birthdate: '1983-03-22',
         role: ERole.PSYCHOLOGIST,
@@ -457,7 +452,6 @@ export class SeederService {
         professional_title: 'Especialista en Terapia de Pareja',
         professional_experience: 14,
         languages: [ELanguage.SPANISH, ELanguage.PORTUGUESE],
-        office_address: 'Consultorio virtual',
         modality: EModality.ONLINE,
         license_number: 789012,
         specialities: [
@@ -472,6 +466,7 @@ export class SeederService {
         ],
         availability: [EAvailability.THURSDAY, EAvailability.SUNDAY],
         verified: EPsychologistStatus.VALIDATED,
+        consultation_fee: 30000,
         profile_picture:
           'https://res.cloudinary.com/dibnkd72j/image/upload/v1755591733/default-female-psychologist-profile-picture_qyogmy.webp',
       },
@@ -480,7 +475,6 @@ export class SeederService {
         email: 'nicolas.herrera@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654328,
-        address: 'Av. Libertador 600, San Juan',
         phone: '+541166778899',
         birthdate: '1987-07-18',
         role: ERole.PSYCHOLOGIST,
@@ -489,7 +483,7 @@ export class SeederService {
         professional_title: 'Doctor en Psicología Geriátrica',
         professional_experience: 16,
         languages: [ELanguage.SPANISH, ELanguage.ENGLISH],
-        office_address: 'Consultorio en Av. Libertador 600',
+        office_address: 'Av. Libertador 600, Buenos Aires, Argentina',
         modality: EModality.IN_PERSON,
         license_number: 890123,
         specialities: [
@@ -501,6 +495,7 @@ export class SeederService {
         therapy_approaches: [ETherapyApproach.GESTALT_THERAPY],
         availability: [EAvailability.WEDNESDAY, EAvailability.FRIDAY],
         verified: EPsychologistStatus.VALIDATED,
+        consultation_fee: 28000,
         profile_picture:
           'https://res.cloudinary.com/dibnkd72j/image/upload/v1755591732/default-male-psychologist-profile-picture_sqyd1d.webp',
       },
@@ -509,7 +504,6 @@ export class SeederService {
         email: 'mariana.lopez@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654329,
-        address: 'Calle Sarmiento 700, Neuquén',
         phone: '+541188899911',
         birthdate: '1992-11-30',
         role: ERole.PSYCHOLOGIST,
@@ -518,7 +512,7 @@ export class SeederService {
         professional_title: 'Licenciada en Psicología Clínica',
         professional_experience: 7,
         languages: [ELanguage.SPANISH],
-        office_address: 'Consultorio virtual',
+        office_address: 'Calle Sarmiento 700, Buenos Aires, Argentina',
         modality: EModality.ONLINE,
         license_number: 901234,
         specialities: [
@@ -531,6 +525,7 @@ export class SeederService {
           ETherapyApproach.EYE_MOVEMENT_DESENSITIZATION_REPROCESSING,
         ],
         availability: [EAvailability.TUESDAY, EAvailability.SATURDAY],
+        consultation_fee: 24800,
         verified: EPsychologistStatus.VALIDATED,
         profile_picture:
           'https://res.cloudinary.com/dibnkd72j/image/upload/v1755591733/default-female-psychologist-profile-picture_qyogmy.webp',
@@ -539,7 +534,155 @@ export class SeederService {
 
     await this.psychologistRepository.upsert(psychologists, ['email']);
     if (envs.server.environment !== 'production') {
-      console.log('✅ Psychologists seeded successfully');
+      console.log('✅ Psicólogos precargados exitosamente');
+    }
+  }
+
+  async seedReviews() {
+    // Primero obtenemos todos los psicólogos para asignarles reviews
+    const psychologists = await this.psychologistRepository.find();
+
+    // También necesitamos obtener pacientes para asignar como autores de las reviews
+    const patients = await this.patientRepository.find();
+
+    if (psychologists.length === 0) {
+      console.log(
+        '⚠️ No psychologists found. Please seed psychologists first.',
+      );
+      return;
+    }
+
+    if (patients.length === 0) {
+      console.log('⚠️ No patients found. Please seed patients first.');
+      return;
+    }
+
+    const reviews = [
+      {
+        rating: 5,
+        comment:
+          '¡Excelente psicólogo! Muy profesional y comprensivo. La sesión fue muy útil y me sentí cómodo durante todo el tiempo. Definitivamente lo recomiendo.',
+        review_date: new Date('2024-01-15'),
+        userId: patients[0].id,
+        psychologist: psychologists[0],
+      },
+      {
+        rating: 4,
+        comment:
+          'Muy buena experiencia. El psicólogo es muy empático y me ayudó mucho con mis problemas de ansiedad. Las técnicas que me enseñó han sido muy efectivas.',
+        review_date: new Date('2024-01-20'),
+        userId: patients[1].id,
+        psychologist: psychologists[0],
+      },
+      {
+        rating: 5,
+        comment:
+          'Increíble profesional. Su enfoque cognitivo-conductual me ha cambiado la vida. Altamente recomendado para cualquier persona que busque ayuda profesional.',
+        review_date: new Date('2024-02-01'),
+        userId: patients[2].id,
+        psychologist: psychologists[1],
+      },
+      {
+        rating: 4,
+        comment:
+          'Muy profesional y paciente. Me ayudó a superar momentos difíciles con técnicas muy efectivas. El ambiente de la consulta es muy cómodo y relajante.',
+        review_date: new Date('2024-02-10'),
+        userId: patients[3].id,
+        psychologist: psychologists[1],
+      },
+      {
+        rating: 5,
+        comment:
+          'Excelente terapeuta especializada en terapia familiar. Nos ayudó mucho como pareja y ahora tenemos herramientas para comunicarnos mejor.',
+        review_date: new Date('2024-02-15'),
+        userId: patients[4].id,
+        psychologist: psychologists[2],
+      },
+      {
+        rating: 3,
+        comment:
+          'Buena experiencia en general. El psicólogo es conocedor, aunque a veces siento que las sesiones son un poco cortas. Aún así, me ha ayudado.',
+        review_date: new Date('2024-02-20'),
+        userId: patients[5].id,
+        psychologist: psychologists[2],
+      },
+      {
+        rating: 5,
+        comment:
+          'Fantástica experiencia con terapia EMDR. Me ayudó a procesar traumas pasados de manera muy efectiva. Totalmente recomendado para trauma.',
+        review_date: new Date('2024-03-01'),
+        userId: patients[6 % patients.length].id,
+        psychologist: psychologists[3],
+      },
+      {
+        rating: 4,
+        comment:
+          'Muy buena psicóloga especializada en adolescentes. Mi hija se sintió muy cómoda y ha mostrado mucha mejoría en sus problemas de autoestima.',
+        review_date: new Date('2024-03-05'),
+        userId: patients[7 % patients.length].id,
+        psychologist: psychologists[3],
+      },
+      {
+        rating: 5,
+        comment:
+          'Excelente profesional en terapia cognitivo-conductual. Sus técnicas para manejar la depresión han sido fundamentales en mi recuperación.',
+        review_date: new Date('2024-03-10'),
+        userId: patients[8 % patients.length].id,
+        psychologist: psychologists[4] || psychologists[0],
+      },
+      {
+        rating: 4,
+        comment:
+          'Muy recomendado. Buen manejo de la terapia humanística. Me ayudó a encontrar mi propósito y a desarrollar mayor autoconocimiento.',
+        review_date: new Date('2024-03-15'),
+        userId: patients[9 % patients.length].id,
+        psychologist: psychologists[4] || psychologists[1],
+      },
+      {
+        rating: 5,
+        comment:
+          'Increíble experiencia con terapia de pareja. Nos dio herramientas muy valiosas para mejorar nuestra relación y comunicación.',
+        review_date: new Date('2024-03-20'),
+        userId: patients[10 % patients.length].id,
+        psychologist: psychologists[0],
+      },
+      {
+        rating: 4,
+        comment:
+          'Muy profesional y empático. Me ayudó a superar mi fobia social con técnicas de exposición gradual. Muy recomendado.',
+        review_date: new Date('2024-03-25'),
+        userId: patients[11 % patients.length].id,
+        psychologist: psychologists[1],
+      },
+      {
+        rating: 5,
+        comment:
+          'Excelente terapeuta para niños. Mi hijo de 8 años se siente muy cómodo con ella y ha mejorado mucho su comportamiento en casa y en el colegio.',
+        review_date: new Date('2024-04-01'),
+        userId: patients[0].id,
+        psychologist: psychologists[2],
+      },
+      {
+        rating: 3,
+        comment:
+          'Experiencia positiva. El psicólogo es muy preparado académicamente, aunque a veces me gustaría más práctica y menos teoría en las sesiones.',
+        review_date: new Date('2024-04-05'),
+        userId: patients[1].id,
+        psychologist: psychologists[3],
+      },
+      {
+        rating: 5,
+        comment:
+          'Fantástico profesional. Su enfoque en mindfulness y técnicas de relajación me han ayudado enormemente con mi estrés laboral.',
+        review_date: new Date('2024-04-10'),
+        userId: patients[2].id,
+        psychologist: psychologists[0],
+      },
+    ];
+
+    await this.reviewsRepository.save(reviews);
+    if (envs.server.environment !== 'production') {
+      console.log('✅ Reviews seeded successfully');
     }
   }
 }

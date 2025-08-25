@@ -24,12 +24,35 @@ El módulo de **Database** es el núcleo de gestión de datos de PsyMatch-Backen
 ```
 database/
 ├── database.module.ts          # Configuración principal del módulo
-├── migrations/                 # Archivos de migración (futuro)
-└── relationships/
-    ├── user-patient-psychologist-inheritance.md
-    ├── appointments-relationships.md
-    └── data-integrity-constraints.md
+└── README.md                   # Documentación del módulo
 ```
+
+## Configuración de TypeORM
+
+### 🔧 Configuración Principal
+
+```typescript
+// src/configs/typeorm.config.ts
+import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { envs } from './envs.config';
+
+export const typeOrmConfig: TypeOrmModuleOptions = {
+  type: 'postgres',
+  host: envs.DB_HOST,
+  port: envs.DB_PORT,
+  username: envs.DB_USERNAME,
+  password: envs.DB_PASSWORD,
+  database: envs.DB_NAME,
+  entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+  synchronize: envs.NODE_ENV === 'development',
+  logging: envs.NODE_ENV === 'development',
+  ssl: envs.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+};
+```
+
+    └── data-integrity-constraints.md
+
+````
 
 ## Configuración de la Base de Datos
 
@@ -51,7 +74,7 @@ export const typeorm: DataSourceOptions = {
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
   migrations: [__dirname + '/../migrations/*{.ts,.js}'],
 };
-```
+````
 
 ### 🌍 Variables de Entorno
 

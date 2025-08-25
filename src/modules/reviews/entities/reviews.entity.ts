@@ -1,4 +1,5 @@
 import { Psychologist } from '../../psychologist/entities/psychologist.entity';
+import { User } from '../../users/entities/user.entity';
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 
 @Entity('reviews')
@@ -6,7 +7,7 @@ export class Reviews {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
+  @Column({ type: 'int', nullable: false })
   rating: number;
 
   @Column({ type: 'text', nullable: false })
@@ -15,6 +16,11 @@ export class Reviews {
   @Column({ type: 'date', nullable: false })
   review_date: Date;
 
+  @Column({ type: 'uuid', nullable: false })
+  userId: string;
+
+  @ManyToOne(() => User)
+  user: User;
   @ManyToOne(() => Psychologist, (psychologist) => psychologist.reviews)
   psychologist: Psychologist;
 }
