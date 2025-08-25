@@ -80,8 +80,8 @@ export class EmailsService {
       // NECESARIO PARA LA RECUPERACIÓN DE CONTRASEÑA////////////////////
       const resetLink =
         envs.server.environment === 'production'
-          ? `https://psymatch.com/reset-password?token=${resetToken}`
-          : `http://localhost:3000/reset-password?token=${resetToken}`;
+          ? `https://psymatch.com/password/new-password?token=${resetToken}`
+          : `http://localhost:3000/password/new-password?token=${resetToken}`;
       ///////////////////////////////////////////////////////////////////
 
       await this.mailerService.sendMail({
