@@ -80,7 +80,7 @@ export class EmailsService {
       // NECESARIO PARA LA RECUPERACIÓN DE CONTRASEÑA////////////////////
       const resetLink =
         envs.server.environment === 'production'
-          ? `https://psymatch.com/password/new-password?token=${resetToken}`
+          ? `https://psymatch-frontend-app.onrender.com/password/new-password?token=${resetToken}`
           : `http://localhost:3000/password/new-password?token=${resetToken}`;
       ///////////////////////////////////////////////////////////////////
 
@@ -113,11 +113,18 @@ export class EmailsService {
           `No se encontró el usuario con email ${to}`,
         );
       }
+
+      const website =
+        envs.server.environment === 'production'
+          ? 'https://psymatch-frontend-app.onrender.com'
+          : 'http://localhost:3000';
+
       await this.mailerService.sendMail({
         to,
         subject: 'Contraseña modificada exitosamente',
         template: 'password-changed',
         context: {
+          website,
           date: new Date().toLocaleString('es-ES', {
             day: 'numeric',
             month: 'long',
