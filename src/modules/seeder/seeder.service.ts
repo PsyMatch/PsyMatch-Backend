@@ -6,7 +6,9 @@ import { Patient } from '../users/entities/patient.entity';
 import { Admin } from '../users/entities/admin.entity';
 import { Psychologist } from '../psychologist/entities/psychologist.entity';
 import { Reviews } from '../reviews/entities/reviews.entity';
+import { Appointment } from '../appointments/entities/appointment.entity';
 import { ERole } from '../../common/enums/role.enum';
+import { AppointmentStatus } from '../appointments/enums/appointment-status.enum';
 import { EPsychologistSpecialty } from '../psychologist/enums/specialities.enum';
 import { EPsychologistStatus } from '../psychologist/enums/verified.enum';
 import { ESessionType } from '../psychologist/enums/session-types.enum';
@@ -28,6 +30,8 @@ export class SeederService {
     private readonly psychologistRepository: Repository<Psychologist>,
     @InjectRepository(Reviews)
     private readonly reviewsRepository: Repository<Reviews>,
+    @InjectRepository(Appointment)
+    private readonly appointmentRepository: Repository<Appointment>,
   ) {}
 
   async seedUsers() {
@@ -683,6 +687,263 @@ export class SeederService {
     await this.reviewsRepository.save(reviews);
     if (envs.server.environment !== 'production') {
       console.log('✅ Reviews seeded successfully');
+    }
+  }
+
+  async seedAppointments() {
+    // Primero obtenemos todos los psicólogos y pacientes
+    const psychologists = await this.psychologistRepository.find();
+    const patients = await this.patientRepository.find();
+
+    if (psychologists.length === 0) {
+      console.log(
+        '⚠️ No psychologists found. Please seed psychologists first.',
+      );
+      return;
+    }
+
+    if (patients.length === 0) {
+      console.log('⚠️ No patients found. Please seed patients first.');
+      return;
+    }
+
+    // Generar fechas para appointments (algunas pasadas, algunas futuras)
+    const getRandomDate = (daysOffset: number) => {
+      const date = new Date();
+      date.setDate(date.getDate() + daysOffset);
+      return date;
+    };
+
+    const getRandomHour = () => {
+      const hours = ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00'];
+      return hours[Math.floor(Math.random() * hours.length)];
+    };
+
+    const appointments = [
+      // Appointments completadas (pasadas)
+      {
+        date: getRandomDate(-30),
+        hour: '10:00',
+        duration: 45,
+        notes: 'Primera sesión de evaluación. Paciente presenta síntomas de ansiedad.',
+        patient: patients[0],
+        psychologist: psychologists[0],
+        status: AppointmentStatus.COMPLETED,
+        modality: psychologists[0].modality,
+        session_type: 'Individual',
+        therapy_approach: 'Terapia Cognitivo-Conductual',
+        insurance: 'OSDE',
+        price: psychologists[0].consultation_fee,
+      },
+      {
+        date: getRandomDate(-25),
+        hour: '15:00',
+        duration: 45,
+        notes: 'Seguimiento de tratamiento para depresión. Paciente muestra mejoría.',
+        patient: patients[1],
+        psychologist: psychologists[1],
+        status: AppointmentStatus.COMPLETED,
+        modality: psychologists[1].modality,
+        session_type: 'Individual',
+        therapy_approach: 'Terapia Humanística',
+        insurance: 'Swiss Medical',
+        price: psychologists[1].consultation_fee,
+      },
+      {
+        date: getRandomDate(-20),
+        hour: '11:00',
+        duration: 60,
+        notes: 'Sesión de terapia familiar. Trabajamos en comunicación.',
+        patient: patients[2],
+        psychologist: psychologists[2],
+        status: AppointmentStatus.COMPLETED,
+        modality: psychologists[2].modality,
+        session_type: 'Familiar',
+        therapy_approach: 'Terapia Sistémica',
+        insurance: 'IOMA',
+        price: psychologists[2].consultation_fee,
+      },
+      {
+        date: getRandomDate(-15),
+        hour: '14:00',
+        duration: 45,
+        notes: 'Sesión de terapia de pareja. Conflictos de comunicación.',
+        patient: patients[3],
+        psychologist: psychologists[3],
+        status: AppointmentStatus.COMPLETED,
+        modality: psychologists[3].modality,
+        session_type: 'Pareja',
+        therapy_approach: 'Terapia de Pareja',
+        insurance: 'PAMI',
+        price: psychologists[3].consultation_fee,
+      },
+      {
+        date: getRandomDate(-10),
+        hour: '16:00',
+        duration: 45,
+        notes: 'Tratamiento para trauma. Aplicamos técnicas EMDR.',
+        patient: patients[4],
+        psychologist: psychologists[4] || psychologists[0],
+        status: AppointmentStatus.COMPLETED,
+        modality: (psychologists[4] || psychologists[0]).modality,
+        session_type: 'Individual',
+        therapy_approach: 'EMDR',
+        insurance: 'Union Personal',
+        price: (psychologists[4] || psychologists[0]).consultation_fee,
+      },
+
+      // Appointments confirmadas (futuras)
+      {
+        date: getRandomDate(5),
+        hour: '09:00',
+        duration: 45,
+        notes: 'Cita de seguimiento programada.',
+        patient: patients[5],
+        psychologist: psychologists[0],
+        status: AppointmentStatus.CONFIRMED,
+        modality: psychologists[0].modality,
+        session_type: 'Individual',
+        therapy_approach: 'Terapia Cognitivo-Conductual',
+        insurance: 'OSDE',
+        price: psychologists[0].consultation_fee,
+      },
+      {
+        date: getRandomDate(8),
+        hour: '11:00',
+        duration: 45,
+        notes: 'Sesión para trabajar técnicas de mindfulness.',
+        patient: patients[6],
+        psychologist: psychologists[1],
+        status: AppointmentStatus.CONFIRMED,
+        modality: psychologists[1].modality,
+        session_type: 'Individual',
+        therapy_approach: 'Mindfulness',
+        insurance: 'Swiss Medical',
+        price: psychologists[1].consultation_fee,
+      },
+      {
+        date: getRandomDate(12),
+        hour: '15:00',
+        duration: 60,
+        notes: 'Evaluación inicial para terapia de grupo.',
+        patient: patients[7],
+        psychologist: psychologists[2],
+        status: AppointmentStatus.CONFIRMED,
+        modality: psychologists[2].modality,
+        session_type: 'Grupal',
+        therapy_approach: 'Terapia de Grupo',
+        insurance: 'IOMA',
+        price: psychologists[2].consultation_fee,
+      },
+
+      // Appointments pendientes
+      {
+        date: getRandomDate(15),
+        hour: '10:00',
+        duration: 45,
+        notes: 'Primera consulta. Evaluación inicial.',
+        patient: patients[8],
+        psychologist: psychologists[3],
+        status: AppointmentStatus.PENDING,
+        modality: psychologists[3].modality,
+        session_type: 'Individual',
+        therapy_approach: 'Por definir',
+        insurance: 'PAMI',
+        price: psychologists[3].consultation_fee,
+      },
+      {
+        date: getRandomDate(18),
+        hour: '14:00',
+        duration: 45,
+        notes: 'Consulta para terapia de ansiedad.',
+        patient: patients[9],
+        psychologist: psychologists[4] || psychologists[0],
+        status: AppointmentStatus.PENDING,
+        modality: (psychologists[4] || psychologists[0]).modality,
+        session_type: 'Individual',
+        therapy_approach: 'TCC',
+        insurance: 'OSDE',
+        price: (psychologists[4] || psychologists[0]).consultation_fee,
+      },
+
+      // Algunas appointments canceladas
+      {
+        date: getRandomDate(-5),
+        hour: '17:00',
+        duration: 45,
+        notes: 'Cancelada por el paciente.',
+        patient: patients[10],
+        psychologist: psychologists[0],
+        status: AppointmentStatus.CANCELLED,
+        modality: psychologists[0].modality,
+        session_type: 'Individual',
+        therapy_approach: 'TCC',
+        insurance: 'Swiss Medical',
+        price: psychologists[0].consultation_fee,
+      },
+      {
+        date: getRandomDate(3),
+        hour: '16:00',
+        duration: 45,
+        notes: 'Cancelada por conflicto de horarios.',
+        patient: patients[11],
+        psychologist: psychologists[1],
+        status: AppointmentStatus.CANCELLED,
+        modality: psychologists[1].modality,
+        session_type: 'Individual',
+        therapy_approach: 'Humanística',
+        insurance: 'IOMA',
+        price: psychologists[1].consultation_fee,
+      },
+
+      // Más appointments para diversificar
+      {
+        date: getRandomDate(22),
+        hour: '09:00',
+        duration: 45,
+        notes: 'Sesión de seguimiento mensual.',
+        patient: patients[0],
+        psychologist: psychologists[0],
+        status: AppointmentStatus.CONFIRMED,
+        modality: psychologists[0].modality,
+        session_type: 'Individual',
+        therapy_approach: 'TCC',
+        insurance: 'OSDE',
+        price: psychologists[0].consultation_fee,
+      },
+      {
+        date: getRandomDate(25),
+        hour: '11:00',
+        duration: 60,
+        notes: 'Terapia de pareja - trabajo en resolución de conflictos.',
+        patient: patients[1],
+        psychologist: psychologists[2],
+        status: AppointmentStatus.PENDING,
+        modality: psychologists[2].modality,
+        session_type: 'Pareja',
+        therapy_approach: 'Terapia de Pareja',
+        insurance: 'Swiss Medical',
+        price: psychologists[2].consultation_fee,
+      },
+      {
+        date: getRandomDate(30),
+        hour: '15:00',
+        duration: 45,
+        notes: 'Evaluación psicológica integral.',
+        patient: patients[2],
+        psychologist: psychologists[3],
+        status: AppointmentStatus.PENDING,
+        modality: psychologists[3].modality,
+        session_type: 'Individual',
+        therapy_approach: 'Evaluación',
+        insurance: 'PAMI',
+        price: psychologists[3].consultation_fee,
+      },
+    ];
+
+    await this.appointmentRepository.save(appointments);
+    if (envs.server.environment !== 'production') {
+      console.log('✅ Appointments seeded successfully');
     }
   }
 }

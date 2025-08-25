@@ -10,6 +10,7 @@ import {
   Req,
   Query,
   UseInterceptors,
+  Patch,
 } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
@@ -89,26 +90,48 @@ export class AppointmentsController {
     return this.appointmentsService.findOneAuthorized(req, id);
   }
 
-  @Put(':id')
-  @ApiOperation({
-    summary: 'Actualizar cita (dueño, psicólogo asignado o admin)',
-  })
-  @ApiParam({ name: 'id', description: 'UUID de la cita' })
-  @ApiBody({ type: UpdateAppointmentDto })
-  update(
-    @Req() req: IAuthRequest,
-    @Param('id') id: string,
-    @Body() dto: UpdateAppointmentDto,
-  ) {
-    return this.appointmentsService.update(req, id, dto);
-  }
-
   @Delete(':id')
   @ApiOperation({
-    summary: 'Eliminar/Cancelar cita (dueño o admin)',
+    summary: 'Deshabilitar cita (soft delete)',
+    description: 'Establece isActive en false en lugar de eliminar la cita completamente. Solo el dueño o admin pueden deshabilitar la cita.',
   })
-  @ApiParam({ name: 'id', description: 'UUID de la cita' })
-  remove(@Req() req: IAuthRequest, @Param('id') id: string) {
-    return this.appointmentsService.remove(req, id);
+  @ApiParam({ 
+    name: 'id', 
+    description: 'UUID de la cita a deshabilitar',
+    type: 'string',
+    format: 'uuid'
+  })
+  disable(@Req() req: IAuthRequest, @Param('id') id: string) {
+    return this.appointmentsService.disable(req, id);
+  }
+
+  @Patch(':id/confirm')
+  @ApiOperation({
+    summary: 'Confirmar cita',
+    description: 'Cambia el estado de la cita de PENDING a CONFIRMED. Solo el psicólogo asignado puede confirmar la cita.',
+  })
+  @ApiParam({ 
+    name: 'id', 
+    description: 'UUID de la cita a confirmar',
+    type: 'string',
+    format: 'uuid'
+  })
+  confirmAppointment(@Req() req: IAuthRequest, @Param('id') id: string) {
+    return this.appointmentsService.confirmAppointment(req, id);
+  }
+
+  @Patch(':id/complete')
+  @ApiOperation({
+    summary: 'Completar cita',
+    description: 'Cambia el estado de la cita de CONFIRMED a COMPLETED. Solo el psicólogo asignado puede completar la cita.',
+  })
+  @ApiParam({ 
+    name: 'id', 
+    description: 'UUID de la cita a completar',
+    type: 'string',
+    format: 'uuid'
+  })
+  completeAppointment(@Req() req: IAuthRequest, @Param('id') id: string) {
+    return this.appointmentsService.completeAppointment(req, id);
   }
 }

@@ -5,10 +5,11 @@ import { Psychologist } from '../psychologist/entities/psychologist.entity';
 import { Patient } from '../users/entities/patient.entity';
 import { Admin } from '../users/entities/admin.entity';
 import { Reviews } from '../reviews/entities/reviews.entity';
+import { Appointment } from '../appointments/entities/appointment.entity';
 import { envs } from 'src/configs/envs.config';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Patient, Admin, Psychologist, Reviews])],
+  imports: [TypeOrmModule.forFeature([Patient, Admin, Psychologist, Reviews, Appointment])],
   providers: [SeederService],
 })
 export class SeederModule implements OnModuleInit {
@@ -18,6 +19,7 @@ export class SeederModule implements OnModuleInit {
     if (envs.server.environment !== 'production') {
       await this.seederService.seedUsers();
       await this.seederService.seedReviews();
+      await this.seederService.seedAppointments();
     }
   }
 }
