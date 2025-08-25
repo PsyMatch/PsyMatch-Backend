@@ -260,82 +260,89 @@ export class AppointmentsService {
     };
   }
 
-  async update(req: IAuthRequest, id: string, dto: UpdateAppointmentDto) {
-    const a = await this.appointmentRepository.findOne({ where: { id } });
-    if (!a) throw new NotFoundException(`Appointment with ID ${id} not found`);
+  async disable(req: IAuthRequest, id: string) {
+    const appointment = await this.appointmentRepository.findOne({ where: { id } });
+    if (!appointment) throw new NotFoundException(`Appointment with ID ${id} not found`);
 
     const authUserId = getAuthUserId(req);
-    const canEdit =
-      isAdmin(req) ||
-      a.patient?.id === authUserId ||
-      a.psychologist?.id === authUserId;
-    if (!canEdit)
-      throw new ForbiddenException('No tenés permiso para editar esta cita');
-
-    if (dto.date || dto.hour) {
-      const newDate = combineDateHour(
-        dto.date ?? a.date.toISOString(),
-        dto.hour ?? a.hour,
-      );
-      if (newDate.getTime() <= Date.now()) {
-        throw new BadRequestException(
-          'La nueva fecha/hora no puede estar en el pasado',
-        );
-      }
-
-      const psychologistId = dto.psychologist_id ?? a.psychologist.id;
-
-      const exists = await this.appointmentRepository.findOne({
-        where: {
-          psychologist: { id: psychologistId },
-          date: Raw((alias) => `${alias} = :when`, { when: newDate }),
-        },
-      });
-
-      if (exists && exists.id !== a.id) {
-        throw new BadRequestException('Ese horario ya está reservado');
-      }
-      a.date = newDate;
-      if (dto.hour) a.hour = dto.hour;
-    }
-
-    if (dto.notes !== undefined) a.notes = dto.notes;
-    if (dto.status !== undefined) a.status = dto.status;
-    if (dto.modality !== undefined) a.modality = dto.modality;
-    if (dto.session_type !== undefined) a.session_type = dto.session_type;
-    if (dto.therapy_approach !== undefined)
-      a.therapy_approach = dto.therapy_approach;
-    if (dto.insurance !== undefined) a.insurance = dto.insurance;
-    if (dto.price !== undefined) a.price = dto.price;
-
-    const saved = await this.appointmentRepository.save(a);
-
-    return {
-      ...saved,
-      patient: sanitizeUser(saved.patient),
-      psychologist: sanitizePsychologist(saved.psychologist),
-    };
-  }
-
-  async remove(req: IAuthRequest, id: string) {
-    const a = await this.appointmentRepository.findOne({ where: { id } });
-    if (!a) throw new NotFoundException(`Appointment with ID ${id} not found`);
-
-    const authUserId = getAuthUserId(req);
-    if (!isAdmin(req) && a.patient?.id !== authUserId) {
+    if (!isAdmin(req) && appointment.patient?.id !== authUserId && appointment.psychologist?.id !== authUserId) {
       throw new ForbiddenException(
-        'Solo el dueño o admin pueden eliminar la cita',
+        'Solo el dueño o admin pueden deshabilitar la cita',
       );
     }
 
-    a.status = AppointmentStatus.CANCELLED;
-    await this.appointmentRepository.save(a);
+    await this.appointmentRepository
+      .createQueryBuilder()
+      .update(Appointment)
+      .set({ 
+        status: AppointmentStatus.CANCELLED,
+        isActive: false 
+      })
+      .where("id = :id", { id })
+      .execute();
 
     return {
-      message: `Appointment with ID ${id} deleted successfully`,
+      message: `Appointment with ID ${id} disabled successfully`,
       appointment_id: id,
     };
   }
+
+  async confirmAppointment(req: IAuthRequest, id: string) {
+    const a = await this.appointmentRepository.findOne({ where: { id } });
+    if (!a) throw new NotFoundException(`Appointment with ID ${id} not found`);
+
+    const authUserId = getAuthUserId(req);
+    // Solo el psicólogo puede confirmar la cita
+    if (!isAdmin(req) && a.psychologist?.id !== authUserId) {
+      throw new ForbiddenException(
+        'Solo el psicólogo asignado puede confirmar la cita',
+      );
+    }
+
+    if (a.status !== AppointmentStatus.PENDING) {
+      throw new BadRequestException(
+        'Solo se pueden confirmar citas con estado PENDING',
+      );
+    }
+
+    a.status = AppointmentStatus.CONFIRMED;
+    await this.appointmentRepository.save(a);
+
+    return {
+      message: `Appointment with ID ${id} confirmed successfully`,
+      appointment_id: id,
+      status: a.status,
+    };
+  }
+
+  async completeAppointment(req: IAuthRequest, id: string) {
+    const a = await this.appointmentRepository.findOne({ where: { id } });
+    if (!a) throw new NotFoundException(`Appointment with ID ${id} not found`);
+
+    const authUserId = getAuthUserId(req);
+    // Solo el psicólogo puede completar la cita
+    if (!isAdmin(req) && a.psychologist?.id !== authUserId) {
+      throw new ForbiddenException(
+        'Solo el psicólogo asignado puede completar la cita',
+      );
+    }
+
+    if (a.status !== AppointmentStatus.CONFIRMED) {
+      throw new BadRequestException(
+        'Solo se pueden completar citas con estado CONFIRMED',
+      );
+    }
+
+    a.status = AppointmentStatus.COMPLETED;
+    await this.appointmentRepository.save(a);
+
+    return {
+      message: `Appointment with ID ${id} completed successfully`,
+      appointment_id: id,
+      status: a.status,
+    };
+  }
+
 
   async getAvailableSlots(
     psychologistId: string,
@@ -383,4 +390,6 @@ export class AppointmentsService {
     }
     return slots.filter((s) => s.available);
   }
+
+
 }

@@ -9,13 +9,11 @@ export class Appointment {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  // Fecha completa exacta del turno (date + hour)
   @Column({ type: 'timestamptz' })
   date: Date;
 
-  // Guardamos hour aparte para filtros/human-readable
   @Column({ type: 'varchar', length: 5 })
-  hour: string; // "HH:mm"
+  hour: string; 
 
   @Column({ type: 'int', nullable: true, default: 45 })
   duration: number;
@@ -57,4 +55,7 @@ export class Appointment {
 
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
   price: number;
+
+  @Column({ type: 'boolean', default: true })
+  isActive: boolean;
 }
