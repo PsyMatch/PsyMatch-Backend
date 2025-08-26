@@ -128,15 +128,14 @@ export class AuthController {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    if (envs.server.environment === 'production') {
-      return res.redirect(
-        'https://psymatch-frontend-app.onrender.com/dashboard/user',
-      );
-    }
+    const redirectUrl =
+      envs.server.environment === 'production'
+        ? `https://psymatch-frontend-app.onrender.com/dashboard/user?token=${jwt}`
+        : `http://localhost:3000/dashboard/user?token=${jwt}`;
 
     await this.emailsService.sendWelcomeEmail(googleUser.email);
 
-    return res.redirect('http://localhost:3000/dashboard/user');
+    return res.redirect(redirectUrl);
   }
 
   @Get('me')
