@@ -130,8 +130,8 @@ export class AuthController {
 
     const redirectUrl =
       envs.server.environment === 'production'
-        ? `https://psymatch-frontend-app.onrender.com/dashboard/user?token=${jwt}`
-        : `http://localhost:3000/dashboard/user?token=${jwt}`;
+        ? 'https://psymatch-frontend-app.onrender.com/dashboard/user'
+        : 'http://localhost:3000/dashboard/user';
 
     await this.emailsService.sendWelcomeEmail(googleUser.email);
 
