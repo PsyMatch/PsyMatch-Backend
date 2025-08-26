@@ -16,13 +16,13 @@ export class FileValidationPipe implements PipeTransform {
       if (isOptional) {
         return undefined;
       }
-      throw new BadRequestException('No file uploaded');
+      throw new BadRequestException('No se subió ningún archivo');
     }
 
     const maxSize = maxSizeMB * 1024 * 1024;
     if (file.size > maxSize) {
       throw new BadRequestException(
-        `File size should not exceed ${maxSizeMB}MB`,
+        `El tamaño del archivo no debe exceder ${maxSizeMB}MB`,
       );
     }
 
@@ -40,9 +40,9 @@ export class FileValidationPipe implements PipeTransform {
 
     if (!allowedMimeTypes.includes(file.mimetype)) {
       const fileTypes = allowPDF
-        ? 'PDF, JPG, JPEG, PNG, GIF and WEBP files are allowed'
-        : 'JPG, JPEG, PNG, GIF and WEBP files are allowed';
-      throw new BadRequestException(`Invalid file type. Only ${fileTypes}`);
+        ? 'Se permiten archivos PDF, JPG, JPEG, PNG, GIF y WEBP'
+        : 'Se permiten archivos JPG, JPEG, PNG, GIF y WEBP';
+      throw new BadRequestException(`Tipo de archivo inválido. ${fileTypes}`);
     }
 
     return file;

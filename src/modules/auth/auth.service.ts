@@ -304,7 +304,7 @@ export class AuthService {
       throw new NotFoundException('Usuario no encontrado');
     }
 
-    const payload = { sub: user.id, email: user.email };
+    const payload = { id: user.id, email: user.email };
     const token = await this.jwtService.signAsync(payload, {
       expiresIn: '15m',
     });

@@ -14,6 +14,8 @@ import {
   Payment as MPPayment,
 } from 'mercadopago';
 import { envs } from '../../configs/envs.config';
+import { Appointment } from '../appointments/entities/appointment.entity';
+import { AppointmentStatus } from '../appointments/enums/appointment-status.enum';
 
 interface MPPreferenceResult {
   init_point?: string;
@@ -25,6 +27,8 @@ export class PaymentsService {
   constructor(
     @InjectRepository(Payment)
     private readonly paymentsRepository: Repository<Payment>,
+    @InjectRepository(Appointment)
+    private readonly appointmentsRepository: Repository<Appointment>,
   ) {}
 
   async create(dto: CreatePaymentDto): Promise<Payment> {
@@ -158,8 +162,8 @@ export class PaymentsService {
         await this.processPaymentWebhook(paymentId);
       }
     } catch (error) {
-      console.error('Error processing webhook:', error);
-      throw new BadRequestException('Error processing webhook');
+      console.error('Error procesando webhook:', error);
+      throw new BadRequestException('Error procesando webhook');
     }
   }
 
@@ -181,10 +185,12 @@ export class PaymentsService {
           // Crear nuevo pago
           const preferenceId = (paymentData as { preference_id?: string })
             .preference_id;
-          const userId =
-            paymentData.metadata && typeof paymentData.metadata === 'object'
-              ? (paymentData.metadata as { user_id?: string }).user_id
-              : undefined;
+          const metadata = paymentData.metadata && typeof paymentData.metadata === 'object'
+            ? paymentData.metadata as { user_id?: string; appointment_id?: string }
+            : {};
+          
+          const userId = metadata.user_id;
+          const appointmentId = metadata.appointment_id;
 
           const newPayment = this.paymentsRepository.create({
             amount: paymentData.transaction_amount || 0,
@@ -195,18 +201,29 @@ export class PaymentsService {
             preference_id: preferenceId,
             payer_email: paymentData.payer?.email,
             user_id: userId,
+            appointment_id: appointmentId, // ✅ Agregar appointment_id desde metadatos
             notes: 'Pago procesado via MercadoPago',
           });
 
-          await this.paymentsRepository.save(newPayment);
+          const savedPayment = await this.paymentsRepository.save(newPayment);
+          
+          // Actualizar estado del turno a pendiente de aprobación si existe appointment_id
+          if (savedPayment.appointment_id) {
+            await this.updateAppointmentStatusAfterPayment(savedPayment.appointment_id);
+          }
         } else {
           // Actualizar pago existente
           existingPayment.pay_status = PayStatus.COMPLETED;
-          await this.paymentsRepository.save(existingPayment);
+          const savedPayment = await this.paymentsRepository.save(existingPayment);
+          
+          // Actualizar estado del turno a pendiente de aprobación si existe appointment_id
+          if (savedPayment.appointment_id) {
+            await this.updateAppointmentStatusAfterPayment(savedPayment.appointment_id);
+          }
         }
       }
     } catch (error) {
-      console.error('Error processing payment webhook:', error);
+      console.error('Error procesando webhook de pago:', error);
       throw error;
     }
   }
@@ -216,6 +233,26 @@ export class PaymentsService {
       where: { user_id: userId },
       order: { created_at: 'DESC' },
     });
+  }
+
+  /**
+   * Actualiza el estado del turno a PENDING_APPROVAL después de un pago exitoso
+   */
+  private async updateAppointmentStatusAfterPayment(appointmentId: string): Promise<void> {
+    try {
+      const appointment = await this.appointmentsRepository.findOne({
+        where: { id: appointmentId }
+      });
+      
+      if (appointment && (appointment.status === AppointmentStatus.PENDING_PAYMENT || appointment.status === AppointmentStatus.PENDING)) {
+        appointment.status = AppointmentStatus.PENDING_APPROVAL;
+        await this.appointmentsRepository.save(appointment);
+        console.log(`Appointment ${appointmentId} status updated to PENDING_APPROVAL after payment`);
+      }
+    } catch (error) {
+      console.error('Error actualizando estado de cita después del pago:', error);
+      // No lanzamos error para no interrumpir el flujo de webhook
+    }
   }
 
   findByProfessionalId(_professionalId: string): Promise<Payment[]> {
