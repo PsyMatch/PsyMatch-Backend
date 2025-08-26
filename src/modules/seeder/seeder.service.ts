@@ -53,6 +53,7 @@ export class SeederService {
     }
 
     const patients = [
+      // Pacientes con teléfonos únicos
       {
         name: 'Juan Carlos Pérez',
         alias: 'Juanito',
@@ -60,7 +61,7 @@ export class SeederService {
         password: await hashPassword('SecurePass123!'),
         dni: 12345679,
         address: 'Av. Corrientes 1234, Buenos Aires, Argentina',
-        phone: '+5411123456789',
+        phone: '+5411123456781',
         birthdate: '1990-05-15',
         health_insurance: EInsurance.SWISS_MEDICAL,
         role: ERole.PATIENT,
@@ -75,7 +76,7 @@ export class SeederService {
         password: await hashPassword('SecurePass123!'),
         dni: 12345680,
         address: 'Av. Florida 500, Buenos Aires, Argentina',
-        phone: '+5411987654321',
+        phone: '+5411987654322',
         birthdate: '1985-08-22',
         health_insurance: EInsurance.IOMA,
         role: ERole.PATIENT,
@@ -90,7 +91,7 @@ export class SeederService {
         password: await hashPassword('SecurePass123!'),
         dni: 12345681,
         address: 'Av. San Martín 456, Buenos Aires, Argentina',
-        phone: '+5411777555333',
+        phone: '+5411777555334',
         birthdate: '1992-12-10',
         health_insurance: EInsurance.PAMI,
         role: ERole.PATIENT,
@@ -104,7 +105,7 @@ export class SeederService {
         password: await hashPassword('SecurePass123!'),
         dni: 12345682,
         address: 'Av. Rivadavia 789, Buenos Aires, Argentina',
-        phone: '+5411444555666',
+        phone: '+5411444555667',
         birthdate: '1988-07-03',
         health_insurance: EInsurance.OSDE,
         role: ERole.PATIENT,
@@ -118,7 +119,7 @@ export class SeederService {
         password: await hashPassword('SecurePass123!'),
         dni: 12345683,
         address: 'Av. Belgrano 321, Buenos Aires, Argentina',
-        phone: '+5411333444555',
+        phone: '+5411333444556',
         birthdate: '1995-03-28',
         health_insurance: EInsurance.SANCOR_SALUD,
         role: ERole.PATIENT,
@@ -133,7 +134,7 @@ export class SeederService {
         password: await hashPassword('SecurePass123!'),
         dni: 12345684,
         address: 'Av. Mitre 654, Buenos Aires, Argentina',
-        phone: '+5411888999000',
+        phone: '+5411888999001',
         birthdate: '1987-11-17',
         health_insurance: EInsurance.UNION_PERSONAL,
         role: ERole.PATIENT,
@@ -147,7 +148,7 @@ export class SeederService {
         password: await hashPassword('SecurePass123!'),
         dni: 12345685,
         address: 'Av. Santa Fe 123, Buenos Aires, Argentina',
-        phone: '+5411122334455',
+        phone: '+5411122334456',
         birthdate: '1993-04-12',
         health_insurance: EInsurance.OSDEPYM,
         role: ERole.PATIENT,
@@ -161,7 +162,7 @@ export class SeederService {
         password: await hashPassword('SecurePass123!'),
         dni: 12345686,
         address: 'Av. 9 de Julio 456, Buenos Aires, Argentina',
-        phone: '+541155667788',
+        phone: '+541155667789',
         birthdate: '1991-09-30',
         health_insurance: EInsurance.LUIS_PASTEUR,
         role: ERole.PATIENT,
@@ -176,7 +177,7 @@ export class SeederService {
         password: await hashPassword('SecurePass123!'),
         dni: 12345687,
         address: 'Av. Libertador 789, Buenos Aires, Argentina',
-        phone: '+541166778899',
+        phone: '+541166778890',
         birthdate: '1996-02-18',
         health_insurance: EInsurance.JERARQUICOS_SALUD,
         role: ERole.PATIENT,
@@ -190,7 +191,7 @@ export class SeederService {
         password: await hashPassword('SecurePass123!'),
         dni: 12345688,
         address: 'Av. Moreno 321, Buenos Aires, Argentina',
-        phone: '+541177788899',
+        phone: '+541177788900',
         birthdate: '1989-06-25',
         health_insurance: EInsurance.OSECAC,
         role: ERole.PATIENT,
@@ -204,7 +205,7 @@ export class SeederService {
         password: await hashPassword('SecurePass123!'),
         dni: 12345689,
         address: 'Av. San Martín 654, Buenos Aires, Argentina',
-        phone: '+541144455577',
+        phone: '+541144455578',
         birthdate: '1994-11-05',
         health_insurance: EInsurance.OSMECON_SALUD,
         role: ERole.PATIENT,
@@ -218,7 +219,7 @@ export class SeederService {
         password: await hashPassword('SecurePass123!'),
         dni: 12345690,
         address: 'Av. Sarmiento 987, Buenos Aires, Argentina',
-        phone: '+541188899911',
+        phone: '+541188899912',
         birthdate: '1997-08-14',
         health_insurance: EInsurance.APROSS,
         role: ERole.PATIENT,
@@ -234,12 +235,13 @@ export class SeederService {
     }
 
     const psychologists = [
+      // Psicólogos con teléfonos únicos
       {
         name: 'Ana García',
         email: 'ana.garcia@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654321,
-        phone: '+5411777888999',
+        phone: '+5411777888991',
         birthdate: '1980-10-10',
         role: ERole.PSYCHOLOGIST,
         personal_biography:
@@ -281,7 +283,7 @@ export class SeederService {
         email: 'roberto.silva@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654322,
-        phone: '+5411666777888',
+        phone: '+5411666777882',
         birthdate: '1975-03-15',
         role: ERole.PSYCHOLOGIST,
         personal_biography:
@@ -322,7 +324,7 @@ export class SeederService {
         email: 'carmen.ruiz@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654323,
-        phone: '+5411555666777',
+        phone: '+5411555666773',
         birthdate: '1982-07-22',
         role: ERole.PSYCHOLOGIST,
         personal_biography:
@@ -362,7 +364,7 @@ export class SeederService {
         email: 'pablo.mendez@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654324,
-        phone: '+541133344455',
+        phone: '+5411333444557',
         birthdate: '1985-01-20',
         role: ERole.PSYCHOLOGIST,
         personal_biography:
@@ -390,7 +392,7 @@ export class SeederService {
         email: 'lucia.benitez@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654325,
-        phone: '+541155556677',
+        phone: '+541155556678',
         birthdate: '1990-05-10',
         role: ERole.PSYCHOLOGIST,
         personal_biography: 'Experta en depresión y trauma/PTSD.',
@@ -421,7 +423,7 @@ export class SeederService {
         email: 'esteban.morales@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654326,
-        phone: '+541144445566',
+        phone: '+541144445569',
         birthdate: '1978-12-05',
         role: ERole.PSYCHOLOGIST,
         personal_biography: 'Especialista en adicciones y dolor crónico.',
@@ -449,7 +451,7 @@ export class SeederService {
         email: 'paula.suarez@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654327,
-        phone: '+541188899900',
+        phone: '+541188899902',
         birthdate: '1983-03-22',
         role: ERole.PSYCHOLOGIST,
         personal_biography: 'Experta en terapia de pareja y apoyo LGBTQIA.',
@@ -479,7 +481,7 @@ export class SeederService {
         email: 'nicolas.herrera@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654328,
-        phone: '+541166778899',
+        phone: '+541166778891',
         birthdate: '1987-07-18',
         role: ERole.PSYCHOLOGIST,
         personal_biography:
@@ -508,7 +510,7 @@ export class SeederService {
         email: 'mariana.lopez@psychologist.com',
         password: await hashPassword('SecurePass123!'),
         dni: 87654329,
-        phone: '+541188899911',
+        phone: '+541188899913',
         birthdate: '1992-11-30',
         role: ERole.PSYCHOLOGIST,
         personal_biography:
@@ -715,7 +717,15 @@ export class SeederService {
     };
 
     const getRandomHour = () => {
-      const hours = ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00'];
+      const hours = [
+        '09:00',
+        '10:00',
+        '11:00',
+        '14:00',
+        '15:00',
+        '16:00',
+        '17:00',
+      ];
       return hours[Math.floor(Math.random() * hours.length)];
     };
 
@@ -723,9 +733,10 @@ export class SeederService {
       // Appointments completadas (pasadas)
       {
         date: getRandomDate(-30),
-        hour: '10:00',
+        hour: getRandomHour(),
         duration: 45,
-        notes: 'Primera sesión de evaluación. Paciente presenta síntomas de ansiedad.',
+        notes:
+          'Primera sesión de evaluación. Paciente presenta síntomas de ansiedad.',
         patient: patients[0],
         psychologist: psychologists[0],
         status: AppointmentStatus.COMPLETED,
@@ -737,9 +748,10 @@ export class SeederService {
       },
       {
         date: getRandomDate(-25),
-        hour: '15:00',
+        hour: getRandomHour(),
         duration: 45,
-        notes: 'Seguimiento de tratamiento para depresión. Paciente muestra mejoría.',
+        notes:
+          'Seguimiento de tratamiento para depresión. Paciente muestra mejoría.',
         patient: patients[1],
         psychologist: psychologists[1],
         status: AppointmentStatus.COMPLETED,
@@ -751,7 +763,7 @@ export class SeederService {
       },
       {
         date: getRandomDate(-20),
-        hour: '11:00',
+        hour: getRandomHour(),
         duration: 60,
         notes: 'Sesión de terapia familiar. Trabajamos en comunicación.',
         patient: patients[2],
@@ -765,7 +777,7 @@ export class SeederService {
       },
       {
         date: getRandomDate(-15),
-        hour: '14:00',
+        hour: getRandomHour(),
         duration: 45,
         notes: 'Sesión de terapia de pareja. Conflictos de comunicación.',
         patient: patients[3],
@@ -779,7 +791,7 @@ export class SeederService {
       },
       {
         date: getRandomDate(-10),
-        hour: '16:00',
+        hour: getRandomHour(),
         duration: 45,
         notes: 'Tratamiento para trauma. Aplicamos técnicas EMDR.',
         patient: patients[4],
@@ -795,7 +807,7 @@ export class SeederService {
       // Appointments confirmadas (futuras)
       {
         date: getRandomDate(5),
-        hour: '09:00',
+        hour: getRandomHour(),
         duration: 45,
         notes: 'Cita de seguimiento programada.',
         patient: patients[5],
@@ -809,7 +821,7 @@ export class SeederService {
       },
       {
         date: getRandomDate(8),
-        hour: '11:00',
+        hour: getRandomHour(),
         duration: 45,
         notes: 'Sesión para trabajar técnicas de mindfulness.',
         patient: patients[6],
@@ -823,7 +835,7 @@ export class SeederService {
       },
       {
         date: getRandomDate(12),
-        hour: '15:00',
+        hour: getRandomHour(),
         duration: 60,
         notes: 'Evaluación inicial para terapia de grupo.',
         patient: patients[7],
@@ -839,7 +851,7 @@ export class SeederService {
       // Appointments pendientes
       {
         date: getRandomDate(15),
-        hour: '10:00',
+        hour: getRandomHour(),
         duration: 45,
         notes: 'Primera consulta. Evaluación inicial.',
         patient: patients[8],
@@ -853,7 +865,7 @@ export class SeederService {
       },
       {
         date: getRandomDate(18),
-        hour: '14:00',
+        hour: getRandomHour(),
         duration: 45,
         notes: 'Consulta para terapia de ansiedad.',
         patient: patients[9],
@@ -869,7 +881,7 @@ export class SeederService {
       // Algunas appointments canceladas
       {
         date: getRandomDate(-5),
-        hour: '17:00',
+        hour: getRandomHour(),
         duration: 45,
         notes: 'Cancelada por el paciente.',
         patient: patients[10],
@@ -883,7 +895,7 @@ export class SeederService {
       },
       {
         date: getRandomDate(3),
-        hour: '16:00',
+        hour: getRandomHour(),
         duration: 45,
         notes: 'Cancelada por conflicto de horarios.',
         patient: patients[11],
@@ -899,7 +911,7 @@ export class SeederService {
       // Más appointments para diversificar
       {
         date: getRandomDate(22),
-        hour: '09:00',
+        hour: getRandomHour(),
         duration: 45,
         notes: 'Sesión de seguimiento mensual.',
         patient: patients[0],
@@ -913,7 +925,7 @@ export class SeederService {
       },
       {
         date: getRandomDate(25),
-        hour: '11:00',
+        hour: getRandomHour(),
         duration: 60,
         notes: 'Terapia de pareja - trabajo en resolución de conflictos.',
         patient: patients[1],
@@ -927,7 +939,7 @@ export class SeederService {
       },
       {
         date: getRandomDate(30),
-        hour: '15:00',
+        hour: getRandomHour(),
         duration: 45,
         notes: 'Evaluación psicológica integral.',
         patient: patients[2],

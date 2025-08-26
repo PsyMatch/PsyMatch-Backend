@@ -20,7 +20,7 @@ export class User {
   @Column({ type: 'text', nullable: false })
   name: string;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: 'text', unique: true, nullable: true })
   phone: string;
 
   @Column({ type: 'date', nullable: true })

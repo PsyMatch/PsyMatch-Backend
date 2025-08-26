@@ -9,7 +9,15 @@ import { Appointment } from '../appointments/entities/appointment.entity';
 import { envs } from 'src/configs/envs.config';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Patient, Admin, Psychologist, Reviews, Appointment])],
+  imports: [
+    TypeOrmModule.forFeature([
+      Patient,
+      Admin,
+      Psychologist,
+      Reviews,
+      Appointment,
+    ]),
+  ],
   providers: [SeederService],
 })
 export class SeederModule implements OnModuleInit {
