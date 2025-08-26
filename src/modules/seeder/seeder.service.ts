@@ -9,6 +9,7 @@ import { Reviews } from '../reviews/entities/reviews.entity';
 import { Appointment } from '../appointments/entities/appointment.entity';
 import { ERole } from '../../common/enums/role.enum';
 import { AppointmentStatus } from '../appointments/enums/appointment-status.enum';
+import { Payment, PayStatus, PayMethod } from '../payments/entities/payment.entity';
 import { EPsychologistSpecialty } from '../psychologist/enums/specialities.enum';
 import { EPsychologistStatus } from '../psychologist/enums/verified.enum';
 import { ESessionType } from '../psychologist/enums/session-types.enum';
@@ -32,6 +33,8 @@ export class SeederService {
     private readonly reviewsRepository: Repository<Reviews>,
     @InjectRepository(Appointment)
     private readonly appointmentRepository: Repository<Appointment>,
+    @InjectRepository(Payment)
+    private readonly paymentRepository: Repository<Payment>,
   ) {}
 
   async seedUsers() {
@@ -908,6 +911,36 @@ export class SeederService {
         price: psychologists[1].consultation_fee,
       },
 
+      // Appointments pendientes de aprobación (pagados pero no aprobados)
+      {
+        date: getRandomDate(5),
+        hour: '14:00',
+        duration: 45,
+        notes: 'Turno pagado - pendiente de aprobación del psicólogo.',
+        patient: patients[0],
+        psychologist: psychologists[0],
+        status: AppointmentStatus.PENDING_APPROVAL,
+        modality: psychologists[0].modality,
+        session_type: 'Individual',
+        therapy_approach: 'TCC',
+        insurance: 'OSDE',
+        price: psychologists[0].consultation_fee,
+      },
+      {
+        date: getRandomDate(7),
+        hour: '15:00',
+        duration: 45,
+        notes: 'Segunda sesión - pago procesado via MercadoPago.',
+        patient: patients[1],
+        psychologist: psychologists[1],
+        status: AppointmentStatus.PENDING_APPROVAL,
+        modality: psychologists[1].modality,
+        session_type: 'Individual',
+        therapy_approach: 'Humanística',
+        insurance: 'Swiss Medical',
+        price: psychologists[1].consultation_fee,
+      },
+
       // Más appointments para diversificar
       {
         date: getRandomDate(22),
@@ -956,6 +989,36 @@ export class SeederService {
     await this.appointmentRepository.save(appointments);
     if (envs.server.environment !== 'production') {
       console.log('✅ Appointments seeded successfully');
+    }
+  }
+
+  async seedPayments() {
+    // Buscar appointments que tienen estado pending_approval para crear pagos
+    const appointmentsWithPendingApproval = await this.appointmentRepository.find({
+      where: { status: AppointmentStatus.PENDING_APPROVAL },
+      relations: ['patient']
+    });
+
+    const payments = appointmentsWithPendingApproval.map(appointment => {
+      return this.paymentRepository.create({
+        appointment_id: appointment.id,
+        user_id: appointment.patient.id,
+        amount: appointment.price || 5000,
+        currency: 'ARS',
+        pay_method: PayMethod.MERCADO_PAGO,
+        pay_status: PayStatus.COMPLETED,
+        mercado_pago_id: `test_${appointment.id.slice(-8)}`,
+        preference_id: `pref_${appointment.id.slice(-8)}`,
+        payer_email: appointment.patient.email,
+        notes: 'Pago de prueba procesado via MercadoPago - Seeder'
+      });
+    });
+
+    if (payments.length > 0) {
+      await this.paymentRepository.save(payments);
+      if (envs.server.environment !== 'production') {
+        console.log(`✅ ${payments.length} Payments seeded successfully for pending_approval appointments`);
+      }
     }
   }
 }

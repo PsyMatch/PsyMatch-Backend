@@ -15,6 +15,7 @@ import { AppointmentStatus } from './enums/appointment-status.enum';
 import { ERole } from '../../common/enums/role.enum';
 import { EInsurance } from '../users/enums/insurances.enum';
 import { IAuthRequest } from '../auth/interfaces/auth-request.interface';
+import { EmailsService } from '../emails/emails.service';
 
 function getAuthUserId(req: IAuthRequest): string | undefined {
   return req.user?.id;
@@ -75,6 +76,7 @@ export class AppointmentsService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(Psychologist)
     private readonly psychologistRepository: Repository<Psychologist>,
+    private readonly emailsService: EmailsService,
   ) {}
 
   async create(req: IAuthRequest, dto: CreateAppointmentDto) {
@@ -212,7 +214,9 @@ export class AppointmentsService {
         .leftJoinAndSelect('a.psychologist', 'psychologist')
         .orderBy('a.date', 'ASC')
         .getMany();
-      return all.map((a) => ({
+      
+      const enriched = await this.enrichAppointmentsWithPayments(all);
+      return enriched.map((a) => ({
         ...a,
         patient: sanitizeUser(a.patient),
         psychologist: sanitizePsychologist(a.psychologist),
@@ -233,7 +237,8 @@ export class AppointmentsService {
       .orderBy('a.date', 'ASC')
       .getMany();
 
-    return mine.map((a) => ({
+    const enriched = await this.enrichAppointmentsWithPayments(mine);
+    return enriched.map((a) => ({
       ...a,
       patient: sanitizeUser(a.patient),
       psychologist: sanitizePsychologist(a.psychologist),
@@ -391,5 +396,147 @@ export class AppointmentsService {
     return slots.filter((s) => s.available);
   }
 
+  /**
+   * Aprobar un turno (cambiar de PENDING_APPROVAL a CONFIRMED)
+   * Solo puede ser realizado por el psicólogo o admin
+   */
+  async approveAppointment(req: IAuthRequest, appointmentId: string): Promise<Appointment> {
+    const authUserId = getAuthUserId(req);
+    if (!authUserId) throw new ForbiddenException('Unauthorized');
+
+    const appointment = await this.appointmentRepository.findOne({
+      where: { id: appointmentId },
+      relations: ['psychologist', 'patient'],
+    });
+
+    if (!appointment) {
+      throw new NotFoundException('Appointment not found');
+    }
+
+    // Verificar que el usuario es el psicólogo o admin
+    if (appointment.psychologist.id !== authUserId && !isAdmin(req)) {
+      throw new ForbiddenException('Solo el psicólogo puede aprobar este turno');
+    }
+
+    if (appointment.status !== AppointmentStatus.PENDING_APPROVAL) {
+      throw new BadRequestException('El turno debe estar en estado "pendiente de aprobación" para ser aprobado');
+    }
+
+    appointment.status = AppointmentStatus.CONFIRMED;
+    const savedAppointment = await this.appointmentRepository.save(appointment);
+    
+    await this.emailsService.sendAppointmentConfirmedEmail();
+    
+    return savedAppointment;
+  }
+
+  /**
+   * Marcar turno como completado (realizado)
+   * Puede ser realizado por psicólogo o paciente después de 45 min de finalizada la sesión
+   */
+  async markAsCompleted(req: IAuthRequest, appointmentId: string): Promise<Appointment> {
+    const authUserId = getAuthUserId(req);
+    if (!authUserId) throw new ForbiddenException('Unauthorized');
+
+    const appointment = await this.appointmentRepository.findOne({
+      where: { id: appointmentId },
+      relations: ['psychologist', 'patient'],
+    });
+
+    if (!appointment) {
+      throw new NotFoundException('Appointment not found');
+    }
+
+    // Verificar que el usuario es el psicólogo o el paciente
+    const isPsychologist = appointment.psychologist.id === authUserId;
+    const isPatient = appointment.patient.id === authUserId;
+    
+    if (!isPsychologist && !isPatient && !isAdmin(req)) {
+      throw new ForbiddenException('Solo el psicólogo o paciente pueden marcar el turno como realizado');
+    }
+
+    if (appointment.status !== AppointmentStatus.CONFIRMED) {
+      throw new BadRequestException('El turno debe estar confirmado para marcarlo como realizado');
+    }
+
+    // Verificar que hayan pasado al menos 45 minutos desde el final de la sesión
+    const appointmentDateTime = new Date(`${appointment.date.toISOString().split('T')[0]}T${appointment.hour}`);
+    const sessionEndTime = new Date(appointmentDateTime.getTime() + (appointment.duration || 45) * 60000);
+    const now = new Date();
+    
+    if (now < sessionEndTime) {
+      throw new BadRequestException('Solo se puede marcar como realizado después de finalizar la sesión');
+    }
+
+    appointment.status = AppointmentStatus.COMPLETED;
+    return await this.appointmentRepository.save(appointment);
+  }
+
+  /**
+   * Cancelar un turno
+   * Puede ser realizado por psicólogo, paciente o admin
+   */
+  async cancelAppointment(req: IAuthRequest, appointmentId: string): Promise<Appointment> {
+    const authUserId = getAuthUserId(req);
+    if (!authUserId) throw new ForbiddenException('Unauthorized');
+
+    const appointment = await this.appointmentRepository.findOne({
+      where: { id: appointmentId },
+      relations: ['psychologist', 'patient'],
+    });
+
+    if (!appointment) {
+      throw new NotFoundException('Appointment not found');
+    }
+
+    // Verificar que el usuario es el psicólogo, paciente o admin
+    const isPsychologist = appointment.psychologist.id === authUserId;
+    const isPatient = appointment.patient.id === authUserId;
+    
+    if (!isPsychologist && !isPatient && !isAdmin(req)) {
+      throw new ForbiddenException('Solo el psicólogo o paciente pueden cancelar este turno');
+    }
+
+    if (appointment.status === AppointmentStatus.COMPLETED) {
+      throw new BadRequestException('No se puede cancelar un turno ya realizado');
+    }
+
+    if (appointment.status === AppointmentStatus.CANCELLED) {
+      throw new BadRequestException('El turno ya está cancelado');
+    }
+
+    appointment.status = AppointmentStatus.CANCELLED;
+    return await this.appointmentRepository.save(appointment);
+  }
+
+  /**
+   * Enriquece los appointments con información de pagos
+   */
+  private async enrichAppointmentsWithPayments(appointments: Appointment[]) {
+    if (!appointments || appointments.length === 0) return appointments;
+
+    const appointmentIds = appointments.map(apt => apt.id);
+    
+    // Obtener todos los pagos relacionados con estos appointments usando query raw
+    const payments = await this.appointmentRepository.query(`
+      SELECT * FROM payments 
+      WHERE appointment_id = ANY($1) 
+      ORDER BY created_at DESC
+    `, [appointmentIds]);
+
+    // Crear un mapa de appointment_id -> payment (solo el más reciente)
+    const paymentMap = new Map();
+    payments.forEach(payment => {
+      if (!paymentMap.has(payment.appointment_id)) {
+        paymentMap.set(payment.appointment_id, payment);
+      }
+    });
+
+    // Enriquecer appointments con payment info
+    return appointments.map(appointment => ({
+      ...appointment,
+      payment: paymentMap.get(appointment.id) || null
+    }));
+  }
 
 }

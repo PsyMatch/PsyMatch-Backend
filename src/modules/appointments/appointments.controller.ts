@@ -134,4 +134,49 @@ export class AppointmentsController {
   completeAppointment(@Req() req: IAuthRequest, @Param('id') id: string) {
     return this.appointmentsService.completeAppointment(req, id);
   }
+
+  @Put(':id/approve')
+  @ApiOperation({
+    summary: 'Aprobar una cita',
+    description: 'Aprueba una cita que está pendiente de aprobación después del pago'
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'UUID de la cita a aprobar',
+    type: 'string',
+    format: 'uuid'
+  })
+  approveAppointment(@Req() req: IAuthRequest, @Param('id') id: string) {
+    return this.appointmentsService.approveAppointment(req, id);
+  }
+
+  @Put(':id/mark-completed')
+  @ApiOperation({
+    summary: 'Marcar cita como realizada',
+    description: 'Confirma que la sesión se realizó después de finalizar el tiempo'
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'UUID de la cita a marcar como realizada',
+    type: 'string',
+    format: 'uuid'
+  })
+  markAsCompleted(@Req() req: IAuthRequest, @Param('id') id: string) {
+    return this.appointmentsService.markAsCompleted(req, id);
+  }
+
+  @Put(':id/cancel')
+  @ApiOperation({
+    summary: 'Cancelar una cita',
+    description: 'Cancela una cita (disponible para psicólogo y paciente)'
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'UUID de la cita a cancelar',
+    type: 'string',
+    format: 'uuid'
+  })
+  cancelAppointment(@Req() req: IAuthRequest, @Param('id') id: string) {
+    return this.appointmentsService.cancelAppointment(req, id);
+  }
 }

@@ -6,6 +6,7 @@ import { Patient } from '../users/entities/patient.entity';
 import { Admin } from '../users/entities/admin.entity';
 import { Reviews } from '../reviews/entities/reviews.entity';
 import { Appointment } from '../appointments/entities/appointment.entity';
+import { Payment } from '../payments/entities/payment.entity';
 import { envs } from 'src/configs/envs.config';
 
 @Module({
@@ -16,6 +17,7 @@ import { envs } from 'src/configs/envs.config';
       Psychologist,
       Reviews,
       Appointment,
+      Payment,
     ]),
   ],
   providers: [SeederService],
@@ -28,6 +30,7 @@ export class SeederModule implements OnModuleInit {
       await this.seederService.seedUsers();
       await this.seederService.seedReviews();
       await this.seederService.seedAppointments();
+      await this.seederService.seedPayments();
     }
   }
 }
