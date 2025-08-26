@@ -93,7 +93,9 @@ export class AppointmentsService {
       where: { id: dto.user_id },
     });
     if (!patient)
-      throw new NotFoundException(`Paciente con ID ${dto.user_id} no encontrado`);
+      throw new NotFoundException(
+        `Paciente con ID ${dto.user_id} no encontrado`,
+      );
 
     const psychologist = await this.psychologistRepository.findOne({
       where: { id: dto.psychologist_id },
@@ -214,7 +216,7 @@ export class AppointmentsService {
         .leftJoinAndSelect('a.psychologist', 'psychologist')
         .orderBy('a.date', 'ASC')
         .getMany();
-      
+
       const enriched = await this.enrichAppointmentsWithPayments(all);
       return enriched.map((a) => ({
         ...a,
@@ -266,11 +268,18 @@ export class AppointmentsService {
   }
 
   async disable(req: IAuthRequest, id: string) {
-    const appointment = await this.appointmentRepository.findOne({ where: { id } });
-    if (!appointment) throw new NotFoundException(`Cita con ID ${id} no encontrada`);
+    const appointment = await this.appointmentRepository.findOne({
+      where: { id },
+    });
+    if (!appointment)
+      throw new NotFoundException(`Cita con ID ${id} no encontrada`);
 
     const authUserId = getAuthUserId(req);
-    if (!isAdmin(req) && appointment.patient?.id !== authUserId && appointment.psychologist?.id !== authUserId) {
+    if (
+      !isAdmin(req) &&
+      appointment.patient?.id !== authUserId &&
+      appointment.psychologist?.id !== authUserId
+    ) {
       throw new ForbiddenException(
         'Solo el dueño o admin pueden deshabilitar la cita',
       );
@@ -279,11 +288,11 @@ export class AppointmentsService {
     await this.appointmentRepository
       .createQueryBuilder()
       .update(Appointment)
-      .set({ 
+      .set({
         status: AppointmentStatus.CANCELLED,
-        isActive: false 
+        isActive: false,
       })
-      .where("id = :id", { id })
+      .where('id = :id', { id })
       .execute();
 
     return {
@@ -348,7 +357,6 @@ export class AppointmentsService {
     };
   }
 
-
   async getAvailableSlots(
     psychologistId: string,
     dateYYYYMMDD: string,
@@ -400,7 +408,10 @@ export class AppointmentsService {
    * Aprobar un turno (cambiar de PENDING_APPROVAL a CONFIRMED)
    * Solo puede ser realizado por el psicólogo o admin
    */
-  async approveAppointment(req: IAuthRequest, appointmentId: string): Promise<Appointment> {
+  async approveAppointment(
+    req: IAuthRequest,
+    appointmentId: string,
+  ): Promise<Appointment> {
     const authUserId = getAuthUserId(req);
     if (!authUserId) throw new ForbiddenException('No autorizado');
 
@@ -415,18 +426,24 @@ export class AppointmentsService {
 
     // Verificar que el usuario es el psicólogo o admin
     if (appointment.psychologist.id !== authUserId && !isAdmin(req)) {
-      throw new ForbiddenException('Solo el psicólogo puede aprobar este turno');
+      throw new ForbiddenException(
+        'Solo el psicólogo puede aprobar este turno',
+      );
     }
 
     if (appointment.status !== AppointmentStatus.PENDING_APPROVAL) {
-      throw new BadRequestException('El turno debe estar en estado "pendiente de aprobación" para ser aprobado');
+      throw new BadRequestException(
+        'El turno debe estar en estado "pendiente de aprobación" para ser aprobado',
+      );
     }
 
     appointment.status = AppointmentStatus.CONFIRMED;
     const savedAppointment = await this.appointmentRepository.save(appointment);
-    
-    await this.emailsService.sendAppointmentConfirmedEmail();
-    
+
+    await this.emailsService.sendAppointmentConfirmedEmail(
+      appointment.patient.email,
+    );
+
     return savedAppointment;
   }
 
@@ -434,7 +451,10 @@ export class AppointmentsService {
    * Marcar turno como completado (realizado)
    * Puede ser realizado por psicólogo o paciente después de 45 min de finalizada la sesión
    */
-  async markAsCompleted(req: IAuthRequest, appointmentId: string): Promise<Appointment> {
+  async markAsCompleted(
+    req: IAuthRequest,
+    appointmentId: string,
+  ): Promise<Appointment> {
     const authUserId = getAuthUserId(req);
     if (!authUserId) throw new ForbiddenException('No autorizado');
 
@@ -450,22 +470,32 @@ export class AppointmentsService {
     // Verificar que el usuario es el psicólogo o el paciente
     const isPsychologist = appointment.psychologist.id === authUserId;
     const isPatient = appointment.patient.id === authUserId;
-    
+
     if (!isPsychologist && !isPatient && !isAdmin(req)) {
-      throw new ForbiddenException('Solo el psicólogo o paciente pueden marcar el turno como realizado');
+      throw new ForbiddenException(
+        'Solo el psicólogo o paciente pueden marcar el turno como realizado',
+      );
     }
 
     if (appointment.status !== AppointmentStatus.CONFIRMED) {
-      throw new BadRequestException('El turno debe estar confirmado para marcarlo como realizado');
+      throw new BadRequestException(
+        'El turno debe estar confirmado para marcarlo como realizado',
+      );
     }
 
     // Verificar que hayan pasado al menos 45 minutos desde el final de la sesión
-    const appointmentDateTime = new Date(`${appointment.date.toISOString().split('T')[0]}T${appointment.hour}`);
-    const sessionEndTime = new Date(appointmentDateTime.getTime() + (appointment.duration || 45) * 60000);
+    const appointmentDateTime = new Date(
+      `${appointment.date.toISOString().split('T')[0]}T${appointment.hour}`,
+    );
+    const sessionEndTime = new Date(
+      appointmentDateTime.getTime() + (appointment.duration || 45) * 60000,
+    );
     const now = new Date();
-    
+
     if (now < sessionEndTime) {
-      throw new BadRequestException('Solo se puede marcar como realizado después de finalizar la sesión');
+      throw new BadRequestException(
+        'Solo se puede marcar como realizado después de finalizar la sesión',
+      );
     }
 
     appointment.status = AppointmentStatus.COMPLETED;
@@ -476,7 +506,10 @@ export class AppointmentsService {
    * Cancelar un turno
    * Puede ser realizado por psicólogo, paciente o admin
    */
-  async cancelAppointment(req: IAuthRequest, appointmentId: string): Promise<Appointment> {
+  async cancelAppointment(
+    req: IAuthRequest,
+    appointmentId: string,
+  ): Promise<Appointment> {
     const authUserId = getAuthUserId(req);
     if (!authUserId) throw new ForbiddenException('No autorizado');
 
@@ -492,13 +525,17 @@ export class AppointmentsService {
     // Verificar que el usuario es el psicólogo, paciente o admin
     const isPsychologist = appointment.psychologist.id === authUserId;
     const isPatient = appointment.patient.id === authUserId;
-    
+
     if (!isPsychologist && !isPatient && !isAdmin(req)) {
-      throw new ForbiddenException('Solo el psicólogo o paciente pueden cancelar este turno');
+      throw new ForbiddenException(
+        'Solo el psicólogo o paciente pueden cancelar este turno',
+      );
     }
 
     if (appointment.status === AppointmentStatus.COMPLETED) {
-      throw new BadRequestException('No se puede cancelar un turno ya realizado');
+      throw new BadRequestException(
+        'No se puede cancelar un turno ya realizado',
+      );
     }
 
     if (appointment.status === AppointmentStatus.CANCELLED) {
@@ -515,28 +552,33 @@ export class AppointmentsService {
   private async enrichAppointmentsWithPayments(appointments: Appointment[]) {
     if (!appointments || appointments.length === 0) return appointments;
 
-    const appointmentIds = appointments.map(apt => apt.id);
-    
+    const appointmentIds = appointments.map((apt) => apt.id);
+
     // Obtener todos los pagos relacionados con estos appointments usando query raw
-    const payments = await this.appointmentRepository.query(`
-      SELECT * FROM payments 
-      WHERE appointment_id = ANY($1) 
-      ORDER BY created_at DESC
-    `, [appointmentIds]);
+    const payments: Array<{ appointment_id: string; [key: string]: any }> =
+      await this.appointmentRepository.query(
+        `
+        SELECT * FROM payments 
+        WHERE appointment_id = ANY($1) 
+        ORDER BY created_at DESC
+        `,
+        [appointmentIds],
+      );
 
     // Crear un mapa de appointment_id -> payment (solo el más reciente)
     const paymentMap = new Map();
-    payments.forEach(payment => {
+    payments.forEach((payment) => {
       if (!paymentMap.has(payment.appointment_id)) {
         paymentMap.set(payment.appointment_id, payment);
       }
     });
 
     // Enriquecer appointments con payment info
-    return appointments.map(appointment => ({
+    return appointments.map((appointment) => ({
       ...appointment,
-      payment: paymentMap.get(appointment.id) || null
+
+      payment:
+        (paymentMap.get(appointment.id) as Record<string, unknown>) || null,
     }));
   }
-
 }
