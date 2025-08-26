@@ -11,6 +11,7 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
+  Post,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
@@ -46,6 +47,7 @@ import { GetMyDataSwaggerDoc } from './documentation/get-my-data.doc';
 import { ResponsePublicUserDto } from './dto/response-public-user.dto';
 import { FindPublicByIdSwaggerDoc } from './documentation/find-public-id.doc';
 import { CombinedAuthGuard } from '../auth/guards/combined-auth.guard';
+import { ValidateDto } from './dto/validate-unique.dto';
 
 @ApiTags('Usuarios')
 @Controller('users')
@@ -265,5 +267,16 @@ export class UsersController {
       req.user.role,
     );
     return { message: 'Usuario eliminado exitosamente', id: requester };
+  }
+
+  @Post('validate-unique')
+  async validateUnique(
+    @Body() body: ValidateDto,
+  ): Promise<{ message: string; isValid: boolean }> {
+    const isValid = await this.usersService.validateUnique(body);
+    return {
+      message: 'Validación de campo realizada exitosamente',
+      isValid,
+    };
   }
 }

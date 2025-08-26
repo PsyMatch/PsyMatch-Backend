@@ -6,11 +6,13 @@ import { Appointment } from './entities/appointment.entity';
 import { User } from '../users/entities/user.entity';
 import { Psychologist } from '../psychologist/entities/psychologist.entity';
 import { AuthModule } from '../auth/auth.module';
+import { EmailsModule } from '../emails/emails.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Appointment, User, Psychologist]),
     AuthModule,
+    EmailsModule,
   ],
   controllers: [AppointmentsController],
   providers: [AppointmentsService],

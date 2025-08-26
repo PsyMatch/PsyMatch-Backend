@@ -14,6 +14,6 @@ export class MatchPasswordHelper implements ValidatorConstraintInterface {
   }
 
   defaultMessage() {
-    return "Passwords don't match";
+    return "Las contraseñas no coinciden";
   }
 }
