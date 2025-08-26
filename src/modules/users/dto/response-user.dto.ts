@@ -244,4 +244,16 @@ export class ResponseUserDto {
   @Transform(({ value }) => formatDateTime(value))
   @Expose()
   updated_at: string;
+
+  @ApiPropertyOptional({
+    description: 'Proveedor de autenticación (e.g., google)',
+  })
+  @Expose()
+  provider?: string;
+
+  @ApiPropertyOptional({
+    description: 'ID del proveedor de autenticación',
+  })
+  @Expose()
+  provider_id?: string;
 }
