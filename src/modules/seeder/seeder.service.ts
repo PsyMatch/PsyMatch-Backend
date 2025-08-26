@@ -45,7 +45,7 @@ export class SeederService {
         name: 'PsyMatch',
         alias: 'admin',
         email: 'psymatch.contact@gmail.com',
-        password: await hashPassword('Elmejorteam4!'),
+        password: await hashPassword('Psymatchft62'),
         role: ERole.ADMIN,
       },
     ];
