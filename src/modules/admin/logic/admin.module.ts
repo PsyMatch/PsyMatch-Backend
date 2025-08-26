@@ -13,6 +13,7 @@ import { AdminService } from './adminEndpoints/admin.service';
 import { AuthModule } from 'src/modules/auth/auth.module';
 import { ReportsService } from './reports/reports.service';
 import { ReportsController } from './reports/reports.controller';
+import { EmailsService } from 'src/modules/emails/emails.service';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { ReportsController } from './reports/reports.controller';
     AdminService,
     PaginationService,
     ReportsService,
+    EmailsService,
   ],
 })
 export class AdminModule {}

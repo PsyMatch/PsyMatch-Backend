@@ -15,10 +15,12 @@ El módulo de **Appointments** es el núcleo del sistema de gestión de citas de
 
 ### 📊 Estados de Citas
 
-- `PENDING`: Cita programada pero no confirmada
-- `CONFIRMED`: Cita confirmada por ambas partes
-- `COMPLETED`: Sesión finalizada
-- `CANCELLED`: Cita cancelada
+- `PENDING`: Cita programada pero no pagada (equivale a PENDING_PAYMENT - mantenido para compatibilidad)
+- `PENDING_PAYMENT`: Cita programada pero no pagada
+- `PENDING_APPROVAL`: Cita pagada pero no aprobada por el psicólogo
+- `CONFIRMED`: Cita pagada y aprobada por el psicólogo
+- `COMPLETED`: Sesión finalizada y confirmada por ambas partes
+- `CANCELLED`: Cita cancelada por cualquiera de las partes
 
 ### 🏥 Modalidades de Atención
 

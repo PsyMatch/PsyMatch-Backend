@@ -24,6 +24,7 @@ import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import lodash from 'lodash';
 import { EPsychologistStatus } from '../psychologist/enums/verified.enum';
+import { ValidateDto } from './dto/validate-unique.dto';
 
 @Injectable()
 export class UsersService {
@@ -434,5 +435,62 @@ export class UsersService {
 
   async save(user: User): Promise<User> {
     return this.usersRepository.save(user);
+  }
+
+  async validateUnique(body: ValidateDto): Promise<boolean> {
+    const allowedFields = ['email', 'phone', 'dni', 'license_number'];
+    const { field, emailValue, phoneValue, dniValue, licenseValue } = body;
+
+    if (!allowedFields.includes(field)) {
+      throw new BadRequestException(
+        `El campo '${field}' no es válido para validación de unicidad. Los campos permitidos son: ${allowedFields.join(', ')}`,
+      );
+    }
+
+    let value: string | number | undefined;
+    switch (field) {
+      case 'email':
+        value = emailValue;
+        break;
+      case 'phone':
+        value = phoneValue;
+        break;
+      case 'dni':
+        value = dniValue;
+        break;
+      case 'license_number':
+        value = licenseValue;
+        break;
+      default:
+        value = undefined;
+    }
+
+    if (typeof value === 'undefined' || value === null || value === '') {
+      throw new BadRequestException('El valor no puede estar vacío');
+    }
+
+    let normalizedValue: string | number;
+    if (field === 'email' && typeof value === 'string') {
+      normalizedValue = value.trim().toLowerCase();
+    } else if (
+      (field === 'dni' || field === 'license_number') &&
+      typeof value === 'number'
+    ) {
+      normalizedValue = value;
+    } else if (field === 'phone' && typeof value === 'string') {
+      normalizedValue = value.trim();
+    } else {
+      normalizedValue = value;
+    }
+
+    const existingUser = await this.usersRepository.findOne({
+      where: { [field]: normalizedValue, is_active: true },
+    });
+    if (existingUser) {
+      throw new ConflictException(
+        `Ya existe una cuenta con ${field} ${String(normalizedValue)}`,
+      );
+    }
+    return true;
   }
 }

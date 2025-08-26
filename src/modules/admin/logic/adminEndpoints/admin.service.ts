@@ -7,6 +7,7 @@ import {
 } from 'src/common/dto/pagination.dto';
 import { ERole } from 'src/common/enums/role.enum';
 import { PaginationService } from 'src/common/services/pagination.service';
+import { EmailsService } from 'src/modules/emails/emails.service';
 import { ResponseProfessionalDto } from 'src/modules/psychologist/dto/response-professional.dto';
 import { Psychologist } from 'src/modules/psychologist/entities/psychologist.entity';
 import { EPsychologistStatus } from 'src/modules/psychologist/enums/verified.enum';
@@ -22,6 +23,7 @@ export class AdminService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly paginationService: PaginationService,
+    private readonly emailsService: EmailsService,
   ) {}
 
   async getAllVerifiedRequestService(
@@ -108,6 +110,8 @@ export class AdminService {
         excludeExtraneousValues: true,
       },
     );
+
+    await this.emailsService.sendPsychologistVerifiedEmail(psychologist.email);
 
     return {
       message: 'Psicólogo verificado exitosamente',
