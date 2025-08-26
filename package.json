@@ -6,10 +6,9 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build && npm run copy-templates",
+    "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\"",
     "fix-imports": "npx ts-node src/modules/utils/scripts/fix-imports.script.ts",
-    "copy-templates": "cp -R src/modules/emails/templates dist/modules/emails/templates",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
