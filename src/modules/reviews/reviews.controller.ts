@@ -408,7 +408,6 @@ export class ReviewsController {
     @Body() updateReviewData: UpdateReviewRequest,
   ): Promise<{ message: string; review: Reviews }> {
     const userId = req.user.id;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
     return await this.reviewsService.updateReviewByIdService(
       updateReviewData,
       userId,
