@@ -162,8 +162,8 @@ export class PaymentsService {
         await this.processPaymentWebhook(paymentId);
       }
     } catch (error) {
-      console.error('Error processing webhook:', error);
-      throw new BadRequestException('Error processing webhook');
+      console.error('Error procesando webhook:', error);
+      throw new BadRequestException('Error procesando webhook');
     }
   }
 
@@ -223,7 +223,7 @@ export class PaymentsService {
         }
       }
     } catch (error) {
-      console.error('Error processing payment webhook:', error);
+      console.error('Error procesando webhook de pago:', error);
       throw error;
     }
   }
@@ -250,7 +250,7 @@ export class PaymentsService {
         console.log(`Appointment ${appointmentId} status updated to PENDING_APPROVAL after payment`);
       }
     } catch (error) {
-      console.error('Error updating appointment status after payment:', error);
+      console.error('Error actualizando estado de cita después del pago:', error);
       // No lanzamos error para no interrumpir el flujo de webhook
     }
   }

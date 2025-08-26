@@ -25,7 +25,7 @@ export class RecordsService {
       where: { id: dto.user_id },
     });
     if (!user) {
-      throw new NotFoundException(`User with ID ${dto.user_id} not found`);
+      throw new NotFoundException(`Usuario con ID ${dto.user_id} no encontrado`);
     }
 
     const psychologist = await this.psychologistRepository.findOne({
@@ -33,7 +33,7 @@ export class RecordsService {
     });
     if (!psychologist) {
       throw new NotFoundException(
-        `Psychologist with ID ${dto.psychologist_id} not found`,
+        `Psicólogo con ID ${dto.psychologist_id} no encontrado`,
       );
     }
 
@@ -51,7 +51,7 @@ export class RecordsService {
     });
 
     if (allRecords.length === 0) {
-      throw new NotFoundException('No records found');
+      throw new NotFoundException('No se encontraron registros');
     }
 
     return allRecords;
@@ -66,7 +66,7 @@ export class RecordsService {
     });
 
     if (!record) {
-      throw new NotFoundException(`Record with ID ${id} not found`);
+      throw new NotFoundException(`Registro con ID ${id} no encontrado`);
     }
 
     return record;

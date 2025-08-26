@@ -81,7 +81,7 @@ export class AppointmentsService {
 
   async create(req: IAuthRequest, dto: CreateAppointmentDto) {
     const authUserId = getAuthUserId(req);
-    if (!authUserId) throw new ForbiddenException('Unauthorized');
+    if (!authUserId) throw new ForbiddenException('No autorizado');
 
     if (dto.user_id !== authUserId && !isAdmin(req)) {
       throw new ForbiddenException(
@@ -93,14 +93,14 @@ export class AppointmentsService {
       where: { id: dto.user_id },
     });
     if (!patient)
-      throw new NotFoundException(`Patient with ID ${dto.user_id} not found`);
+      throw new NotFoundException(`Paciente con ID ${dto.user_id} no encontrado`);
 
     const psychologist = await this.psychologistRepository.findOne({
       where: { id: dto.psychologist_id },
     });
     if (!psychologist) {
       throw new NotFoundException(
-        `Psychologist with ID ${dto.psychologist_id} not found`,
+        `Psicólogo con ID ${dto.psychologist_id} no encontrado`,
       );
     }
 
@@ -108,7 +108,7 @@ export class AppointmentsService {
       (psychologist as Psychologist & { is_verified?: boolean }).is_verified ===
       false
     ) {
-      throw new BadRequestException('Psychologist is not verified');
+      throw new BadRequestException('El psicólogo no está verificado');
     }
 
     const when = combineDateHour(dto.date, dto.hour);
@@ -227,7 +227,7 @@ export class AppointmentsService {
 
   async findMine(req: IAuthRequest) {
     const authUserId = getAuthUserId(req);
-    if (!authUserId) throw new ForbiddenException('Unauthorized');
+    if (!authUserId) throw new ForbiddenException('No autorizado');
 
     const mine = await this.appointmentRepository
       .createQueryBuilder('a')
@@ -247,7 +247,7 @@ export class AppointmentsService {
 
   async findOneAuthorized(req: IAuthRequest, id: string) {
     const a = await this.appointmentRepository.findOne({ where: { id } });
-    if (!a) throw new NotFoundException(`Appointment with ID ${id} not found`);
+    if (!a) throw new NotFoundException(`Cita con ID ${id} no encontrada`);
 
     const authUserId = getAuthUserId(req);
     if (
@@ -267,7 +267,7 @@ export class AppointmentsService {
 
   async disable(req: IAuthRequest, id: string) {
     const appointment = await this.appointmentRepository.findOne({ where: { id } });
-    if (!appointment) throw new NotFoundException(`Appointment with ID ${id} not found`);
+    if (!appointment) throw new NotFoundException(`Cita con ID ${id} no encontrada`);
 
     const authUserId = getAuthUserId(req);
     if (!isAdmin(req) && appointment.patient?.id !== authUserId && appointment.psychologist?.id !== authUserId) {
@@ -287,14 +287,14 @@ export class AppointmentsService {
       .execute();
 
     return {
-      message: `Appointment with ID ${id} disabled successfully`,
+      message: `Cita con ID ${id} deshabilitada exitosamente`,
       appointment_id: id,
     };
   }
 
   async confirmAppointment(req: IAuthRequest, id: string) {
     const a = await this.appointmentRepository.findOne({ where: { id } });
-    if (!a) throw new NotFoundException(`Appointment with ID ${id} not found`);
+    if (!a) throw new NotFoundException(`Cita con ID ${id} no encontrada`);
 
     const authUserId = getAuthUserId(req);
     // Solo el psicólogo puede confirmar la cita
@@ -314,7 +314,7 @@ export class AppointmentsService {
     await this.appointmentRepository.save(a);
 
     return {
-      message: `Appointment with ID ${id} confirmed successfully`,
+      message: `Cita con ID ${id} confirmada exitosamente`,
       appointment_id: id,
       status: a.status,
     };
@@ -322,7 +322,7 @@ export class AppointmentsService {
 
   async completeAppointment(req: IAuthRequest, id: string) {
     const a = await this.appointmentRepository.findOne({ where: { id } });
-    if (!a) throw new NotFoundException(`Appointment with ID ${id} not found`);
+    if (!a) throw new NotFoundException(`Cita con ID ${id} no encontrada`);
 
     const authUserId = getAuthUserId(req);
     // Solo el psicólogo puede completar la cita
@@ -342,7 +342,7 @@ export class AppointmentsService {
     await this.appointmentRepository.save(a);
 
     return {
-      message: `Appointment with ID ${id} completed successfully`,
+      message: `Cita con ID ${id} completada exitosamente`,
       appointment_id: id,
       status: a.status,
     };
@@ -357,7 +357,7 @@ export class AppointmentsService {
     const psychologist = await this.psychologistRepository.findOne({
       where: { id: psychologistId },
     });
-    if (!psychologist) throw new NotFoundException('Psychologist not found');
+    if (!psychologist) throw new NotFoundException('Psicólogo no encontrado');
 
     const startHour = 9;
     const endHour = 17;
@@ -402,7 +402,7 @@ export class AppointmentsService {
    */
   async approveAppointment(req: IAuthRequest, appointmentId: string): Promise<Appointment> {
     const authUserId = getAuthUserId(req);
-    if (!authUserId) throw new ForbiddenException('Unauthorized');
+    if (!authUserId) throw new ForbiddenException('No autorizado');
 
     const appointment = await this.appointmentRepository.findOne({
       where: { id: appointmentId },
@@ -410,7 +410,7 @@ export class AppointmentsService {
     });
 
     if (!appointment) {
-      throw new NotFoundException('Appointment not found');
+      throw new NotFoundException('Cita no encontrada');
     }
 
     // Verificar que el usuario es el psicólogo o admin
@@ -436,7 +436,7 @@ export class AppointmentsService {
    */
   async markAsCompleted(req: IAuthRequest, appointmentId: string): Promise<Appointment> {
     const authUserId = getAuthUserId(req);
-    if (!authUserId) throw new ForbiddenException('Unauthorized');
+    if (!authUserId) throw new ForbiddenException('No autorizado');
 
     const appointment = await this.appointmentRepository.findOne({
       where: { id: appointmentId },
@@ -444,7 +444,7 @@ export class AppointmentsService {
     });
 
     if (!appointment) {
-      throw new NotFoundException('Appointment not found');
+      throw new NotFoundException('Cita no encontrada');
     }
 
     // Verificar que el usuario es el psicólogo o el paciente
@@ -478,7 +478,7 @@ export class AppointmentsService {
    */
   async cancelAppointment(req: IAuthRequest, appointmentId: string): Promise<Appointment> {
     const authUserId = getAuthUserId(req);
-    if (!authUserId) throw new ForbiddenException('Unauthorized');
+    if (!authUserId) throw new ForbiddenException('No autorizado');
 
     const appointment = await this.appointmentRepository.findOne({
       where: { id: appointmentId },
@@ -486,7 +486,7 @@ export class AppointmentsService {
     });
 
     if (!appointment) {
-      throw new NotFoundException('Appointment not found');
+      throw new NotFoundException('Cita no encontrada');
     }
 
     // Verificar que el usuario es el psicólogo, paciente o admin

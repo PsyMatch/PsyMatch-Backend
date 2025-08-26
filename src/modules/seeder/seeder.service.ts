@@ -562,7 +562,7 @@ export class SeederService {
     }
 
     if (patients.length === 0) {
-      console.log('⚠️ No patients found. Please seed patients first.');
+      console.log('⚠️ No se encontraron pacientes. Por favor, carga los pacientes primero.');
       return;
     }
 
@@ -691,7 +691,7 @@ export class SeederService {
 
     await this.reviewsRepository.save(reviews);
     if (envs.server.environment !== 'production') {
-      console.log('✅ Reviews seeded successfully');
+      console.log('✅ Reseñas precargadas exitosamente');
     }
   }
 
@@ -708,7 +708,7 @@ export class SeederService {
     }
 
     if (patients.length === 0) {
-      console.log('⚠️ No patients found. Please seed patients first.');
+      console.log('⚠️ No se encontraron pacientes. Por favor, carga los pacientes primero.');
       return;
     }
 
@@ -988,7 +988,7 @@ export class SeederService {
 
     await this.appointmentRepository.save(appointments);
     if (envs.server.environment !== 'production') {
-      console.log('✅ Appointments seeded successfully');
+      console.log('✅ Citas precargadas exitosamente');
     }
   }
 
@@ -1017,7 +1017,7 @@ export class SeederService {
     if (payments.length > 0) {
       await this.paymentRepository.save(payments);
       if (envs.server.environment !== 'production') {
-        console.log(`✅ ${payments.length} Payments seeded successfully for pending_approval appointments`);
+        console.log(`✅ ${payments.length} Pagos precargados exitosamente para citas pendientes de aprobación`);
       }
     }
   }
