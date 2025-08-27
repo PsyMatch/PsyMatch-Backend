@@ -19,6 +19,7 @@ import { Appointment } from '../../../modules/appointments/entities/appointment.
 import { Payment } from '../../../modules/payments/entities/payment.entity';
 import { Reviews } from '../../../modules/reviews/entities/reviews.entity';
 import { PaginationService } from '../../../common/services/pagination.service';
+import { FilesService } from 'src/modules/files/files.service';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { PaginationService } from '../../../common/services/pagination.service';
     PaymentsOfProfessionalsService,
     PatientsOfProfessionalService,
     AppointmentsOfProfessionalService,
+    FilesService,
   ],
   exports: [VerificationPsychologistService],
 })
