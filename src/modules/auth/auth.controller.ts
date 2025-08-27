@@ -120,18 +120,20 @@ export class AuthController {
     const jwt = this.authService.loginWithAuth(googleUser);
 
     res.cookie('auth_token', jwt, {
-      httpOnly: false,
+      httpOnly: true,
       secure: envs.server.environment === 'production',
       sameSite: envs.server.environment === 'production' ? 'none' : 'lax',
       domain:
         envs.server.environment === 'production' ? '.onrender.com' : undefined,
+      path: '/',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     await this.emailsService.sendWelcomeEmail(googleUser.email);
 
+    // en vez de mandar directo al dashboard, redirigimos al callback del frontend
     return res.redirect(
-      'https://psymatch-frontend-app.onrender.com/dashboard/user',
+      `${envs.deployed_urls.frontend}/OAuthCallback?token=${jwt}`,
     );
   }
 
