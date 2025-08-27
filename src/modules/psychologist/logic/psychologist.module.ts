@@ -19,6 +19,7 @@ import { Appointment } from '../../../modules/appointments/entities/appointment.
 import { Payment } from '../../../modules/payments/entities/payment.entity';
 import { Reviews } from '../../../modules/reviews/entities/reviews.entity';
 import { PaginationService } from '../../../common/services/pagination.service';
+import { FilesModule } from 'src/modules/files/files.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { PaginationService } from '../../../common/services/pagination.service';
       Reviews,
       PaginationService,
     ]),
+    FilesModule,
   ],
   controllers: [
     VerificationPsychologistController,
