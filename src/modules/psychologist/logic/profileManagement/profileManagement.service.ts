@@ -7,6 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Psychologist } from '../../entities/psychologist.entity';
+import { FilesService } from '../../../files/files.service';
 import { UpdatePsychologistDto } from '../../dto/update-psychologist.dto';
 import { ERole } from '../../../../common/enums/role.enum';
 import { ResponseProfessionalDto } from '../../dto/response-professional.dto';
@@ -19,6 +20,7 @@ export class ProfileService {
     @InjectRepository(Psychologist)
     private readonly psychologistRepository: Repository<Psychologist>,
     private readonly queryHelper: QueryHelper,
+    private readonly filesService: FilesService,
   ) {}
 
   async getPsychologistProfile(
@@ -50,6 +52,7 @@ export class ProfileService {
     userId: string,
     userRole: ERole,
     newProfileData: UpdatePsychologistDto,
+    profilePicture?: Express.Multer.File,
   ): Promise<{ message: string; data: ResponseProfessionalDto }> {
     const queryResult = await this.queryHelper.runInTransaction(
       async (queryRunner) => {
@@ -88,9 +91,18 @@ export class ProfileService {
           }
         }
 
+        let profilePictureUrl = professional.profile_picture;
+        if (profilePicture) {
+          profilePictureUrl = await this.filesService.uploadImageToCloudinary(
+            profilePicture,
+            userId,
+          );
+        }
+
         const updatedUser = professionalRepo.create({
           ...professional,
           ...newProfileData,
+          profile_picture: profilePictureUrl,
         });
 
         await professionalRepo.save(updatedUser);
