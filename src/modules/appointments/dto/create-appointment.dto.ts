@@ -28,14 +28,13 @@ export class CreateAppointmentDto {
   date: string;
 
   @ApiProperty({
-    description: 'Hora de la cita - Solo horarios disponibles',
+    description: 'Hora de la cita - Debe coincidir con los horarios disponibles del psicólogo',
     example: '14:00',
-    enum: ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00'],
+    pattern: '^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$',
   })
   @IsString()
-  @Matches(/^(09:00|10:00|11:00|14:00|15:00|16:00)$/, {
-    message:
-      'hour debe ser uno de los horarios disponibles: 09:00, 10:00, 11:00, 14:00, 15:00, 16:00',
+  @Matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, {
+    message: 'hour debe estar en formato HH:MM (ej: 14:00)',
   })
   hour: string;
 

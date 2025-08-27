@@ -71,8 +71,23 @@ export class ProfileManagementController {
   @ApiOperation({ summary: 'Actualizar perfil del psicólogo logueado' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
-    type: UpdatePsychologistDto,
-    description: 'Datos actualizables del perfil del psicólogo',
+    schema: {
+      allOf: [
+        { $ref: '#/components/schemas/UpdatePsychologistDto' },
+        {
+          type: 'object',
+          properties: {
+            profile_picture: {
+              type: 'string',
+              format: 'binary',
+              description: 'Imagen de perfil del psicólogo (archivo)',
+            },
+          },
+        },
+      ],
+    },
+    description:
+      'Datos actualizables del perfil del psicólogo, incluyendo imagen de perfil',
     examples: {
       fullUpdate: {
         value: {
@@ -91,8 +106,9 @@ export class ProfileManagementController {
             'Psicólogo clínico licenciado con más de 5 años de experiencia...',
           availability: '{"lunes": ["09:00-12:00", "14:00-18:00"]}',
           professional_title: 'Licenciado en Psicología',
+          profile_picture: 'file',
         },
-        description: 'Ejemplo de actualización completa del perfil',
+        description: 'Ejemplo de actualización completa del perfil con imagen',
       },
       partialUpdate: {
         value: {
@@ -100,8 +116,9 @@ export class ProfileManagementController {
           modality: EModality.HYBRID,
           specialities: [EPsychologistSpecialty.ANXIETY_DISORDER],
           insurance_accepted: [EInsurance.OSDE],
+          profile_picture: 'file',
         },
-        description: 'Ejemplo de actualización parcial del perfil',
+        description: 'Ejemplo de actualización parcial del perfil con imagen',
       },
     },
   })
@@ -125,12 +142,13 @@ export class ProfileManagementController {
     @Req() req: IAuthRequest,
     @Body() updateDto: UpdatePsychologistDto,
     @UploadedFile(new FileValidationPipe({ isOptional: true }))
-    _profilePicture?: Express.Multer.File,
+    profilePicture?: Express.Multer.File,
   ): Promise<{ message: string; data: ResponseProfessionalDto }> {
     return await this.profileService.updatePsychologistProfile(
       req.user.id,
       req.user.role,
       updateDto,
+      profilePicture,
     );
   }
 }

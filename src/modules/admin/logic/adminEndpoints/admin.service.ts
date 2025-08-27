@@ -173,9 +173,15 @@ export class AdminService {
       where: { id },
     });
 
+    if (!updatedUser) {
+      throw new NotFoundException('No se encontró el usuario');
+    }
+
     const transformedUser = plainToInstance(ResponseUserDto, updatedUser, {
       excludeExtraneousValues: true,
     });
+
+    await this.emailsService.sendPromotedEmail(updatedUser.email);
 
     return {
       message: 'Usuario promovido exitosamente',
@@ -200,6 +206,8 @@ export class AdminService {
     const transformedUser = plainToInstance(ResponseUserDto, savedUser, {
       excludeExtraneousValues: true,
     });
+
+    await this.emailsService.sendBannedEmail(savedUser.email);
 
     return {
       message: 'Usuario baneado exitosamente',

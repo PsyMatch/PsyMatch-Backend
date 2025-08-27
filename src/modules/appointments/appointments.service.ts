@@ -8,7 +8,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Raw } from 'typeorm';
 import { Appointment } from './entities/appointment.entity';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
-import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { User } from '../users/entities/user.entity';
 import { Psychologist } from '../psychologist/entities/psychologist.entity';
 import { AppointmentStatus } from './enums/appointment-status.enum';
@@ -16,6 +15,7 @@ import { ERole } from '../../common/enums/role.enum';
 import { EInsurance } from '../users/enums/insurances.enum';
 import { IAuthRequest } from '../auth/interfaces/auth-request.interface';
 import { EmailsService } from '../emails/emails.service';
+import { IPayment } from './interfaces/payments.interface';
 
 function getAuthUserId(req: IAuthRequest): string | undefined {
   return req.user?.id;
@@ -181,6 +181,18 @@ export class AppointmentsService {
       throw new BadRequestException('price debe ser mayor a 0');
     }
 
+    // Validar que el horario esté en los working_hours del psicólogo
+    if (psychologist.working_hours?.length > 0) {
+      const isHourAvailable = psychologist.working_hours.includes(
+        dto.hour as any,
+      );
+      if (!isHourAvailable) {
+        throw new BadRequestException(
+          `El horario ${dto.hour} no está disponible para este psicólogo. Horarios disponibles: ${psychologist.working_hours.join(', ')}`,
+        );
+      }
+    }
+
     const appointment = this.appointmentRepository.create({
       ...dto,
       date: when,
@@ -322,6 +334,15 @@ export class AppointmentsService {
     a.status = AppointmentStatus.CONFIRMED;
     await this.appointmentRepository.save(a);
 
+    const patient = await this.userRepository.findOne({
+      where: { id: a.patient.id },
+    });
+
+    if (!patient)
+      throw new NotFoundException('Este turno no tiene ningun turno');
+
+    await this.emailsService.sendAppointmentConfirmedEmail(patient.email);
+
     return {
       message: `Cita con ID ${id} confirmada exitosamente`,
       appointment_id: id,
@@ -350,6 +371,8 @@ export class AppointmentsService {
     a.status = AppointmentStatus.COMPLETED;
     await this.appointmentRepository.save(a);
 
+    await this.emailsService.sendLeaveReviewEmail(a.patient.email);
+
     return {
       message: `Cita con ID ${id} completada exitosamente`,
       appointment_id: id,
@@ -367,8 +390,11 @@ export class AppointmentsService {
     });
     if (!psychologist) throw new NotFoundException('Psicólogo no encontrado');
 
-    const startHour = 9;
-    const endHour = 17;
+    const workingHours =
+      psychologist.working_hours?.length > 0
+        ? psychologist.working_hours
+        : ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00'];
+
     const dayStart = new Date(`${dateYYYYMMDD}T00:00:00.000Z`);
     const dayEnd = new Date(`${dateYYYYMMDD}T23:59:59.999Z`);
 
@@ -381,26 +407,26 @@ export class AppointmentsService {
         }),
       },
     });
-    const takenKey = new Set(taken.map((t) => t.date.toISOString()));
+    const takenHours = new Set(taken.map((t) => t.hour));
 
     const slots: Array<{ date: string; hour: string; available: boolean }> = [];
-    const base = new Date(`${dateYYYYMMDD}T00:00:00.000Z`);
-    for (let h = startHour; h <= endHour; h++) {
-      for (let m = 0; m < 60; m += slotMinutes) {
-        const d = new Date(base);
-        d.setUTCHours(h, m, 0, 0);
-        const iso = d.toISOString();
-        const isPast = d.getTime() <= Date.now();
-        const isTaken = takenKey.has(iso);
-        if (!isPast) {
-          slots.push({
-            date: dateYYYYMMDD,
-            hour: `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`,
-            available: !isTaken,
-          });
-        }
+
+    // Crear slots basados en los working_hours del psicólogo
+    for (const workingHour of workingHours) {
+      const [hours, minutes] = workingHour.split(':').map(Number);
+      const slotDate = new Date(`${dateYYYYMMDD}T${workingHour}:00.000Z`);
+      const isPast = slotDate.getTime() <= Date.now();
+      const isTaken = takenHours.has(workingHour);
+
+      if (!isPast) {
+        slots.push({
+          date: dateYYYYMMDD,
+          hour: workingHour,
+          available: !isTaken,
+        });
       }
     }
+
     return slots.filter((s) => s.available);
   }
 
@@ -447,7 +473,7 @@ export class AppointmentsService {
     return savedAppointment;
   }
 
-  /**
+  /*
    * Marcar turno como completado (realizado)
    * Puede ser realizado por psicólogo o paciente después de 45 min de finalizada la sesión
    */
@@ -555,15 +581,14 @@ export class AppointmentsService {
     const appointmentIds = appointments.map((apt) => apt.id);
 
     // Obtener todos los pagos relacionados con estos appointments usando query raw
-    const payments: Array<{ appointment_id: string; [key: string]: any }> =
-      await this.appointmentRepository.query(
-        `
+    const payments: IPayment[] = await this.appointmentRepository.query(
+      `
         SELECT * FROM payments 
         WHERE appointment_id = ANY($1) 
         ORDER BY created_at DESC
         `,
-        [appointmentIds],
-      );
+      [appointmentIds],
+    );
 
     // Crear un mapa de appointment_id -> payment (solo el más reciente)
     const paymentMap = new Map();

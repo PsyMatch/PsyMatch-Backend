@@ -122,17 +122,16 @@ export class AuthService {
     return this.queryHelper.runInTransaction(async (queryRunner) => {
       const userRepo = queryRunner.manager.getRepository(User);
       const psychologistRepo = queryRunner.manager.getRepository(Psychologist);
-      const { email, dni } = psychologistData;
 
       const existingUserByEmail = await userRepo.findOne({
-        where: { email, is_active: true },
+        where: { email: psychologistData.email, is_active: true },
       });
       if (existingUserByEmail) {
         throw new ConflictException('El email ya existe');
       }
 
       const existingUserByDni = await userRepo.findOne({
-        where: { dni, is_active: true },
+        where: { dni: psychologistData.dni, is_active: true },
       });
       if (existingUserByDni) {
         throw new ConflictException('El DNI ya existe');

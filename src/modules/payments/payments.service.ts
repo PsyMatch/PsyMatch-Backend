@@ -185,10 +185,14 @@ export class PaymentsService {
           // Crear nuevo pago
           const preferenceId = (paymentData as { preference_id?: string })
             .preference_id;
-          const metadata = paymentData.metadata && typeof paymentData.metadata === 'object'
-            ? paymentData.metadata as { user_id?: string; appointment_id?: string }
-            : {};
-          
+          const metadata =
+            paymentData.metadata && typeof paymentData.metadata === 'object'
+              ? (paymentData.metadata as {
+                  user_id?: string;
+                  appointment_id?: string;
+                })
+              : {};
+
           const userId = metadata.user_id;
           const appointmentId = metadata.appointment_id;
 
@@ -206,19 +210,24 @@ export class PaymentsService {
           });
 
           const savedPayment = await this.paymentsRepository.save(newPayment);
-          
+
           // Actualizar estado del turno a pendiente de aprobación si existe appointment_id
           if (savedPayment.appointment_id) {
-            await this.updateAppointmentStatusAfterPayment(savedPayment.appointment_id);
+            await this.updateAppointmentStatusAfterPayment(
+              savedPayment.appointment_id,
+            );
           }
         } else {
           // Actualizar pago existente
           existingPayment.pay_status = PayStatus.COMPLETED;
-          const savedPayment = await this.paymentsRepository.save(existingPayment);
-          
+          const savedPayment =
+            await this.paymentsRepository.save(existingPayment);
+
           // Actualizar estado del turno a pendiente de aprobación si existe appointment_id
           if (savedPayment.appointment_id) {
-            await this.updateAppointmentStatusAfterPayment(savedPayment.appointment_id);
+            await this.updateAppointmentStatusAfterPayment(
+              savedPayment.appointment_id,
+            );
           }
         }
       }
@@ -238,19 +247,30 @@ export class PaymentsService {
   /**
    * Actualiza el estado del turno a PENDING_APPROVAL después de un pago exitoso
    */
-  private async updateAppointmentStatusAfterPayment(appointmentId: string): Promise<void> {
+  private async updateAppointmentStatusAfterPayment(
+    appointmentId: string,
+  ): Promise<void> {
     try {
       const appointment = await this.appointmentsRepository.findOne({
-        where: { id: appointmentId }
+        where: { id: appointmentId },
       });
-      
-      if (appointment && (appointment.status === AppointmentStatus.PENDING_PAYMENT || appointment.status === AppointmentStatus.PENDING)) {
+
+      if (
+        appointment &&
+        (appointment.status === AppointmentStatus.PENDING_PAYMENT ||
+          appointment.status === AppointmentStatus.PENDING)
+      ) {
         appointment.status = AppointmentStatus.PENDING_APPROVAL;
         await this.appointmentsRepository.save(appointment);
-        console.log(`Appointment ${appointmentId} status updated to PENDING_APPROVAL after payment`);
+        console.log(
+          `Appointment ${appointmentId} status updated to PENDING_APPROVAL after payment`,
+        );
       }
     } catch (error) {
-      console.error('Error actualizando estado de cita después del pago:', error);
+      console.error(
+        'Error actualizando estado de cita después del pago:',
+        error,
+      );
       // No lanzamos error para no interrumpir el flujo de webhook
     }
   }
