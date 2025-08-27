@@ -15,8 +15,8 @@ async function bootstrap() {
       origin:
         envs.server.environment === 'production'
           ? [
-              'http://localhost:3000',
               'https://psymatch-frontend-app.onrender.com',
+              'http://localhost:3000',
             ]
           : true,
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',

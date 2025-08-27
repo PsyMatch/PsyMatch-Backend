@@ -27,6 +27,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
         'Missing required environment variable: GOOGLE_CALLBACK_URL',
       );
     }
+    console.log('👉 Google callback URL:', callbackURL);
+
     super({
       clientID,
       clientSecret,
