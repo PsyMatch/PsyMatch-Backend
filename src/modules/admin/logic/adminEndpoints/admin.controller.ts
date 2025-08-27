@@ -1,4 +1,12 @@
-import { Controller, Get, Param, Put, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -17,6 +25,7 @@ import { RolesGuard } from 'src/modules/auth/guards/roles.guard';
 import { ResponseProfessionalDto } from 'src/modules/psychologist/dto/response-professional.dto';
 import { AdminService } from './admin.service';
 import { ResponseUserDto } from 'src/modules/users/dto/response-user.dto';
+import { BanUserDto } from '../../dto/ban-user.dto';
 
 @Controller('admin')
 @ApiTags('Administrador')
@@ -294,11 +303,14 @@ export class AdminController {
     status: 404,
     description: 'Usuario no encontrado',
   })
-  banUserById(@Param('id') id: string): Promise<{
+  banUserById(
+    @Param('id') id: string,
+    @Body() banUserDto: BanUserDto,
+  ): Promise<{
     message: string;
     data: ResponseUserDto;
   }> {
-    return this.adminService.banUserById(id);
+    return this.adminService.banUserById(id, banUserDto.reason);
   }
 
   @Get('banned-users')
@@ -419,74 +431,5 @@ export class AdminController {
     data: ResponseUserDto;
   }> {
     return this.adminService.unbanUserById(id);
-  }
-
-  @Get('banned-users')
-  @UseGuards(CombinedAuthGuard, RolesGuard)
-  @Roles([ERole.ADMIN])
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({
-    summary: 'Obtener todos los usuarios baneados (Solo administradores)',
-    description:
-      'Obtener una lista paginada de todos los usuarios que han sido baneados (is_active = false)',
-  })
-  @ApiQuery({
-    name: 'page',
-    required: false,
-    type: Number,
-    description: 'Número de página (por defecto: 1)',
-    example: 1,
-  })
-  @ApiQuery({
-    name: 'limit',
-    required: false,
-    type: Number,
-    description: 'Número de elementos por página (por defecto: 10)',
-    example: 10,
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Usuarios baneados recuperados exitosamente',
-    schema: {
-      type: 'object',
-      properties: {
-        data: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              id: { type: 'string', example: 'user-uuid' },
-              name: { type: 'string', example: 'Juan Pérez' },
-              email: { type: 'string', example: 'juan@example.com' },
-              role: { type: 'string', example: 'Paciente' },
-              is_active: { type: 'boolean', example: false },
-              created_at: { type: 'string', example: '2023-12-01T10:00:00Z' },
-            },
-          },
-        },
-        meta: {
-          type: 'object',
-          properties: {
-            page: { type: 'number', example: 1 },
-            limit: { type: 'number', example: 10 },
-            total: { type: 'number', example: 25 },
-            totalPages: { type: 'number', example: 3 },
-          },
-        },
-      },
-    },
-  })
-  @ApiResponse({
-    status: 403,
-    description: 'Acceso denegado - Se requiere rol de administrador',
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Token inválido o expirado',
-  })
-  getBannedUsers(
-    @Query() paginationDto: PaginationDto,
-  ): Promise<PaginatedResponse<ResponseUserDto>> {
-    return this.adminService.getBannedUsersService(paginationDto);
   }
 }
