@@ -19,7 +19,7 @@ import { Appointment } from '../../../modules/appointments/entities/appointment.
 import { Payment } from '../../../modules/payments/entities/payment.entity';
 import { Reviews } from '../../../modules/reviews/entities/reviews.entity';
 import { PaginationService } from '../../../common/services/pagination.service';
-import { FilesService } from 'src/modules/files/files.service';
+import { FilesModule } from 'src/modules/files/files.module';
 
 @Module({
   imports: [
@@ -31,6 +31,7 @@ import { FilesService } from 'src/modules/files/files.service';
       Reviews,
       PaginationService,
     ]),
+    FilesModule,
   ],
   controllers: [
     VerificationPsychologistController,
@@ -49,7 +50,6 @@ import { FilesService } from 'src/modules/files/files.service';
     PaymentsOfProfessionalsService,
     PatientsOfProfessionalService,
     AppointmentsOfProfessionalService,
-    FilesService,
   ],
   exports: [VerificationPsychologistService],
 })
