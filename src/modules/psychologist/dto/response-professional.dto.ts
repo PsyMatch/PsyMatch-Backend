@@ -7,6 +7,7 @@ import { ELanguage } from '../../psychologist/enums/languages.enum';
 import { EModality } from '../../psychologist/enums/modality.enum';
 import { ESessionType } from '../../psychologist/enums/session-types.enum';
 import { ETherapyApproach } from '../../psychologist/enums/therapy-approaches.enum';
+import { EWorkingHours } from '../../psychologist/enums/working-hours.enum';
 import { ERole } from '../../../common/enums/role.enum';
 import { EInsurance } from '../../users/enums/insurances.enum';
 import { ResponseUserDto } from '../../users/dto/response-user.dto';
@@ -188,6 +189,15 @@ export class ResponseProfessionalDto {
   })
   @Expose()
   availability?: EAvailability[];
+
+  @ApiPropertyOptional({
+    description: 'Horarios de trabajo (solo para psicólogos)',
+    enum: EWorkingHours,
+    isArray: true,
+    example: ['08:00', '09:00', '10:00', '14:00', '15:00'],
+  })
+  @Expose()
+  working_hours?: EWorkingHours[];
 
   @ApiPropertyOptional({
     description: 'Precio de la consulta (solo para psicólogos)',
