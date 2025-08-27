@@ -21,6 +21,15 @@ import { ELanguage } from '../enums/languages.enum';
 
 export class UpdatePsychologistDto {
   @ApiPropertyOptional({
+    type: 'string',
+    format: 'binary',
+    description: 'Imagen de perfil del psicólogo (archivo)',
+    required: false,
+  })
+  @IsOptional()
+  profile_picture?: any;
+
+  @ApiPropertyOptional({
     description: 'Número de licencia profesional',
     example: 12345,
   })
