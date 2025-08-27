@@ -14,11 +14,9 @@ import {
 } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
-import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import {
   ApiTags,
   ApiOperation,
-  ApiBody,
   ApiParam,
   ApiQuery,
   ApiBearerAuth,
@@ -90,16 +88,17 @@ export class AppointmentsController {
     return this.appointmentsService.findOneAuthorized(req, id);
   }
 
-  @Delete(':id')
+  @Patch(':id')
   @ApiOperation({
-    summary: 'Deshabilitar cita (soft delete)',
-    description: 'Establece isActive en false en lugar de eliminar la cita completamente. Solo el dueño o admin pueden deshabilitar la cita.',
+    summary: 'Deshabilitar cita ',
+    description:
+      'Establece isActive en false en lugar de eliminar la cita completamente. Solo el dueño o admin pueden deshabilitar la cita.',
   })
-  @ApiParam({ 
-    name: 'id', 
+  @ApiParam({
+    name: 'id',
     description: 'UUID de la cita a deshabilitar',
     type: 'string',
-    format: 'uuid'
+    format: 'uuid',
   })
   disable(@Req() req: IAuthRequest, @Param('id') id: string) {
     return this.appointmentsService.disable(req, id);
@@ -108,13 +107,14 @@ export class AppointmentsController {
   @Patch(':id/confirm')
   @ApiOperation({
     summary: 'Confirmar cita',
-    description: 'Cambia el estado de la cita de PENDING a CONFIRMED. Solo el psicólogo asignado puede confirmar la cita.',
+    description:
+      'Cambia el estado de la cita de PENDING a CONFIRMED. Solo el psicólogo asignado puede confirmar la cita.',
   })
-  @ApiParam({ 
-    name: 'id', 
+  @ApiParam({
+    name: 'id',
     description: 'UUID de la cita a confirmar',
     type: 'string',
-    format: 'uuid'
+    format: 'uuid',
   })
   confirmAppointment(@Req() req: IAuthRequest, @Param('id') id: string) {
     return this.appointmentsService.confirmAppointment(req, id);
@@ -123,13 +123,14 @@ export class AppointmentsController {
   @Patch(':id/complete')
   @ApiOperation({
     summary: 'Completar cita',
-    description: 'Cambia el estado de la cita de CONFIRMED a COMPLETED. Solo el psicólogo asignado puede completar la cita.',
+    description:
+      'Cambia el estado de la cita de CONFIRMED a COMPLETED. Solo el psicólogo asignado puede completar la cita.',
   })
-  @ApiParam({ 
-    name: 'id', 
+  @ApiParam({
+    name: 'id',
     description: 'UUID de la cita a completar',
     type: 'string',
-    format: 'uuid'
+    format: 'uuid',
   })
   completeAppointment(@Req() req: IAuthRequest, @Param('id') id: string) {
     return this.appointmentsService.completeAppointment(req, id);
@@ -138,45 +139,16 @@ export class AppointmentsController {
   @Put(':id/approve')
   @ApiOperation({
     summary: 'Aprobar una cita',
-    description: 'Aprueba una cita que está pendiente de aprobación después del pago'
+    description:
+      'Aprueba una cita que está pendiente de aprobación después del pago',
   })
   @ApiParam({
     name: 'id',
     description: 'UUID de la cita a aprobar',
     type: 'string',
-    format: 'uuid'
+    format: 'uuid',
   })
   approveAppointment(@Req() req: IAuthRequest, @Param('id') id: string) {
     return this.appointmentsService.approveAppointment(req, id);
-  }
-
-  @Put(':id/mark-completed')
-  @ApiOperation({
-    summary: 'Marcar cita como realizada',
-    description: 'Confirma que la sesión se realizó después de finalizar el tiempo'
-  })
-  @ApiParam({
-    name: 'id',
-    description: 'UUID de la cita a marcar como realizada',
-    type: 'string',
-    format: 'uuid'
-  })
-  markAsCompleted(@Req() req: IAuthRequest, @Param('id') id: string) {
-    return this.appointmentsService.markAsCompleted(req, id);
-  }
-
-  @Put(':id/cancel')
-  @ApiOperation({
-    summary: 'Cancelar una cita',
-    description: 'Cancela una cita (disponible para psicólogo y paciente)'
-  })
-  @ApiParam({
-    name: 'id',
-    description: 'UUID de la cita a cancelar',
-    type: 'string',
-    format: 'uuid'
-  })
-  cancelAppointment(@Req() req: IAuthRequest, @Param('id') id: string) {
-    return this.appointmentsService.cancelAppointment(req, id);
   }
 }

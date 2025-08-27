@@ -8,7 +8,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Raw } from 'typeorm';
 import { Appointment } from './entities/appointment.entity';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
-import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { User } from '../users/entities/user.entity';
 import { Psychologist } from '../psychologist/entities/psychologist.entity';
 import { AppointmentStatus } from './enums/appointment-status.enum';
@@ -16,6 +15,7 @@ import { ERole } from '../../common/enums/role.enum';
 import { EInsurance } from '../users/enums/insurances.enum';
 import { IAuthRequest } from '../auth/interfaces/auth-request.interface';
 import { EmailsService } from '../emails/emails.service';
+import { IPayment } from './interfaces/payments.interface';
 
 function getAuthUserId(req: IAuthRequest): string | undefined {
   return req.user?.id;
@@ -322,6 +322,15 @@ export class AppointmentsService {
     a.status = AppointmentStatus.CONFIRMED;
     await this.appointmentRepository.save(a);
 
+    const patient = await this.userRepository.findOne({
+      where: { id: a.patient.id },
+    });
+
+    if (!patient)
+      throw new NotFoundException('Este turno no tiene ningun turno');
+
+    await this.emailsService.sendAppointmentConfirmedEmail(patient.email);
+
     return {
       message: `Cita con ID ${id} confirmada exitosamente`,
       appointment_id: id,
@@ -349,6 +358,8 @@ export class AppointmentsService {
 
     a.status = AppointmentStatus.COMPLETED;
     await this.appointmentRepository.save(a);
+
+    await this.emailsService.sendLeaveReviewEmail(a.patient.email);
 
     return {
       message: `Cita con ID ${id} completada exitosamente`,
@@ -555,15 +566,14 @@ export class AppointmentsService {
     const appointmentIds = appointments.map((apt) => apt.id);
 
     // Obtener todos los pagos relacionados con estos appointments usando query raw
-    const payments: Array<{ appointment_id: string; [key: string]: any }> =
-      await this.appointmentRepository.query(
-        `
+    const payments: IPayment[] = await this.appointmentRepository.query(
+      `
         SELECT * FROM payments 
         WHERE appointment_id = ANY($1) 
         ORDER BY created_at DESC
         `,
-        [appointmentIds],
-      );
+      [appointmentIds],
+    );
 
     // Crear un mapa de appointment_id -> payment (solo el más reciente)
     const paymentMap = new Map();

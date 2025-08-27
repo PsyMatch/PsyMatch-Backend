@@ -9,7 +9,7 @@ export class Patient extends User {
   @Column({ type: 'text', nullable: true })
   alias: string;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: 'text', nullable: false })
   address: string;
 
   @Column({ type: 'enum', enum: EInsurance, nullable: true })
@@ -20,4 +20,7 @@ export class Patient extends User {
 
   @OneToMany(() => Appointment, (appointment) => appointment.patient)
   appointments: Appointment[];
+
+  @Column({ type: 'boolean', default: true })
+  reminder_sent: boolean;
 }
