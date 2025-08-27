@@ -98,6 +98,7 @@ export class ProfileService {
         return updatedUser;
       },
     );
+
     const transformedData = plainToInstance(
       ResponseProfessionalDto,
       queryResult,
@@ -110,29 +111,5 @@ export class ProfileService {
       message: 'Perfil del psicólogo actualizado exitosamente',
       data: transformedData,
     };
-    // const psychologist = await this.psychologistRepository.findOne({
-    //   where: {
-    //     id: userId,
-    //     role: ERole.PSYCHOLOGIST,
-    //   },
-    // });
-
-    // if (!psychologist) {
-    //   throw new NotFoundException(
-    //     'Perfil del psicólogo no encontrado. Asegúrate de que estás autenticado como psicólogo.',
-    //   );
-    // }
-
-    // Object.assign(psychologist, newProfileData);
-
-    // await this.psychologistRepository.save(psychologist);
-
-    // const transformedData = plainToInstance(
-    //   ResponseProfessionalDto,
-    //   psychologist,
-    //   {
-    //     excludeExtraneousValues: true,
-    //   },
-    // );
   }
 }
