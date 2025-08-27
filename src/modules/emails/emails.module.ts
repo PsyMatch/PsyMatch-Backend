@@ -17,6 +17,9 @@ import { envs } from '../../configs/envs.config';
           user: envs.nodemailer.user,
           pass: envs.nodemailer.pass,
         },
+        tls: {
+          rejectUnauthorized: false,
+        },
       },
       defaults: {
         from: envs.nodemailer.from,

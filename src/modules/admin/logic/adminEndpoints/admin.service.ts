@@ -111,6 +111,8 @@ export class AdminService {
       },
     );
 
+    await this.emailsService.sendPsychologistVerifiedEmail(psychologist.email);
+
     return {
       message: 'Psicólogo verificado exitosamente',
       data: transformedPsychologist,
@@ -171,9 +173,15 @@ export class AdminService {
       where: { id },
     });
 
+    if (!updatedUser) {
+      throw new NotFoundException('No se encontró el usuario');
+    }
+
     const transformedUser = plainToInstance(ResponseUserDto, updatedUser, {
       excludeExtraneousValues: true,
     });
+
+    await this.emailsService.sendPromotedEmail(updatedUser.email);
 
     return {
       message: 'Usuario promovido exitosamente',

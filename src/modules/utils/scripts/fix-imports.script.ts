@@ -30,9 +30,9 @@ async function project() {
     });
 
     await project.save();
-    console.log('✅ Imports updated to relative paths');
+    console.log('✅ Imports actualizados a rutas relativas');
   } catch (error) {
-    console.error('❌ Error while updating imports:', error);
+    console.error('❌ Error actualizando imports:', error);
     process.exit(1);
   }
 }

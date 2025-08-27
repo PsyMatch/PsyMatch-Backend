@@ -8,6 +8,7 @@ import { QueryHelper } from '../utils/helpers/query.helper';
 import { User } from '../users/entities/user.entity';
 import { ERole } from '../../common/enums/role.enum';
 import { envs } from 'src/configs/envs.config';
+import { Patient } from '../users/entities/patient.entity';
 
 @Injectable()
 export class EmailsService {
@@ -19,14 +20,23 @@ export class EmailsService {
   async sendWelcomeEmail(to: string) {
     return this.queryHelper.runInTransaction(async (queryRunner) => {
       const userRepo = queryRunner.manager.getRepository(User);
-      const user = await userRepo.findOne({
-        where: { email: to, is_active: true },
+      let user = await userRepo.findOne({
+        where: { email: to },
       });
+
+      if (!user) {
+        const patientRepo = queryRunner.manager.getRepository(Patient);
+        user = await patientRepo.findOne({
+          where: { email: to },
+        });
+      }
+
       if (!user) {
         throw new NotFoundException(
           `No se encontró el usuario con email ${to}`,
         );
       }
+
       if (user.role === ERole.PATIENT) {
         await this.mailerService.sendMail({
           to,
@@ -77,12 +87,10 @@ export class EmailsService {
         );
       }
 
-      // NECESARIO PARA LA RECUPERACIÓN DE CONTRASEÑA////////////////////
       const resetLink =
         envs.server.environment === 'production'
-          ? `https://psymatch.com/reset-password?token=${resetToken}`
-          : `http://localhost:3000/reset-password?token=${resetToken}`;
-      ///////////////////////////////////////////////////////////////////
+          ? `https://psymatch-frontend-app.onrender.com/password/new-password?token=${resetToken}`
+          : `http://localhost:3000/password/new-password?token=${resetToken}`;
 
       await this.mailerService.sendMail({
         to,
@@ -113,11 +121,18 @@ export class EmailsService {
           `No se encontró el usuario con email ${to}`,
         );
       }
+
+      const website =
+        envs.server.environment === 'production'
+          ? 'https://psymatch-frontend-app.onrender.com'
+          : 'http://localhost:3000';
+
       await this.mailerService.sendMail({
         to,
         subject: 'Contraseña modificada exitosamente',
         template: 'password-changed',
         context: {
+          website,
           date: new Date().toLocaleString('es-ES', {
             day: 'numeric',
             month: 'long',

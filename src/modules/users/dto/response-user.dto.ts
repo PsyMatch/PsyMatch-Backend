@@ -9,6 +9,7 @@ import { EModality } from '../../psychologist/enums/modality.enum';
 import { ESessionType } from '../../psychologist/enums/session-types.enum';
 import { ETherapyApproach } from '../../psychologist/enums/therapy-approaches.enum';
 import { ERole } from '../../../common/enums/role.enum';
+import { EWorkingHours } from 'src/modules/psychologist/enums/working-hours.enum';
 
 const formatDateTime = (value: unknown): string => {
   if (value instanceof Date) {
@@ -244,4 +245,24 @@ export class ResponseUserDto {
   @Transform(({ value }) => formatDateTime(value))
   @Expose()
   updated_at: string;
+
+  @ApiPropertyOptional({
+    description: 'Proveedor de autenticación (e.g., google)',
+  })
+  @Expose()
+  provider?: string;
+
+  @ApiPropertyOptional({
+    description: 'ID del proveedor de autenticación',
+  })
+  @Expose()
+  provider_id?: string;
+
+  @ApiPropertyOptional({
+    description: 'Horarios de trabajo (solo para psicólogos)',
+    enum: EWorkingHours,
+    isArray: true,
+  })
+  @Expose()
+  working_hours?: EWorkingHours[];
 }

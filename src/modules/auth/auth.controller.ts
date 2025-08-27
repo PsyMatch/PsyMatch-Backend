@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -28,11 +29,15 @@ import { SignUpSwaggerDoc } from './documentation/signup.doc';
 import { SignInSwaggerDoc } from './documentation/signin.doc';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { EmailsService } from '../emails/emails.service';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly emailsService: EmailsService,
+  ) {}
 
   @Post('signup')
   @UseInterceptors(FileInterceptor('profile_picture'))
@@ -47,7 +52,12 @@ export class AuthController {
     data: User;
     token: string;
   }> {
-    return await this.authService.signUpService(userData, profilePicture);
+    const response = await this.authService.signUpService(
+      userData,
+      profilePicture,
+    );
+    await this.emailsService.sendWelcomeEmail(response.data.email);
+    return response;
   }
 
   @Post('signup/psychologist')
@@ -63,10 +73,13 @@ export class AuthController {
     data: User;
     token: string;
   }> {
-    return await this.authService.signUpPsychologistService(
+    const response = await this.authService.signUpPsychologistService(
       userData,
       profilePicture,
     );
+
+    await this.emailsService.sendWelcomeEmail(response.data.email);
+    return response;
   }
 
   @Post('signin')
@@ -95,10 +108,16 @@ export class AuthController {
   @Get('google/callback')
   @ApiExcludeEndpoint()
   @UseGuards(AuthGuard('google'))
-  googleAuthCallback(@Req() req: Request, @Res() res: Response) {
-    const jwt = this.authService.loginWithAuth(
-      req.user as { id: number; email: string },
-    );
+  async googleAuthCallback(@Req() req: Request, @Res() res: Response) {
+    if (req.user === undefined)
+      throw new BadRequestException('Invalid Google auth');
+
+    const googleUser = req.user as { id: number; email: string };
+
+    if (googleUser.email === undefined)
+      throw new BadRequestException('Invalid Google auth');
+
+    const jwt = this.authService.loginWithAuth(googleUser);
 
     res.cookie('auth_token', jwt, {
       httpOnly: false,
@@ -109,13 +128,11 @@ export class AuthController {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    if (envs.server.environment === 'production') {
-      return res.redirect(
-        'https://psymatch-frontend-app.onrender.com/dashboard/user',
-      );
-    }
+    await this.emailsService.sendWelcomeEmail(googleUser.email);
 
-    return res.redirect('http://localhost:3000/dashboard/user');
+    return res.redirect(
+      'https://psymatch-frontend-app.onrender.com/dashboard/user',
+    );
   }
 
   @Get('me')

@@ -24,6 +24,7 @@ import { EModality } from '../../psychologist/enums/modality.enum';
 import { ELanguage } from '../../psychologist/enums/languages.enum';
 import { EAvailability } from '../../psychologist/enums/availability.enum';
 import { MatchPasswordHelper } from '../../utils/helpers/match-password.helper';
+import { EWorkingHours } from 'src/modules/psychologist/enums/working-hours.enum';
 
 const transformToNumber = (value: unknown): number | undefined =>
   typeof value === 'number'
@@ -295,4 +296,18 @@ export class SignUpPsychologistDto {
   @IsNumber({}, { message: 'El precio de la consulta debe ser un número.' })
   @IsNotEmpty({ message: 'El precio de la consulta es obligatorio.' })
   consultation_fee: number;
+
+  @ApiProperty({
+    description: 'Horas de trabajo del psicólogo',
+    example: [EWorkingHours.H0900, EWorkingHours.H1000],
+    enum: EWorkingHours,
+    isArray: true,
+  })
+  @Transform(({ value }) => transformToArray(value))
+  @IsArray()
+  @ArrayNotEmpty({
+    message: 'Debe especificar al menos un horario de trabajo.',
+  })
+  @IsEnum(EWorkingHours, { each: true })
+  working_hours: EWorkingHours[];
 }
