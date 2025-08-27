@@ -473,7 +473,7 @@ export class AppointmentsService {
     return savedAppointment;
   }
 
-  /**
+  /*
    * Marcar turno como completado (realizado)
    * Puede ser realizado por psicólogo o paciente después de 45 min de finalizada la sesión
    */
