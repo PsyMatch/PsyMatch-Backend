@@ -9,7 +9,11 @@ import { Reviews } from '../reviews/entities/reviews.entity';
 import { Appointment } from '../appointments/entities/appointment.entity';
 import { ERole } from '../../common/enums/role.enum';
 import { AppointmentStatus } from '../appointments/enums/appointment-status.enum';
-import { Payment, PayStatus, PayMethod } from '../payments/entities/payment.entity';
+import {
+  Payment,
+  PayStatus,
+  PayMethod,
+} from '../payments/entities/payment.entity';
 import { EPsychologistSpecialty } from '../psychologist/enums/specialities.enum';
 import { EPsychologistStatus } from '../psychologist/enums/verified.enum';
 import { ESessionType } from '../psychologist/enums/session-types.enum';
@@ -562,7 +566,9 @@ export class SeederService {
     }
 
     if (patients.length === 0) {
-      console.log('⚠️ No se encontraron pacientes. Por favor, carga los pacientes primero.');
+      console.log(
+        '⚠️ No se encontraron pacientes. Por favor, carga los pacientes primero.',
+      );
       return;
     }
 
@@ -708,7 +714,9 @@ export class SeederService {
     }
 
     if (patients.length === 0) {
-      console.log('⚠️ No se encontraron pacientes. Por favor, carga los pacientes primero.');
+      console.log(
+        '⚠️ No se encontraron pacientes. Por favor, carga los pacientes primero.',
+      );
       return;
     }
 
@@ -994,12 +1002,13 @@ export class SeederService {
 
   async seedPayments() {
     // Buscar appointments que tienen estado pending_approval para crear pagos
-    const appointmentsWithPendingApproval = await this.appointmentRepository.find({
-      where: { status: AppointmentStatus.PENDING_APPROVAL },
-      relations: ['patient']
-    });
+    const appointmentsWithPendingApproval =
+      await this.appointmentRepository.find({
+        where: { status: AppointmentStatus.PENDING_APPROVAL },
+        relations: ['patient'],
+      });
 
-    const payments = appointmentsWithPendingApproval.map(appointment => {
+    const payments = appointmentsWithPendingApproval.map((appointment) => {
       return this.paymentRepository.create({
         appointment_id: appointment.id,
         user_id: appointment.patient.id,
@@ -1010,14 +1019,16 @@ export class SeederService {
         mercado_pago_id: `test_${appointment.id.slice(-8)}`,
         preference_id: `pref_${appointment.id.slice(-8)}`,
         payer_email: appointment.patient.email,
-        notes: 'Pago de prueba procesado via MercadoPago - Seeder'
+        notes: 'Pago de prueba procesado via MercadoPago - Seeder',
       });
     });
 
     if (payments.length > 0) {
       await this.paymentRepository.save(payments);
       if (envs.server.environment !== 'production') {
-        console.log(`✅ ${payments.length} Pagos precargados exitosamente para citas pendientes de aprobación`);
+        console.log(
+          `✅ ${payments.length} Pagos precargados exitosamente para citas pendientes de aprobación`,
+        );
       }
     }
   }

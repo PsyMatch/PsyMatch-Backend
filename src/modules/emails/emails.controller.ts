@@ -12,6 +12,8 @@ import { SendPromotedEmailSwaggerDoc } from './documentation/promoted.doc';
 import { SendPsychologistVerifiedEmailSwaggerDoc } from './documentation/psychologist-verified.doc';
 import { SendWelcomeEmailSwaggerDoc } from './documentation/welcome.doc';
 import { SendEmailChangePasswordDto } from './dto/send-email-change-password.dto';
+import { SendPendingPaymentEmailSwaggerDoc } from './documentation/pending-payment.doc';
+import { SendUnbannedEmailSwaggerDoc } from './documentation/unbanned.doc';
 
 @ApiTags('Emails')
 @Controller('emails')
@@ -72,6 +74,15 @@ export class EmailsController {
     };
   }
 
+  @Post('pending-payment')
+  @SendPendingPaymentEmailSwaggerDoc()
+  async sendPendingPaymentEmail(@Body() body: SendEmailDto) {
+    await this.emailsService.sendPendingPaymentEmail(body.email);
+    return {
+      message: `📨 Email de notificación de pago pendiente enviado a ${body.email}`,
+    };
+  }
+
   @Post('leave-review')
   @SendLeaveReviewEmailSwaggerDoc()
   async sendLeaveReviewEmail(@Body() body: SendEmailDto) {
@@ -96,6 +107,15 @@ export class EmailsController {
     await this.emailsService.sendBannedEmail(body.email);
     return {
       message: `📨 Email de notificación de baneo enviado a ${body.email}`,
+    };
+  }
+
+  @Post('unbanned')
+  @SendUnbannedEmailSwaggerDoc()
+  async sendUnbannedEmail(@Body() body: SendEmailDto) {
+    await this.emailsService.sendUnbannedEmail(body.email);
+    return {
+      message: `📨 Email de notificación de desbaneo enviado a ${body.email}`,
     };
   }
 }
