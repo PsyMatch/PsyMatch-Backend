@@ -1,3 +1,12 @@
+// Utilidad para timeout en promesas
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error('Timeout de validación')), ms),
+    ),
+  ]);
+}
 import {
   Injectable,
   NotFoundException,
@@ -483,9 +492,22 @@ export class UsersService {
       normalizedValue = value;
     }
 
-    const existingUser = await this.usersRepository.findOne({
-      where: { [field]: normalizedValue, is_active: true },
-    });
+    let existingUser: User | null = null;
+    try {
+      existingUser = await withTimeout(
+        this.usersRepository.findOne({
+          where: { [field]: normalizedValue, is_active: true },
+        }),
+        2000,
+      );
+    } catch (error) {
+      if (error instanceof Error)
+        throw new BadRequestException(
+          'La validación de unicidad tardó demasiado. Intenta de nuevo.',
+          error.message,
+        );
+    }
+
     if (existingUser) {
       throw new ConflictException(
         `Ya existe una cuenta con ${field} ${String(normalizedValue)}`,
