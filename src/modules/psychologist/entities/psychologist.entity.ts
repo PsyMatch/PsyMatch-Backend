@@ -11,6 +11,7 @@ import { EPsychologistStatus } from '../enums/verified.enum';
 import { EInsurance } from '../../users/enums/insurances.enum';
 import { EAvailability } from '../enums/availability.enum';
 import { Appointment } from '../../appointments/entities/appointment.entity';
+import { EWorkingHours } from '../enums/working-hours.enum';
 
 @ChildEntity(ERole.PSYCHOLOGIST)
 export class Psychologist extends User {
@@ -79,6 +80,9 @@ export class Psychologist extends User {
 
   @Column({ type: 'enum', enum: EAvailability, array: true, nullable: false })
   availability: EAvailability[];
+
+  @Column({ type: 'enum', enum: EWorkingHours, array: true, nullable: true })
+  working_hours: EWorkingHours[];
 
   @Column({ type: 'int' })
   consultation_fee: number;
