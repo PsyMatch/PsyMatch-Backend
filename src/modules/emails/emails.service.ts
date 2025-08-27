@@ -69,7 +69,7 @@ export class EmailsService {
         });
       } else {
         throw new BadRequestException(
-          `El usuario con email ${to} no es un psicólogo`,
+          `No se encontró el usuario con email ${to}`,
         );
       }
     });
@@ -234,6 +234,34 @@ export class EmailsService {
     });
   }
 
+  async sendPendingPaymentEmail(to: string) {
+    return this.queryHelper.runInTransaction(async (queryRunner) => {
+      const userRepo = queryRunner.manager.getRepository(User);
+      const user = await userRepo.findOne({
+        where: { email: to, is_active: true },
+      });
+      if (!user) {
+        throw new NotFoundException(
+          `No se encontró el usuario con email ${to}`,
+        );
+      }
+      await this.mailerService.sendMail({
+        to,
+        subject: 'Notificación de pago pendiente',
+        template: 'pending-payment',
+        context: {
+          date: new Date().toLocaleString('es-ES', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          }),
+        },
+      });
+    });
+  }
+
   async sendLeaveReviewEmail(to: string) {
     return this.queryHelper.runInTransaction(async (queryRunner) => {
       const userRepo = queryRunner.manager.getRepository(User);
@@ -322,6 +350,34 @@ export class EmailsService {
           date: formattedDate,
           time: formattedTime,
           reason: reason,
+        },
+      });
+    });
+  }
+
+  async sendUnbannedEmail(to: string) {
+    return this.queryHelper.runInTransaction(async (queryRunner) => {
+      const userRepo = queryRunner.manager.getRepository(User);
+      const user = await userRepo.findOne({
+        where: { email: to, is_active: true },
+      });
+      if (!user) {
+        throw new NotFoundException(
+          `No se encontró el usuario con email ${to}`,
+        );
+      }
+      await this.mailerService.sendMail({
+        to,
+        subject: 'Notificación de desbaneo',
+        template: 'unbanned',
+        context: {
+          date: new Date().toLocaleString('es-ES', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          }),
         },
       });
     });
