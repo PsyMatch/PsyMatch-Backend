@@ -772,13 +772,8 @@
                                         font-size: 14px;
                                       "
                                     >
-                                      Queremos informarte que, debido a [motivo
-                                      específico, p. ej. incumplimiento de
-                                      nuestras políticas], tu cuenta en
-                                      <strong>PsyMatch</strong> ha sido [<strong
-                                        >temporalmente/suspendida
-                                        permanentemente]</strong
-                                      >
+                                      Queremos informarte que, debido a {{reason}}, tu cuenta en
+                                      <strong>PsyMatch</strong> ha sido <strong>suspendida permanentemente</strong>
                                       a partir de hoy.
                                     </p>
                                     <p
@@ -843,10 +838,9 @@
                                             letter-spacing: 0;
                                             color: #333333;
                                             font-size: 14px;
-                                            mso-margin-top-alt: 15px;
                                           "
                                         >
-                                          <strong>Fecha:</strong> [dd/mm/aaaa]
+                                          <strong>Fecha:</strong> {{date}}
                                         </p>
                                       </li>
                                       <li
@@ -870,8 +864,7 @@
                                             font-size: 14px;
                                           "
                                         >
-                                          <strong>Motivo:</strong> [Breve
-                                          descripción del motivo]
+                                          <strong>Hora:</strong> {{time}}
                                         </p>
                                       </li>
                                       <li
@@ -895,8 +888,31 @@
                                             font-size: 14px;
                                           "
                                         >
-                                          <strong>Duración (si aplica):</strong>
-                                          [X días / indefinida]
+                                          <strong>Motivo:</strong> {{reason}}
+                                        </p>
+                                      </li>
+                                      <li
+                                        style="
+                                          color: #333333;
+                                          margin: 0px 0px 15px;
+                                          font-size: 14px;
+                                        "
+                                      >
+                                        <p
+                                          style="
+                                            margin: 0;
+                                            mso-line-height-rule: exactly;
+                                            mso-margin-bottom-alt: 15px;
+                                            font-family:
+                                              arial, 'helvetica neue',
+                                              helvetica, sans-serif;
+                                            line-height: 21px;
+                                            letter-spacing: 0;
+                                            color: #333333;
+                                            font-size: 14px;
+                                          "
+                                        >
+                                          <strong>Duración:</strong> Suspensión permanente
                                         </p>
                                       </li>
                                     </ul>

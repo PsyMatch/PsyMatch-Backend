@@ -191,6 +191,7 @@ export class AdminService {
 
   async banUserById(
     id: string,
+    reason: string,
   ): Promise<{ message: string; data: ResponseUserDto }> {
     const user = await this.userRepository.findOne({
       where: { id, is_active: true },
@@ -207,7 +208,7 @@ export class AdminService {
       excludeExtraneousValues: true,
     });
 
-    await this.emailsService.sendBannedEmail(savedUser.email);
+    await this.emailsService.sendBannedEmail(savedUser.email, reason);
 
     return {
       message: 'Usuario baneado exitosamente',

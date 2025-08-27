@@ -290,7 +290,7 @@ export class EmailsService {
     });
   }
 
-  async sendBannedEmail(to: string) {
+  async sendBannedEmail(to: string, reason: string) {
     return this.queryHelper.runInTransaction(async (queryRunner) => {
       const userRepo = queryRunner.manager.getRepository(User);
       const user = await userRepo.findOne({
@@ -301,18 +301,27 @@ export class EmailsService {
           `El usuario con email ${to} no está baneado`,
         );
       }
+
+      const currentDate = new Date();
+      const formattedDate = currentDate.toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      });
+      const formattedTime = currentDate.toLocaleTimeString('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      });
+
       await this.mailerService.sendMail({
         to,
         subject: 'Has sido baneado de la plataforma',
         template: 'banned',
         context: {
-          date: new Date().toLocaleString('es-ES', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-          }),
+          date: formattedDate,
+          time: formattedTime,
+          reason: reason,
         },
       });
     });
