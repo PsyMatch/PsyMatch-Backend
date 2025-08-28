@@ -63,14 +63,33 @@ export class PaymentsController {
     @Query('appointmentId') appointmentId?: string,
     @Query('amount') amount?: number,
   ) {
-    const test = this.service.createMercadoPagoPreference(
+    return this.service.createMercadoPagoPreference(
       userId,
       appointmentId,
       amount,
     );
-    console.log(test);
+  }
 
-    return test;
+  @Post('confirm-payment-success')
+  @Roles([ERole.PATIENT, ERole.ADMIN])
+  @ApiOperation({
+    summary: 'Confirmar pago exitoso y actualizar estado de cita',
+    description: 'Endpoint alternativo para confirmar pago exitoso cuando el webhook no funciona en desarrollo',
+  })
+  async confirmPaymentSuccess(
+    @Body() data: { appointmentId: string; paymentId?: string },
+  ) {
+    // Buscar la cita y actualizar su estado
+    const appointment = await this.service.findAppointmentAndUpdateStatus(data.appointmentId);
+    
+    return {
+      success: true,
+      message: 'Estado de cita actualizado a PENDING_APPROVAL',
+      appointment: {
+        id: appointment.id,
+        status: appointment.status
+      }
+    };
   }
 
   @Post()
