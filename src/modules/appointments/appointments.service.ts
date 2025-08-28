@@ -195,6 +195,11 @@ export class AppointmentsService {
 
     const saved = await this.appointmentRepository.save(appointment);
 
+    await this.emailsService.sendAppointmentConfirmedEmail(
+      saved.patient.email,
+      appointment,
+    );
+
     return {
       id: saved.id,
       date: saved.date,
@@ -459,7 +464,8 @@ export class AppointmentsService {
     const savedAppointment = await this.appointmentRepository.save(appointment);
 
     await this.emailsService.sendAppointmentConfirmedEmail(
-      appointment.patient.email, appointment
+      appointment.patient.email,
+      appointment,
     );
 
     return savedAppointment;
