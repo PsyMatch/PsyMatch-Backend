@@ -333,7 +333,7 @@ export class AppointmentsService {
     if (!patient)
       throw new NotFoundException('Este turno no tiene ningun turno');
 
-    await this.emailsService.sendAppointmentConfirmedEmail(patient.email);
+    await this.emailsService.sendAppointmentConfirmedEmail(patient.email, a);
 
     return {
       message: `Cita con ID ${id} confirmada exitosamente`,
@@ -459,7 +459,7 @@ export class AppointmentsService {
     const savedAppointment = await this.appointmentRepository.save(appointment);
 
     await this.emailsService.sendAppointmentConfirmedEmail(
-      appointment.patient.email,
+      appointment.patient.email, appointment
     );
 
     return savedAppointment;

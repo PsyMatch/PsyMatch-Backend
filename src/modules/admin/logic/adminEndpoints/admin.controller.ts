@@ -1,4 +1,12 @@
-import { Controller, Get, Param, Put, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -16,7 +24,8 @@ import { CombinedAuthGuard } from '../../../auth/guards/combined-auth.guard';
 import { RolesGuard } from '../../../auth/guards/roles.guard';
 import { ResponseProfessionalDto } from '../../../psychologist/dto/response-professional.dto';
 import { AdminService } from './admin.service';
-import { ResponseUserDto } from '../../../users/dto/response-user.dto';
+import { ResponseUserDto } from 'src/modules/users/dto/response-user.dto';
+import { BanUserDto } from '../../dto/ban-user.dto';
 
 @Controller('admin')
 @ApiTags('Administrador')
@@ -294,11 +303,14 @@ export class AdminController {
     status: 404,
     description: 'Usuario no encontrado',
   })
-  banUserById(@Param('id') id: string): Promise<{
+  banUserById(
+    @Param('id') id: string,
+    @Body() banUserDto: BanUserDto,
+  ): Promise<{
     message: string;
     data: ResponseUserDto;
   }> {
-    return this.adminService.banUserById(id);
+    return this.adminService.banUserById(id, banUserDto.reason);
   }
 
   @Get('banned-users')

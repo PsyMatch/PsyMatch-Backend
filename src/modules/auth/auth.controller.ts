@@ -108,28 +108,35 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
   googleAuthCallback(@Req() req: Request, @Res() res: Response) {
-    if (!req.user) {
-      throw new BadRequestException('Google login failed');
+    try {
+      if (!req.user) {
+        throw new BadRequestException('Google login failed');
+      }
+
+      const user = req.user as User;
+      const jwt = this.authService.loginWithAuth(user);
+
+      const role = user.role || 'Paciente';
+      res.cookie('auth_token', jwt, {
+        httpOnly: false,
+        secure: true,
+        sameSite: 'none',
+        domain:
+          envs.server.environment === 'production'
+            ? '.onrender.com'
+            : undefined,
+        path: '/',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+      const frontendUrl = envs.deployed_urls.frontend;
+      return res.redirect(
+        `${frontendUrl}/oauth-callback?token=${jwt}&role=${role}`,
+      );
+    } catch (error) {
+      console.error('Error en OAuth callback:', error);
+      const frontendUrl = envs.deployed_urls.frontend;
+      return res.redirect(`${frontendUrl}/login?error=oauth_failed`);
     }
-
-    const user = req.user as User; // 👈 usuario que devuelve la estrategia
-    const jwt = this.authService.loginWithAuth(user);
-
-    // Guardar el token en cookie httpOnly
-    res.cookie('auth_token', jwt, {
-      httpOnly: true,
-      secure: envs.server.environment === 'production',
-      sameSite: envs.server.environment === 'production' ? 'none' : 'lax',
-      domain:
-        envs.server.environment === 'production' ? '.onrender.com' : undefined,
-      path: '/',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 días
-    });
-
-    // Redirigir al front con el token
-    return res.redirect(
-      `${envs.deployed_urls.frontend}/OAuthCallback?token=${jwt}`,
-    );
   }
 
   @Get('me')
