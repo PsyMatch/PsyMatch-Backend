@@ -19,7 +19,6 @@ import { AppointmentStatus } from '../appointments/enums/appointment-status.enum
 
 interface MPPreferenceResult {
   init_point?: string;
-  sandbox_init_point?: string;
   id?: string;
 }
 
@@ -85,11 +84,7 @@ export class PaymentsService {
     userId?: string,
     appointmentId?: string,
     amount?: number,
-  ): Promise<{
-    init_point: string;
-    sandbox_init_point: string;
-    preference_id: string;
-  }> {
+  ): Promise<{ init_point: string; preference_id: string }> {
     const accessToken = envs.mercadopago.accessToken;
     const frontendUrl = envs.deployed_urls.frontend || 'http://localhost:3000';
     const backendUrl = envs.deployed_urls.backend || 'http://localhost:8080';
@@ -118,63 +113,36 @@ export class PaymentsService {
       // Usar el monto proporcionado o un valor por defecto
       const sessionPrice = amount || 5000; // Precio por defecto en centavos (50 ARS)
 
-      let result: MPPreferenceResult;
-      try {
-        result = await preference.create({
-          body: {
-            items: [
-              {
-                id: 'therapy_session',
-                title: 'Sesión de Terapia',
-                quantity: 1,
-                unit_price: sessionPrice,
-                currency_id: 'ARS',
-              },
-            ],
-            back_urls: {
-              success: `${frontendUrl}/payment/success`,
-              failure: `${frontendUrl}/payment/failure`,
-              pending: `${frontendUrl}/payment/pending`,
+      const result: MPPreferenceResult = await preference.create({
+        body: {
+          items: [
+            {
+              id: 'therapy_session',
+              title: 'Sesión de Terapia',
+              quantity: 1,
+              unit_price: sessionPrice,
+              currency_id: 'ARS',
             },
-            auto_return: 'approved',
-            metadata,
-            notification_url: `${backendUrl}/payments/webhook`,
+          ],
+          back_urls: {
+            success: `${frontendUrl}/payment/success`,
+            failure: `${frontendUrl}/payment/failure`,
+            pending: `${frontendUrl}/payment/pending`,
           },
-        });
-        // Log the full MercadoPago API response
-        console.log('MercadoPago preference.create response:', result);
-      } catch (apiError) {
-        console.error('MercadoPago API error:', apiError);
-        const errorMessage =
-          apiError && typeof apiError === 'object' && 'message' in apiError
-            ? String((apiError as { message?: unknown }).message)
-            : String(apiError);
-        throw new BadRequestException(
-          'Error en la API de MercadoPago: ' + errorMessage,
-        );
-      }
+          auto_return: 'approved',
+          metadata,
+          notification_url: `${backendUrl}/payments/webhook`,
+        },
+      });
 
       if (!result?.init_point || !result?.id) {
-        console.error('MercadoPago missing init_point or id:', result);
         throw new BadRequestException(
           'Fallo al crear la preferencia de MercadoPago',
         );
       }
 
-      if (!result?.sandbox_init_point) {
-        console.error('MercadoPago missing sandbox_init_point:', result);
-        throw new BadRequestException(
-          'Fallo al crear la preferencia de MercadoPago en modo sandbox',
-        );
-      }
-
-      return {
-        init_point: result.init_point,
-        sandbox_init_point: result.sandbox_init_point,
-        preference_id: result.id,
-      };
+      return { init_point: result.init_point, preference_id: result.id };
     } catch (error) {
-      console.error('MercadoPago preference creation error:', error);
       if (error instanceof BadRequestException) {
         throw error;
       }

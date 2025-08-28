@@ -342,16 +342,6 @@ export class UsersService {
             await this.filesService.uploadImageToCloudinary(profilePicture, id);
           profilePictureChanged = true;
         }
-      } else if (
-        'profile_picture' in userData &&
-        (userData.profile_picture === '' ||
-          userData.profile_picture === null ||
-          userData.profile_picture === undefined)
-      ) {
-        if (user.profile_picture !== DEFAULT_PROFILE_URL) {
-          newProfilePictureUrl = DEFAULT_PROFILE_URL;
-          profilePictureChanged = true;
-        }
       }
 
       if (!hasDataChanges && !profilePictureChanged) {
