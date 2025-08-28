@@ -106,30 +106,27 @@ export class AuthController {
   async googleAuth() {}
 
   @Get('google/callback')
-  @ApiExcludeEndpoint()
   @UseGuards(AuthGuard('google'))
-  async googleAuthCallback(@Req() req: Request, @Res() res: Response) {
-    if (req.user === undefined)
-      throw new BadRequestException('Invalid Google auth');
+  googleAuthCallback(@Req() req: Request, @Res() res: Response) {
+    if (!req.user) {
+      throw new BadRequestException('Google login failed');
+    }
 
-    const googleUser = req.user as { id: number; email: string };
+    const user = req.user as User; // 👈 usuario que devuelve la estrategia
+    const jwt = this.authService.loginWithAuth(user);
 
-    if (googleUser.email === undefined)
-      throw new BadRequestException('Invalid Google auth');
-
-    const jwt = this.authService.loginWithAuth(googleUser);
-
+    // Guardar el token en cookie httpOnly
     res.cookie('auth_token', jwt, {
       httpOnly: false,
       secure: true,
       sameSite: 'none',
       domain:
         envs.server.environment === 'production' ? '.onrender.com' : undefined,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 días
     });
 
-    await this.emailsService.sendWelcomeEmail(googleUser.email);
-
+    // Redirigir al front con el token
     return res.redirect(
       'https://psymatch-backend-app.onrender.com/auth/validate/cookies',
     );

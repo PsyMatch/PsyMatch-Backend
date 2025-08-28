@@ -24,7 +24,7 @@ import { EModality } from '../../psychologist/enums/modality.enum';
 import { ELanguage } from '../../psychologist/enums/languages.enum';
 import { EAvailability } from '../../psychologist/enums/availability.enum';
 import { MatchPasswordHelper } from '../../utils/helpers/match-password.helper';
-import { EWorkingHours } from 'src/modules/psychologist/enums/working-hours.enum';
+import { EWorkingHours } from '../../psychologist/enums/working-hours.enum';
 
 const transformToNumber = (value: unknown): number | undefined =>
   typeof value === 'number'

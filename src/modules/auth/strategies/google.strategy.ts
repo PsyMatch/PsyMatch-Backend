@@ -27,6 +27,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
         'Missing required environment variable: GOOGLE_CALLBACK_URL',
       );
     }
+
     super({
       clientID,
       clientSecret,
@@ -54,9 +55,9 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       };
 
       const user = await this.authService.validateOAuthLogin(oAuthUser);
-      done(null, user);
-    } catch (ServiceUnavailableException) {
-      done(ServiceUnavailableException, false);
+      return done(null, user);
+    } catch (err) {
+      return done(err, false);
     }
   }
 }

@@ -132,13 +132,6 @@ export class AppointmentsService {
       );
     }
 
-    const validHours = [9, 10, 11, 14, 15, 16];
-    if (!validHours.includes(hh)) {
-      throw new BadRequestException(
-        'Horarios disponibles: 09:00, 10:00, 11:00, 14:00, 15:00, 16:00',
-      );
-    }
-
     const conflict = await this.appointmentRepository.findOne({
       where: {
         psychologist: { id: dto.psychologist_id },
@@ -181,7 +174,6 @@ export class AppointmentsService {
       throw new BadRequestException('price debe ser mayor a 0');
     }
 
-    // Validar que el horario esté en los working_hours del psicólogo
     if (psychologist.working_hours?.length > 0) {
       const isHourAvailable = psychologist.working_hours.includes(
         dto.hour as any,

@@ -288,7 +288,7 @@ export class AuthService {
     return user;
   }
 
-  loginWithAuth(userPayload: { id: number; email: string }) {
+  loginWithAuth(userPayload: { id: string; email: string }) {
     const payload = {
       id: userPayload.id,
       email: userPayload.email,

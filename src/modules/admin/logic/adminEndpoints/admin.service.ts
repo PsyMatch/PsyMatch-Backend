@@ -4,15 +4,15 @@ import { plainToInstance } from 'class-transformer';
 import {
   PaginatedResponse,
   PaginationDto,
-} from 'src/common/dto/pagination.dto';
-import { ERole } from 'src/common/enums/role.enum';
-import { PaginationService } from 'src/common/services/pagination.service';
-import { EmailsService } from 'src/modules/emails/emails.service';
-import { ResponseProfessionalDto } from 'src/modules/psychologist/dto/response-professional.dto';
-import { Psychologist } from 'src/modules/psychologist/entities/psychologist.entity';
-import { EPsychologistStatus } from 'src/modules/psychologist/enums/verified.enum';
-import { ResponseUserDto } from 'src/modules/users/dto/response-user.dto';
-import { User } from 'src/modules/users/entities/user.entity';
+} from '../../../../common/dto/pagination.dto';
+import { ERole } from '../../../../common/enums/role.enum';
+import { PaginationService } from '../../../../common/services/pagination.service';
+import { EmailsService } from '../../../emails/emails.service';
+import { ResponseProfessionalDto } from '../../../psychologist/dto/response-professional.dto';
+import { Psychologist } from '../../../psychologist/entities/psychologist.entity';
+import { EPsychologistStatus } from '../../../psychologist/enums/verified.enum';
+import { ResponseUserDto } from '../../../users/dto/response-user.dto';
+import { User } from '../../../users/entities/user.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()

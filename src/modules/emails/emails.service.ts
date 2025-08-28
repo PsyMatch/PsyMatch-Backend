@@ -7,7 +7,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { QueryHelper } from '../utils/helpers/query.helper';
 import { User } from '../users/entities/user.entity';
 import { ERole } from '../../common/enums/role.enum';
-import { envs } from 'src/configs/envs.config';
+import { envs } from '../../configs/envs.config';
 import { Patient } from '../users/entities/patient.entity';
 import { Appointment } from '../appointments/entities/appointment.entity';
 

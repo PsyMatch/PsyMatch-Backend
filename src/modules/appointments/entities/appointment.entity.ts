@@ -13,7 +13,7 @@ export class Appointment {
   date: Date;
 
   @Column({ type: 'varchar', length: 5 })
-  hour: string; 
+  hour: string;
 
   @Column({ type: 'int', nullable: true, default: 45 })
   duration: number;
