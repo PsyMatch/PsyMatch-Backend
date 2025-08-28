@@ -63,11 +63,14 @@ export class PaymentsController {
     @Query('appointmentId') appointmentId?: string,
     @Query('amount') amount?: number,
   ) {
-    return this.service.createMercadoPagoPreference(
+    const test = this.service.createMercadoPagoPreference(
       userId,
       appointmentId,
       amount,
     );
+    console.log(test);
+
+    return test;
   }
 
   @Post()

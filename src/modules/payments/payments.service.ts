@@ -88,7 +88,9 @@ export class PaymentsService {
     const accessToken = envs.mercadopago.accessToken;
     const frontendUrl = envs.deployed_urls.frontend || 'http://localhost:3000';
     const backendUrl = envs.deployed_urls.backend || 'http://localhost:8080';
-
+    console.log(accessToken);
+    console.log(frontendUrl);
+    console.log(backendUrl);
     if (!accessToken) {
       throw new BadRequestException(
         'El token de acceso de MercadoPago no está configurado',
