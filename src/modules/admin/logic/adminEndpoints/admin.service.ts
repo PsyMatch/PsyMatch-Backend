@@ -252,6 +252,7 @@ export class AdminService {
       throw new NotFoundException('No se encontró el usuario');
     }
 
+    await this.emailsService.sendUnbannedEmail(user.email);
     user.is_active = true;
     const savedUser = await this.userRepository.save(user);
 

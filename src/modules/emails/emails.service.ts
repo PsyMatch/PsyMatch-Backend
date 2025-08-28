@@ -9,6 +9,7 @@ import { User } from '../users/entities/user.entity';
 import { ERole } from '../../common/enums/role.enum';
 import { envs } from 'src/configs/envs.config';
 import { Patient } from '../users/entities/patient.entity';
+import { Appointment } from '../appointments/entities/appointment.entity';
 
 @Injectable()
 export class EmailsService {
@@ -178,7 +179,7 @@ export class EmailsService {
     });
   }
 
-  async sendAppointmentConfirmedEmail(to: string) {
+  async sendAppointmentConfirmedEmail(to: string, a: Appointment) {
     return this.queryHelper.runInTransaction(async (queryRunner) => {
       const userRepo = queryRunner.manager.getRepository(User);
       const user = await userRepo.findOne({
@@ -194,6 +195,13 @@ export class EmailsService {
         subject: 'Cita confirmada',
         template: 'appointment-confirmed',
         context: {
+          patient_name: a.patient.name,
+          psychologist_name: a.psychologist.name,
+          appointment_date: a.date,
+          hour: a.hour,
+          seesion_type: a.session_type,
+          modality: a.modality,
+          price: a.price,
           date: new Date().toLocaleString('es-ES', {
             day: 'numeric',
             month: 'long',
