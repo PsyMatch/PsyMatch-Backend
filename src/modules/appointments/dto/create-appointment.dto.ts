@@ -28,7 +28,8 @@ export class CreateAppointmentDto {
   date: string;
 
   @ApiProperty({
-    description: 'Hora de la cita - Debe coincidir con los horarios disponibles del psicólogo',
+    description:
+      'Hora de la cita - Debe coincidir con los horarios disponibles del psicólogo',
     example: '14:00',
     pattern: '^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$',
   })
