@@ -1,6 +1,7 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { EmailsService } from './emails.service';
 import { SendEmailDto } from './dto/send-email.dto';
+import { SendBannedEmailDto } from './dto/send-banned-email.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { SendAppointmentConfirmedEmailSwaggerDoc } from './documentation/appointment-confirmed.doc';
 import { SendAppointmentReminderEmailSwaggerDoc } from './documentation/appointment-reminder.doc';
@@ -58,8 +59,7 @@ export class EmailsController {
 
   @Post('appointment-confirmed')
   @SendAppointmentConfirmedEmailSwaggerDoc()
-  async sendAppointmentConfirmedEmail(@Body() body: SendEmailDto) {
-    await this.emailsService.sendAppointmentConfirmedEmail(body.email);
+  sendAppointmentConfirmedEmail(@Body() body: SendEmailDto) {
     return {
       message: `📨 Email de confirmación de cita enviado a ${body.email}`,
     };
@@ -103,8 +103,8 @@ export class EmailsController {
 
   @Post('banned')
   @SendBannedEmailSwaggerDoc()
-  async sendBannedEmail(@Body() body: SendEmailDto) {
-    await this.emailsService.sendBannedEmail(body.email);
+  async sendBannedEmail(@Body() body: SendBannedEmailDto) {
+    await this.emailsService.sendBannedEmail(body.email, body.reason);
     return {
       message: `📨 Email de notificación de baneo enviado a ${body.email}`,
     };
