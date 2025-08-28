@@ -127,10 +127,13 @@ export class ReviewsService {
     }
     return myReviews;
   }
-  
-  async updateReviewByIdService(data: UpdateReviewRequest, requestingUserId: string): Promise<{ message: string; review: Reviews }> {
+
+  async updateReviewByIdService(
+    data: UpdateReviewRequest,
+    requestingUserId: string,
+  ): Promise<{ message: string; review: Reviews }> {
     const { id, rating, comment } = data;
-    
+
     const review = await this.reviewsRepository.findOne({ where: { id } });
     if (!review) {
       throw new BadRequestException('Reseña no encontrada');
@@ -138,7 +141,9 @@ export class ReviewsService {
 
     // Verificar que el usuario que solicita la actualización sea el autor de la reseña
     if (review.userId !== requestingUserId) {
-      throw new BadRequestException('Solo puedes actualizar tus propias reseñas');
+      throw new BadRequestException(
+        'Solo puedes actualizar tus propias reseñas',
+      );
     }
 
     review.rating = rating;

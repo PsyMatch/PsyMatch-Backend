@@ -3,7 +3,7 @@ import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, Repository } from 'typeorm';
 import { Appointment } from '../entities/appointment.entity';
-import { EmailsService } from 'src/modules/emails/emails.service';
+import { EmailsService } from '../../emails/emails.service';
 
 @Injectable()
 export class ReminderService {
