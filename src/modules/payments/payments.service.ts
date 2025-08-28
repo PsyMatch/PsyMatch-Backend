@@ -88,9 +88,6 @@ export class PaymentsService {
     const accessToken = envs.mercadopago.accessToken;
     const frontendUrl = envs.deployed_urls.frontend || 'http://localhost:3000';
     const backendUrl = envs.deployed_urls.backend || 'http://localhost:8080';
-    console.log(accessToken);
-    console.log(frontendUrl);
-    console.log(backendUrl);
     if (!accessToken) {
       throw new BadRequestException(
         'El token de acceso de MercadoPago no está configurado',
@@ -134,6 +131,8 @@ export class PaymentsService {
           auto_return: 'approved',
           metadata,
           notification_url: `${backendUrl}/payments/webhook`,
+          // NOTA: En desarrollo, MercadoPago no puede alcanzar localhost
+          // Usar ngrok o similar para exponer el webhook en desarrollo
         },
       });
 
@@ -264,9 +263,6 @@ export class PaymentsService {
       ) {
         appointment.status = AppointmentStatus.PENDING_APPROVAL;
         await this.appointmentsRepository.save(appointment);
-        console.log(
-          `Appointment ${appointmentId} status updated to PENDING_APPROVAL after payment`,
-        );
       }
     } catch (error) {
       console.error(
@@ -281,5 +277,33 @@ export class PaymentsService {
     // Por ahora retornamos una lista vacía hasta implementar la relación completa
     // En producción, esto requeriría configurar las relaciones entre Payment y Appointment
     return Promise.resolve([]);
+  }
+
+  /**
+   * Método alternativo para actualizar estado de cita cuando el webhook no funciona
+   * Útil para desarrollo local donde MercadoPago no puede alcanzar localhost
+   */
+  async findAppointmentAndUpdateStatus(appointmentId: string): Promise<Appointment> {
+    const appointment = await this.appointmentsRepository.findOne({
+      where: { id: appointmentId },
+      relations: ['patient', 'psychologist']
+    });
+
+    if (!appointment) {
+      throw new NotFoundException(`Cita con ID ${appointmentId} no encontrada`);
+    }
+
+    if (
+      appointment.status === AppointmentStatus.PENDING_PAYMENT ||
+      appointment.status === AppointmentStatus.PENDING
+    ) {
+      appointment.status = AppointmentStatus.PENDING_APPROVAL;
+      const savedAppointment = await this.appointmentsRepository.save(appointment);
+      return savedAppointment;
+    } else {
+      throw new BadRequestException(
+        `La cita está en estado ${appointment.status}, no se puede actualizar a PENDING_APPROVAL`
+      );
+    }
   }
 }

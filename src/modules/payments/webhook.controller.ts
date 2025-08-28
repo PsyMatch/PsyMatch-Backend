@@ -27,4 +27,26 @@ export class WebhookController {
     await this.paymentsService.handleWebhook(webhookData);
     return { status: 'ok' };
   }
+
+  @Post('test-webhook')
+  @ApiOperation({
+    summary: 'Endpoint de prueba para webhook',
+    description: 'Permite probar manualmente el procesamiento de webhooks',
+  })
+  async testWebhook(
+    @Body() testData: { paymentId: string; appointmentId: string },
+  ) {
+    // Simular webhook de MercadoPago
+    const webhookData = {
+      type: 'payment',
+      data: { id: testData.paymentId }
+    };
+    
+    await this.paymentsService.handleWebhook(webhookData);
+    return { 
+      status: 'test-ok',
+      message: 'Test webhook procesado',
+      data: testData
+    };
+  }
 }
