@@ -9,7 +9,7 @@ import { EModality } from '../../psychologist/enums/modality.enum';
 import { ESessionType } from '../../psychologist/enums/session-types.enum';
 import { ETherapyApproach } from '../../psychologist/enums/therapy-approaches.enum';
 import { ERole } from '../../../common/enums/role.enum';
-import { EWorkingHours } from 'src/modules/psychologist/enums/working-hours.enum';
+import { EWorkingHours } from '../../psychologist/enums/working-hours.enum';
 
 const formatDateTime = (value: unknown): string => {
   if (value instanceof Date) {

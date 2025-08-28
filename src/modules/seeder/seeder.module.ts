@@ -7,7 +7,7 @@ import { Admin } from '../users/entities/admin.entity';
 import { Reviews } from '../reviews/entities/reviews.entity';
 import { Appointment } from '../appointments/entities/appointment.entity';
 import { Payment } from '../payments/entities/payment.entity';
-import { envs } from 'src/configs/envs.config';
+import { envs } from '../../configs/envs.config';
 
 @Module({
   imports: [

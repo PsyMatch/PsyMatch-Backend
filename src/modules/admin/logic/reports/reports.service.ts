@@ -1,12 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Appointment } from 'src/modules/appointments/entities/appointment.entity';
+import { Appointment } from '../../../appointments/entities/appointment.entity';
 import { Repository } from 'typeorm/repository/Repository';
 import { WeeklyReportDataDTO } from '../../DTOs/weekly-report-data.dto';
-import { Payment } from 'src/modules/payments/entities/payment.entity';
+import { Payment } from '../../../payments/entities/payment.entity';
 import { WeeklyPaymentReportDTO } from '../../DTOs/weekly-payment-report.dto';
-import { User } from 'src/modules/users/entities/user.entity';
+import { User } from '../../../users/entities/user.entity';
 import { MonthlyUserReportDTO } from '../../DTOs/monthly-user-report.dto';
 
 @Injectable()

@@ -9,14 +9,14 @@ import {
 import {
   PaginatedResponse,
   PaginationDto,
-} from 'src/common/dto/pagination.dto';
-import { ERole } from 'src/common/enums/role.enum';
-import { Roles } from 'src/modules/auth/decorators/role.decorator';
-import { CombinedAuthGuard } from 'src/modules/auth/guards/combined-auth.guard';
-import { RolesGuard } from 'src/modules/auth/guards/roles.guard';
-import { ResponseProfessionalDto } from 'src/modules/psychologist/dto/response-professional.dto';
+} from '../../../../common/dto/pagination.dto';
+import { ERole } from '../../../../common/enums/role.enum';
+import { Roles } from '../../../auth/decorators/role.decorator';
+import { CombinedAuthGuard } from '../../../auth/guards/combined-auth.guard';
+import { RolesGuard } from '../../../auth/guards/roles.guard';
+import { ResponseProfessionalDto } from '../../../psychologist/dto/response-professional.dto';
 import { AdminService } from './admin.service';
-import { ResponseUserDto } from 'src/modules/users/dto/response-user.dto';
+import { ResponseUserDto } from '../../../users/dto/response-user.dto';
 
 @Controller('admin')
 @ApiTags('Administrador')
