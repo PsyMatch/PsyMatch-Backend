@@ -31,6 +31,7 @@ export class ReminderService {
       if (appointment.patient.reminder_sent) {
         await this.emailsService.sendAppointmentReminderEmail(
           appointment.patient.email,
+          appointment,
         );
       }
 

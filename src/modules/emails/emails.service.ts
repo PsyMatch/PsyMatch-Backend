@@ -214,7 +214,7 @@ export class EmailsService {
     });
   }
 
-  async sendAppointmentReminderEmail(to: string) {
+  async sendAppointmentReminderEmail(to: string, appointment: Appointment) {
     return this.queryHelper.runInTransaction(async (queryRunner) => {
       const userRepo = queryRunner.manager.getRepository(User);
       const user = await userRepo.findOne({
@@ -230,6 +230,13 @@ export class EmailsService {
         subject: 'Recordatorio de cita',
         template: 'appointment-reminder',
         context: {
+          patient_name: appointment.patient.name,
+          psychologist_name: appointment.psychologist.name,
+          appointment_date: appointment.date,
+          hour: appointment.hour,
+          session_type: appointment.session_type,
+          modality: appointment.modality,
+          price: appointment.price,
           date: new Date().toLocaleString('es-ES', {
             day: 'numeric',
             month: 'long',
