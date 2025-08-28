@@ -108,54 +108,32 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
   googleAuthCallback(@Req() req: Request, @Res() res: Response) {
-    if (!req.user) {
-      throw new BadRequestException('Google login failed');
-    }
+    try {
+      if (!req.user) {
+        throw new BadRequestException('Google login failed');
+      }
 
-    const user = req.user as User; // 👈 usuario que devuelve la estrategia
-    const jwt = this.authService.loginWithAuth(user);
+      const user = req.user as User;
+      const jwt = this.authService.loginWithAuth(user);
 
-    // Guardar el token en cookie httpOnly
-    res.cookie('auth_token', jwt, {
-      httpOnly: false,
-      secure: true,
-      sameSite: 'none',
-      domain:
-        envs.server.environment === 'production' ? '.onrender.com' : undefined,
-      path: '/',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 días
-    });
-
-    // Redirigir al front con el token
-    return res.redirect(
-      'https://psymatch-backend-app.onrender.com/auth/validate/cookies',
-    );
-  }
-
-  @Get('validate/cookies')
-  validateCookie(
-    @Req() req: Request & { cookies: Record<string, string> },
-    @Res() res: Response,
-  ) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const authToken = req.cookies?.auth_token;
-
-    console.log(req);
-
-    if (!authToken) {
-      res.status(401).json({
-        message: 'No auth token found',
-        hasToken: false,
+      res.cookie('auth_token', jwt, {
+        httpOnly: false,
+        secure: true,
+        sameSite: 'none',
+        domain:
+          envs.server.environment === 'production'
+            ? '.onrender.com'
+            : undefined,
+        path: '/',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
       });
-      return;
-    }
 
-    res.json({
-      message: 'Auth token found',
-      hasToken: true,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      token: authToken,
-    });
+      const frontendUrl = envs.deployed_urls.frontend;
+      return res.redirect(`${frontendUrl}/oauth-callback?token=${jwt}`);
+    } catch {
+      const frontendUrl = envs.deployed_urls.frontend;
+      return res.redirect(`${frontendUrl}/login?error=oauth_failed`);
+    }
   }
 
   @Get('me')
