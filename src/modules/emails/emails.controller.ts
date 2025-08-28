@@ -4,7 +4,6 @@ import { SendEmailDto } from './dto/send-email.dto';
 import { SendBannedEmailDto } from './dto/send-banned-email.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { SendAppointmentConfirmedEmailSwaggerDoc } from './documentation/appointment-confirmed.doc';
-import { SendAppointmentReminderEmailSwaggerDoc } from './documentation/appointment-reminder.doc';
 import { SendBannedEmailSwaggerDoc } from './documentation/banned.doc';
 import { SendLeaveReviewEmailSwaggerDoc } from './documentation/leave-review.doc';
 import { SendNewPasswordEmailSwaggerDoc } from './documentation/new-password.doc';
@@ -65,14 +64,14 @@ export class EmailsController {
     };
   }
 
-  @Post('appointment-reminder')
-  @SendAppointmentReminderEmailSwaggerDoc()
-  async sendAppointmentReminderEmail(@Body() body: SendEmailDto) {
-    await this.emailsService.sendAppointmentReminderEmail(body.email);
-    return {
-      message: `📨 Email de recordatorio de cita enviado a ${body.email}`,
-    };
-  }
+  // @Post('appointment-reminder')
+  // @SendAppointmentReminderEmailSwaggerDoc()
+  // async sendAppointmentReminderEmail(@Body() body: SendEmailDto) {
+  //   await this.emailsService.sendAppointmentReminderEmail(body.email);
+  //   return {
+  //     message: `📨 Email de recordatorio de cita enviado a ${body.email}`,
+  //   };
+  // }
 
   @Post('pending-payment')
   @SendPendingPaymentEmailSwaggerDoc()

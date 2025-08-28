@@ -1,12 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Appointment } from '../../../appointments/entities/appointment.entity';
+import { Appointment } from 'src/modules/appointments/entities/appointment.entity';
 import { Repository } from 'typeorm/repository/Repository';
 import { WeeklyReportDataDTO } from '../../DTOs/weekly-report-data.dto';
-import { Payment } from '../../../payments/entities/payment.entity';
+import { Payment } from 'src/modules/payments/entities/payment.entity';
 import { WeeklyPaymentReportDTO } from '../../DTOs/weekly-payment-report.dto';
-import { User } from '../../../users/entities/user.entity';
+import { User } from 'src/modules/users/entities/user.entity';
 import { MonthlyUserReportDTO } from '../../DTOs/monthly-user-report.dto';
 
 @Injectable()
@@ -86,8 +86,8 @@ export class ReportsService {
   }
 
   async generatePaymentsReport(): Promise<WeeklyPaymentReportDTO[]> {
-    const oneWeekAgo = new Date();
-    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    const sixWeeksAgo = new Date();
+    sixWeeksAgo.setDate(sixWeeksAgo.getDate() - 42); // 6 weeks = 42 days
 
     const paymentsByWeek = await this.paymentRepository
       .createQueryBuilder('payment')
@@ -97,14 +97,14 @@ export class ReportsService {
         'SUM(payment.amount) AS total_revenue',
         'AVG(payment.amount) AS average_payment',
       ])
-      .where('payment.created_at >= :oneWeekAgo', { oneWeekAgo })
-      .andWhere("payment.status = 'completed'")
+      .where('payment.created_at >= :sixWeeksAgo', { sixWeeksAgo })
+      .andWhere("payment.pay_status = 'COMPLETED'")
       .groupBy('week')
-      .orderBy('week', 'DESC')
+      .orderBy('week', 'ASC')
       .getRawMany<WeeklyPaymentReportDTO>();
 
     this.logger.log(
-      `Reporte de pagos de la última semana generado: ${paymentsByWeek.length} semanas de datos`,
+      `Weekly payments report generated: ${paymentsByWeek.length} weeks of data`,
     );
 
     return paymentsByWeek;
