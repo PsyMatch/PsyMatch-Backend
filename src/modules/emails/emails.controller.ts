@@ -59,8 +59,7 @@ export class EmailsController {
 
   @Post('appointment-confirmed')
   @SendAppointmentConfirmedEmailSwaggerDoc()
-  async sendAppointmentConfirmedEmail(@Body() body: SendEmailDto) {
-    await this.emailsService.sendAppointmentConfirmedEmail(body.email);
+  sendAppointmentConfirmedEmail(@Body() body: SendEmailDto) {
     return {
       message: `📨 Email de confirmación de cita enviado a ${body.email}`,
     };

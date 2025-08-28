@@ -121,8 +121,8 @@ export class AuthController {
 
     res.cookie('auth_token', jwt, {
       httpOnly: false,
-      secure: envs.server.environment === 'production',
-      sameSite: envs.server.environment === 'production' ? 'none' : 'lax',
+      secure: true,
+      sameSite: 'none',
       domain:
         envs.server.environment === 'production' ? '.onrender.com' : undefined,
       maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -131,8 +131,34 @@ export class AuthController {
     await this.emailsService.sendWelcomeEmail(googleUser.email);
 
     return res.redirect(
-      'https://psymatch-frontend-app.onrender.com/dashboard/user',
+      'https://psymatch-backend-app.onrender.com/auth/validate/cookies',
     );
+  }
+
+  @Get('validate/cookies')
+  validateCookie(
+    @Req() req: Request & { cookies: Record<string, string> },
+    @Res() res: Response,
+  ) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const authToken = req.cookies?.auth_token;
+
+    console.log(req);
+
+    if (!authToken) {
+      res.status(401).json({
+        message: 'No auth token found',
+        hasToken: false,
+      });
+      return;
+    }
+
+    res.json({
+      message: 'Auth token found',
+      hasToken: true,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      token: authToken,
+    });
   }
 
   @Get('me')

@@ -467,7 +467,7 @@ export class AppointmentsService {
     const savedAppointment = await this.appointmentRepository.save(appointment);
 
     await this.emailsService.sendAppointmentConfirmedEmail(
-      appointment.patient.email,
+      appointment.patient.email, appointment
     );
 
     return savedAppointment;
