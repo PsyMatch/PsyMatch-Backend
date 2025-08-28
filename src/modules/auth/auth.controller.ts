@@ -116,6 +116,7 @@ export class AuthController {
       const user = req.user as User;
       const jwt = this.authService.loginWithAuth(user);
 
+      const role = user.role || 'Paciente';
       res.cookie('auth_token', jwt, {
         httpOnly: false,
         secure: true,
@@ -127,10 +128,12 @@ export class AuthController {
         path: '/',
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
-
       const frontendUrl = envs.deployed_urls.frontend;
-      return res.redirect(`${frontendUrl}/oauth-callback?token=${jwt}`);
-    } catch {
+      return res.redirect(
+        `${frontendUrl}/oauth-callback?token=${jwt}&role=${role}`,
+      );
+    } catch (error) {
+      console.error('Error en OAuth callback:', error);
       const frontendUrl = envs.deployed_urls.frontend;
       return res.redirect(`${frontendUrl}/login?error=oauth_failed`);
     }
