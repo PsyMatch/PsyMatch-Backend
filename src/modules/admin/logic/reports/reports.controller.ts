@@ -1,9 +1,9 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ERole } from '../../../../common/enums/role.enum';
-import { Roles } from '../../../auth/decorators/role.decorator';
-import { CombinedAuthGuard } from '../../../auth/guards/combined-auth.guard';
-import { RolesGuard } from '../../../auth/guards/roles.guard';
+import { ERole } from 'src/common/enums/role.enum';
+import { Roles } from 'src/modules/auth/decorators/role.decorator';
+import { CombinedAuthGuard } from 'src/modules/auth/guards/combined-auth.guard';
+import { RolesGuard } from 'src/modules/auth/guards/roles.guard';
 import { ReportsService } from './reports.service';
 
 @Controller('admin/reports')
@@ -17,12 +17,24 @@ export class ReportsController {
   @Get('appointments/last-2-weeks')
   @ApiOperation({
     summary:
-      'Generar reporte de citas de las últimas 2 semanas (Solo administradores)',
+      'Generar reporte de citas de las Ãºltimas 2 semanas (Solo administradores)',
   })
   async getLast2WeeksReport() {
     const report = await this.reportsService.triggerWeeklyReport();
     return {
       message: 'Reporte generado exitosamente',
+      data: report,
+    };
+  }
+
+  @Get('payments/weekly')
+  @ApiOperation({
+    summary: 'Generar reporte de pagos semanales (Solo administradores)',
+  })
+  async getWeeklyPaymentsReport() {
+    const report = await this.reportsService.triggerWeeklyPaymentReport();
+    return {
+      message: 'Weekly payments report generated successfully',
       data: report,
     };
   }
