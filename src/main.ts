@@ -17,7 +17,7 @@ async function bootstrap() {
           ? [
               'https://psymatch-frontend-app.onrender.com',
               'http://localhost:3000',
-              'https://psy-match-frontend.vercel.app/',
+              'https://psy-match-frontend.vercel.app',
             ]
           : true,
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
