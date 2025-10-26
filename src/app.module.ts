@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { UsersModule } from './modules/users/users.module';
 import { DatabaseModule } from './modules/database/database.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
-import { PsychologistModule } from './modules/psychologist/logic/psychologist.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { AppointmentsModule } from './modules/appointments/appointments.module';
@@ -12,6 +11,7 @@ import { EmailsModule } from './modules/emails/emails.module';
 import { MapsModule } from './modules/maps/maps.module';
 import { AdminModule } from './modules/admin/logic/admin.module';
 import { ScheduleModule } from '@nestjs/schedule/dist/schedule.module';
+import { PsychologistModule } from './modules/psychologist/psychologist.module';
 
 @Module({
   imports: [
