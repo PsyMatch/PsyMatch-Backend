@@ -9,7 +9,7 @@ import { UtilsModule } from './modules/utils/utils.module';
 import { SeederModule } from './modules/seeder/seeder.module';
 import { EmailsModule } from './modules/emails/emails.module';
 import { MapsModule } from './modules/maps/maps.module';
-import { AdminModule } from './modules/admin/logic/admin.module';
+import { AdminModule } from './modules/admin/admin.module';
 import { ScheduleModule } from '@nestjs/schedule/dist/schedule.module';
 import { PsychologistModule } from './modules/psychologist/psychologist.module';
 
