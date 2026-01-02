@@ -14,18 +14,19 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { AdminService } from './admin.service';
+import { Reviews } from '../reviews/entities/reviews.entity';
+import { CombinedAuthGuard } from '../auth/guards/combined-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/role.decorator';
+import { ERole } from 'src/common/enums/role.enum';
 import {
   PaginatedResponse,
   PaginationDto,
-} from '../../../../common/dto/pagination.dto';
-import { ERole } from '../../../../common/enums/role.enum';
-import { Roles } from '../../../auth/decorators/role.decorator';
-import { CombinedAuthGuard } from '../../../auth/guards/combined-auth.guard';
-import { RolesGuard } from '../../../auth/guards/roles.guard';
-import { ResponseProfessionalDto } from '../../../psychologist/dto/response-professional.dto';
-import { AdminService } from './admin.service';
-import { ResponseUserDto } from 'src/modules/users/dto/response-user.dto';
-import { BanUserDto } from '../../dto/ban-user.dto';
+} from 'src/common/dto/pagination.dto';
+import { ResponseProfessionalDto } from '../psychologist/dto/response-professional.dto';
+import { ResponseUserDto } from '../users/dto/response-user.dto';
+import { BanUserDto } from './dto/ban-user.dto';
 
 @Controller('admin')
 @ApiTags('Administrador')
@@ -431,5 +432,71 @@ export class AdminController {
     data: ResponseUserDto;
   }> {
     return this.adminService.unbanUserById(id);
+  }
+
+  @Get('dashboard/metrics')
+  async getMetrics() {
+    return await this.adminService.getMetrics();
+  }
+  @Get('dashboard/page-visits')
+  @ApiOperation({ summary: 'Obtener estadísticas de páginas visitadas' })
+  @ApiResponse({
+    status: 200,
+    description: 'Estadísticas de páginas visitadas obtenidas exitosamente',
+  })
+  async getPageVisits(): Promise<{
+    message: string;
+    data: Array<{ page: string; visits: number }>;
+  }> {
+    const data = await this.adminService.getPageVisits();
+    return {
+      message: 'Page visits retrieved successfully',
+      data,
+    };
+  }
+
+  @Get('dashboard/reviews')
+  @ApiOperation({ summary: 'Obtener todas las reseñas' })
+  @ApiResponse({
+    status: 200,
+    description: 'Reseñas obtenidas exitosamente',
+  })
+  async getAllReviews(): Promise<{
+    message: string;
+    reviews: Reviews[];
+  }> {
+    const reviews = await this.adminService.getAllReviews();
+    return {
+      message: 'Reviews retrieved successfully',
+      reviews,
+    };
+  }
+
+  @Get('reports/appointments/last-2-weeks')
+  @UseGuards(CombinedAuthGuard, RolesGuard)
+  @Roles([ERole.ADMIN])
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary:
+      'Generar reporte de citas de las Ãºltimas 2 semanas (Solo administradores)',
+  })
+  async getLast2WeeksReport() {
+    const report = await this.adminService.triggerWeeklyReport();
+    return {
+      message: 'Reporte generado exitosamente',
+      data: report,
+    };
+  }
+
+  @Get('reports/payments/weekly')
+  @ApiOperation({
+    summary: 'Generar reporte de pagos semanales (Solo administradores)',
+  })
+  async getWeeklyPaymentsReport() {
+    const report = await this.adminService.triggerWeeklyPaymentReport();
+    return {
+      message: 'Weekly payments report generated successfully',
+      data: report,
+    };
   }
 }
